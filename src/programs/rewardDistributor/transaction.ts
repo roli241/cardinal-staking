@@ -101,6 +101,7 @@ export const withClaimRewards = async (
     stakePoolId: PublicKey;
     stakeEntryId: PublicKey;
     payer?: PublicKey;
+    skipRewardMintTokenAccount?: boolean;
   }
 ): Promise<Transaction> => {
   const [rewardDistributorId] = await findRewardDistributorId(
@@ -111,13 +112,19 @@ export const withClaimRewards = async (
   );
 
   if (rewardDistributorData) {
-    const rewardMintTokenAccountId = await withFindOrInitAssociatedTokenAccount(
-      transaction,
-      connection,
-      rewardDistributorData.parsed.rewardMint,
-      wallet.publicKey,
-      wallet.publicKey
-    );
+    const rewardMintTokenAccountId = params.skipRewardMintTokenAccount
+      ? await findAta(
+          rewardDistributorData.parsed.rewardMint,
+          wallet.publicKey,
+          true
+        )
+      : await withFindOrInitAssociatedTokenAccount(
+          transaction,
+          connection,
+          rewardDistributorData.parsed.rewardMint,
+          wallet.publicKey,
+          wallet.publicKey
+        );
 
     const remainingAccountsForKind = await withRemainingAccountsForKind(
       transaction,
