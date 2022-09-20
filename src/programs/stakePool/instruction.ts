@@ -131,6 +131,34 @@ export const authorizeStakeEntry = async (
   });
 };
 
+export const deauthorizeStakeEntry = async (
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: PublicKey;
+    originalMintId: PublicKey;
+  }
+): Promise<TransactionInstruction> => {
+  const provider = new AnchorProvider(connection, wallet, {});
+  const stakePoolProgram = new Program<STAKE_POOL_PROGRAM>(
+    STAKE_POOL_IDL,
+    STAKE_POOL_ADDRESS,
+    provider
+  );
+
+  const [stakeAuthorizationId] = await findStakeAuthorizationId(
+    params.stakePoolId,
+    params.originalMintId
+  );
+  return stakePoolProgram.instruction.deauthorizeMint({
+    accounts: {
+      stakePool: params.stakePoolId,
+      stakeAuthorizationRecord: stakeAuthorizationId,
+      authority: wallet.publicKey,
+    },
+  });
+};
+
 export const initStakeEntry = async (
   connection: Connection,
   wallet: Wallet,

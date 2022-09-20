@@ -26,6 +26,7 @@ import {
   claimReceiptMint,
   closeStakeEntry,
   closeStakePool,
+  deauthorizeStakeEntry,
   initPoolIdentifier,
   initStakeEntry,
   initStakeMint,
@@ -170,6 +171,32 @@ export const withAuthorizeStakeEntry = async (
 ): Promise<web3.Transaction> => {
   transaction.add(
     await authorizeStakeEntry(connection, wallet, {
+      stakePoolId: params.stakePoolId,
+      originalMintId: params.originalMintId,
+    })
+  );
+  return transaction;
+};
+
+/**
+ * Add authorize stake entry instructions to a transaction
+ * @param transaction
+ * @param connection
+ * @param wallet
+ * @param params
+ * @returns Transaction
+ */
+export const withDeauthorizeStakeEntry = async (
+  transaction: web3.Transaction,
+  connection: web3.Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: web3.PublicKey;
+    originalMintId: web3.PublicKey;
+  }
+): Promise<web3.Transaction> => {
+  transaction.add(
+    await deauthorizeStakeEntry(connection, wallet, {
       stakePoolId: params.stakePoolId,
       originalMintId: params.originalMintId,
     })

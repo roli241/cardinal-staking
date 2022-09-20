@@ -217,6 +217,27 @@ export type CardinalStakePool = {
       ];
     },
     {
+      name: "deauthorizeMint";
+      accounts: [
+        {
+          name: "stakePool";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "stakeAuthorizationRecord";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "authority";
+          isMut: true;
+          isSigner: true;
+        }
+      ];
+      args: [];
+    },
+    {
       name: "stake";
       accounts: [
         {
@@ -1173,6 +1194,27 @@ export const IDL: CardinalStakePool = {
           type: "publicKey",
         },
       ],
+    },
+    {
+      name: "deauthorizeMint",
+      accounts: [
+        {
+          name: "stakePool",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "stakeAuthorizationRecord",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "authority",
+          isMut: true,
+          isSigner: true,
+        },
+      ],
+      args: [],
     },
     {
       name: "stake",
