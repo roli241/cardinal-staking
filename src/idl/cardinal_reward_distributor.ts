@@ -414,6 +414,10 @@ export type CardinalRewardDistributor = {
             type: {
               option: "u128";
             };
+          },
+          {
+            name: "identifier";
+            type: "string";
           }
         ];
       };
@@ -975,6 +979,10 @@ export const IDL: CardinalRewardDistributor = {
             type: {
               option: "u128",
             },
+          },
+          {
+            name: "identifier",
+            type: "string",
           },
         ],
       },

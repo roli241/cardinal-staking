@@ -32,6 +32,7 @@ export const initRewardDistributor = (
     defaultMultiplier?: BN;
     multiplierDecimals?: number;
     maxRewardSecondsReceived?: BN;
+    identifier?: string;
   }
 ): TransactionInstruction => {
   const provider = new AnchorProvider(connection, wallet, {});
@@ -50,6 +51,7 @@ export const initRewardDistributor = (
       defaultMultiplier: params.defaultMultiplier || null,
       multiplierDecimals: params.multiplierDecimals || null,
       maxRewardSecondsReceived: params.maxRewardSecondsReceived || null,
+      identifier: params.identifier ?? "",
     },
     {
       accounts: {

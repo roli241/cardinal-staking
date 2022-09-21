@@ -16,15 +16,17 @@ pub struct InitRewardDistributorIx {
     pub default_multiplier: Option<u64>,
     pub multiplier_decimals: Option<u8>,
     pub max_reward_seconds_received: Option<u128>,
+    pub identifier: String,
 }
 
 #[derive(Accounts)]
+#[instruction(ix: InitRewardDistributorIx)]
 pub struct InitRewardDistributorCtx<'info> {
     #[account(
         init,
         payer = payer,
         space = REWARD_DISTRIBUTOR_SIZE,
-        seeds = [REWARD_DISTRIBUTOR_SEED.as_bytes(), stake_pool.key().as_ref()],
+        seeds = [REWARD_DISTRIBUTOR_SEED.as_bytes(), stake_pool.key().as_ref(), ix.identifier.as_ref()],
         bump,
     )]
     reward_distributor: Box<Account<'info, RewardDistributor>>,
