@@ -423,6 +423,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "cardinal-reward-receipt-manager"
+version = "1.8.1"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+ "cardinal-stake-pool",
+ "proptest",
+ "solana-program",
+ "spl-token",
+]
+
+[[package]]
 name = "cardinal-stake-pool"
 version = "1.8.1"
 dependencies = [
