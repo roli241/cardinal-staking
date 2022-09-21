@@ -374,6 +374,7 @@ export const withUnstake = async (
   params: {
     stakePoolId: web3.PublicKey;
     originalMintId: web3.PublicKey;
+    rewardDistributorIdentifier?: string;
   }
 ): Promise<web3.Transaction> => {
   const [[stakeEntryId], [rewardDistributorId]] = await Promise.all([
@@ -383,7 +384,10 @@ export const withUnstake = async (
       params.stakePoolId,
       params.originalMintId
     ),
-    await findRewardDistributorId(params.stakePoolId),
+    await findRewardDistributorId(
+      params.stakePoolId,
+      params.rewardDistributorIdentifier
+    ),
   ]);
 
   const [stakeEntryData, rewardDistributorData] = await Promise.all([
@@ -456,6 +460,7 @@ export const withUnstake = async (
     await withClaimRewards(transaction, connection, wallet, {
       stakePoolId: params.stakePoolId,
       stakeEntryId: stakeEntryId,
+      rewardDistributorIdentifier: params.rewardDistributorIdentifier,
     });
   }
 

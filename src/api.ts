@@ -158,6 +158,7 @@ export const initializeRewardEntry = async (
     stakePoolId: PublicKey;
     originalMintId: PublicKey;
     multiplier?: BN;
+    rewradDistributorIdentifier?: string;
   }
 ): Promise<Transaction> => {
   const [stakeEntryId] = await findStakeEntryIdFromMint(
@@ -179,7 +180,8 @@ export const initializeRewardEntry = async (
   }
 
   const [rewardDistributorId] = await findRewardDistributorId(
-    params.stakePoolId
+    params.stakePoolId,
+    params.rewradDistributorIdentifier
   );
   await withInitRewardEntry(transaction, connection, wallet, {
     stakeEntryId: stakeEntryId,
@@ -290,6 +292,7 @@ export const claimRewards = async (
     stakeEntryId: PublicKey;
     payer?: PublicKey;
     skipRewardMintTokenAccount?: boolean;
+    rewardDistributorIdentifier?: string;
   }
 ): Promise<Transaction> => {
   const transaction = new Transaction();
@@ -304,6 +307,7 @@ export const claimRewards = async (
     stakeEntryId: params.stakeEntryId,
     payer: params.payer,
     skipRewardMintTokenAccount: params.skipRewardMintTokenAccount,
+    rewardDistributorIdentifier: params.rewardDistributorIdentifier,
   });
 
   return transaction;

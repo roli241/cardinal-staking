@@ -30,10 +30,15 @@ export const findRewardEntryId = async (
  * @returns
  */
 export const findRewardDistributorId = async (
-  stakePoolId: PublicKey
+  stakePoolId: PublicKey,
+  identifier?: string
 ): Promise<[PublicKey, number]> => {
   return PublicKey.findProgramAddress(
-    [utils.bytes.utf8.encode(REWARD_DISTRIBUTOR_SEED), stakePoolId.toBuffer()],
+    [
+      utils.bytes.utf8.encode(REWARD_DISTRIBUTOR_SEED),
+      stakePoolId.toBuffer(),
+      utils.bytes.utf8.encode(identifier ?? ""),
+    ],
     REWARD_DISTRIBUTOR_ADDRESS
   );
 };

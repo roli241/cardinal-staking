@@ -21,6 +21,7 @@ export const initRewardDistributor = (
   wallet: Wallet,
   params: {
     rewardDistributorId: PublicKey;
+    identifier?: string;
     stakePoolId: PublicKey;
     rewardMintId: PublicKey;
     rewardAmount: BN;
@@ -32,7 +33,6 @@ export const initRewardDistributor = (
     defaultMultiplier?: BN;
     multiplierDecimals?: number;
     maxRewardSecondsReceived?: BN;
-    identifier?: string;
   }
 ): TransactionInstruction => {
   const provider = new AnchorProvider(connection, wallet, {});
@@ -99,6 +99,7 @@ export const claimRewards = async (
   wallet: Wallet,
   params: {
     stakePoolId: PublicKey;
+    identifier?: string;
     stakeEntryId: PublicKey;
     rewardMintId: PublicKey;
     rewardMintTokenAccountId: PublicKey;
@@ -114,7 +115,8 @@ export const claimRewards = async (
   );
 
   const [rewardDistributorId] = await findRewardDistributorId(
-    params.stakePoolId
+    params.stakePoolId,
+    params.identifier
   );
   const [rewardEntryId] = await findRewardEntryId(
     rewardDistributorId,
@@ -143,6 +145,7 @@ export const closeRewardDistributor = async (
   wallet: Wallet,
   params: {
     stakePoolId: PublicKey;
+    rewardDistributorIdentifier?: string;
     rewardMintId: PublicKey;
     remainingAccountsForKind: AccountMeta[];
   }
@@ -155,7 +158,8 @@ export const closeRewardDistributor = async (
   );
 
   const [rewardDistributorId] = await findRewardDistributorId(
-    params.stakePoolId
+    params.stakePoolId,
+    params.rewardDistributorIdentifier
   );
   return rewardDistributorProgram.instruction.closeRewardDistributor({
     accounts: {
@@ -174,6 +178,7 @@ export const updateRewardEntry = async (
   wallet: Wallet,
   params: {
     stakePoolId: PublicKey;
+    rewardDistributorIdentifier?: string;
     stakeEntryId: PublicKey;
     multiplier: BN;
   }
@@ -186,7 +191,8 @@ export const updateRewardEntry = async (
   );
 
   const [rewardDistributorId] = await findRewardDistributorId(
-    params.stakePoolId
+    params.stakePoolId,
+    params.rewardDistributorIdentifier
   );
 
   const [rewardEntryId] = await findRewardEntryId(
