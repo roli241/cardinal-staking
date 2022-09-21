@@ -49,12 +49,17 @@ export type CardinalRewardReceiptManager = {
           isSigner: false;
         },
         {
+          name: "stakeEntry";
+          isMut: false;
+          isSigner: false;
+        },
+        {
           name: "payer";
           isMut: true;
           isSigner: true;
         },
         {
-          name: "authority";
+          name: "claimer";
           isMut: true;
           isSigner: true;
         },
@@ -132,6 +137,27 @@ export type CardinalRewardReceiptManager = {
         }
       ];
       args: [];
+    },
+    {
+      name: "blacklistMint";
+      accounts: [
+        {
+          name: "rewardReceipt";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "rewardReceiptManager";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "authority";
+          isMut: true;
+          isSigner: true;
+        }
+      ];
+      args: [];
     }
   ];
   accounts: [
@@ -157,11 +183,15 @@ export type CardinalRewardReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "receiptsCounter";
+            name: "rewardSeconds";
             type: "u128";
           },
           {
-            name: "maxRewardReceipts";
+            name: "claimedReceiptsCounter";
+            type: "u128";
+          },
+          {
+            name: "maxClaimedReceipts";
             type: {
               option: "u128";
             };
@@ -177,6 +207,10 @@ export type CardinalRewardReceiptManager = {
           {
             name: "bump";
             type: "u8";
+          },
+          {
+            name: "stakeEntry";
+            type: "publicKey";
           },
           {
             name: "rewardReceiptManager";
@@ -221,7 +255,7 @@ export type CardinalRewardReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "maxRewardReceipts";
+            name: "maxClaimedReceipts";
             type: {
               option: "u128";
             };
@@ -239,7 +273,7 @@ export type CardinalRewardReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "maxRewardReceipts";
+            name: "maxClaimedReceipts";
             type: {
               option: "u128";
             };
@@ -258,6 +292,21 @@ export type CardinalRewardReceiptManager = {
       code: 6001;
       name: "MaxNumberOfReceiptsExceeded";
       msg: "Max number of receipts exceeded";
+    },
+    {
+      code: 6002;
+      name: "InvalidClaimer";
+      msg: "Invalid claimer";
+    },
+    {
+      code: 6003;
+      name: "InvalidRewardReceiptManager";
+      msg: "Invalid rewards receipt manager";
+    },
+    {
+      code: 6004;
+      name: "CannotBlacklistClaimeReceipt";
+      msg: "Cannot blacklist claim reward receipt";
     }
   ];
 };
@@ -313,12 +362,17 @@ export const IDL: CardinalRewardReceiptManager = {
           isSigner: false,
         },
         {
+          name: "stakeEntry",
+          isMut: false,
+          isSigner: false,
+        },
+        {
           name: "payer",
           isMut: true,
           isSigner: true,
         },
         {
-          name: "authority",
+          name: "claimer",
           isMut: true,
           isSigner: true,
         },
@@ -397,6 +451,27 @@ export const IDL: CardinalRewardReceiptManager = {
       ],
       args: [],
     },
+    {
+      name: "blacklistMint",
+      accounts: [
+        {
+          name: "rewardReceipt",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "rewardReceiptManager",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "authority",
+          isMut: true,
+          isSigner: true,
+        },
+      ],
+      args: [],
+    },
   ],
   accounts: [
     {
@@ -421,11 +496,15 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "receiptsCounter",
+            name: "rewardSeconds",
             type: "u128",
           },
           {
-            name: "maxRewardReceipts",
+            name: "claimedReceiptsCounter",
+            type: "u128",
+          },
+          {
+            name: "maxClaimedReceipts",
             type: {
               option: "u128",
             },
@@ -441,6 +520,10 @@ export const IDL: CardinalRewardReceiptManager = {
           {
             name: "bump",
             type: "u8",
+          },
+          {
+            name: "stakeEntry",
+            type: "publicKey",
           },
           {
             name: "rewardReceiptManager",
@@ -485,7 +568,7 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "maxRewardReceipts",
+            name: "maxClaimedReceipts",
             type: {
               option: "u128",
             },
@@ -503,7 +586,7 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "maxRewardReceipts",
+            name: "maxClaimedReceipts",
             type: {
               option: "u128",
             },
@@ -522,6 +605,21 @@ export const IDL: CardinalRewardReceiptManager = {
       code: 6001,
       name: "MaxNumberOfReceiptsExceeded",
       msg: "Max number of receipts exceeded",
+    },
+    {
+      code: 6002,
+      name: "InvalidClaimer",
+      msg: "Invalid claimer",
+    },
+    {
+      code: 6003,
+      name: "InvalidRewardReceiptManager",
+      msg: "Invalid rewards receipt manager",
+    },
+    {
+      code: 6004,
+      name: "CannotBlacklistClaimeReceipt",
+      msg: "Cannot blacklist claim reward receipt",
     },
   ],
 };
