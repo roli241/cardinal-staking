@@ -29,4 +29,8 @@ pub mod cardinal_reward_receipt_manager {
     pub fn close_reward_receipt(ctx: Context<CloseRewardReceiptCtx>) -> Result<()> {
         close_reward_receipt::handler(ctx)
     }
+
+    pub fn blacklist_mint(ctx: Context<BlackListMintCtx>) -> Result<()> {
+        blacklist_mint::handler(ctx)
+    }
 }

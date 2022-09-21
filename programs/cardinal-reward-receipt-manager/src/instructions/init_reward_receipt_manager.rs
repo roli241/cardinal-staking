@@ -6,7 +6,7 @@ use {crate::state::*, anchor_lang::prelude::*};
 pub struct InitRewardReceiptManagerIx {
     pub name: String,
     pub authority: Pubkey,
-    pub max_reward_receipts: Option<u128>,
+    pub max_claimed_receipts: Option<u128>,
 }
 
 #[derive(Accounts)]
@@ -33,8 +33,8 @@ pub fn handler(ctx: Context<InitRewardReceiptManagerCtx>, ix: InitRewardReceiptM
     reward_receipt_manager.name = ix.name;
     reward_receipt_manager.stake_pool = ctx.accounts.stake_pool.key();
     reward_receipt_manager.authority = ix.authority;
-    reward_receipt_manager.receipts_counter = 0;
-    reward_receipt_manager.max_reward_receipts = ix.max_reward_receipts;
+    reward_receipt_manager.claimed_receipts_counter = 0;
+    reward_receipt_manager.max_claimed_receipts = ix.max_claimed_receipts;
 
     Ok(())
 }
