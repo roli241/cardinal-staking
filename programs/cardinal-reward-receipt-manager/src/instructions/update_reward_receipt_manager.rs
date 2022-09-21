@@ -6,7 +6,7 @@ use {
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct UpdateRewardReceiptManagerIx {
     pub authority: Pubkey,
-    pub max_reward_receipts: Option<u128>,
+    pub max_claimed_receipts: Option<u128>,
 }
 
 #[derive(Accounts)]
@@ -21,7 +21,7 @@ pub struct UpdateRewarReceiptManagerCtx<'info> {
 pub fn handler(ctx: Context<UpdateRewarReceiptManagerCtx>, ix: UpdateRewardReceiptManagerIx) -> Result<()> {
     let reward_receipt_manager = &mut ctx.accounts.reward_receipt_manager;
     reward_receipt_manager.authority = ix.authority;
-    reward_receipt_manager.max_reward_receipts = ix.max_reward_receipts;
+    reward_receipt_manager.max_claimed_receipts = ix.max_claimed_receipts;
 
     Ok(())
 }
