@@ -4,7 +4,7 @@ use {
 };
 
 #[derive(Accounts)]
-pub struct BlackListMintCtx<'info> {
+pub struct DisallowMintCtx<'info> {
     #[account(mut)]
     reward_receipt: Box<Account<'info, RewardReceipt>>,
     #[account(mut, constraint = reward_receipt_manager.key() == reward_receipt.reward_receipt_manager @ ErrorCode::InvalidRewardReceiptManager)]
@@ -13,7 +13,7 @@ pub struct BlackListMintCtx<'info> {
     authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<BlackListMintCtx>) -> Result<()> {
+pub fn handler(ctx: Context<DisallowMintCtx>) -> Result<()> {
     let reward_receipt = &mut ctx.accounts.reward_receipt;
     if reward_receipt.target != Pubkey::default() {
         return Err(error!(ErrorCode::CannotBlacklistClaimeReceipt));

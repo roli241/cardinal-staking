@@ -30,7 +30,7 @@ pub mod cardinal_reward_receipt_manager {
         close_reward_receipt::handler(ctx)
     }
 
-    pub fn blacklist_mint(ctx: Context<BlackListMintCtx>) -> Result<()> {
-        blacklist_mint::handler(ctx)
+    pub fn disallow_mint(ctx: Context<DisallowMintCtx>) -> Result<()> {
+        disallow_mint::handler(ctx)
     }
 }
