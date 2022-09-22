@@ -38,6 +38,7 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>, ix: CreateRewardReceiptIx) 
     reward_receipt.stake_entry = ctx.accounts.stake_entry.key();
     reward_receipt.reward_receipt_manager = ctx.accounts.reward_receipt_manager.key();
     reward_receipt.target = ix.target;
+
     // increment counter
     ctx.accounts.reward_receipt_manager.claimed_receipts_counter = ctx.accounts.reward_receipt_manager.claimed_receipts_counter.checked_add(1).expect("Add error");
 
@@ -59,7 +60,6 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>, ix: CreateRewardReceiptIx) 
     // };
     // let cpi_program = ctx.accounts.token_program.to_account_info();
     // let cpi_context = CpiContext::new(cpi_program, cpi_accounts).with_signer(reward_distributor_signer);
-    // // todo this could be an issue and get stuck, might need 2 transfers
     // token::transfer(cpi_context, reward_amount_to_receive.try_into().expect("Too many rewards to receive"))?;
 
     Ok(())
