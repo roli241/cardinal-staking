@@ -12,4 +12,6 @@ pub enum ErrorCode {
     InvalidRewardReceiptManager,
     #[msg("Cannot blacklist claim reward receipt")]
     CannotBlacklistClaimeReceipt,
+    #[msg("Reward seconds not satisifed")]
+    RewardSecondsNotSatisfied,
 }
