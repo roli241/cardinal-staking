@@ -15,7 +15,7 @@ pub struct CreateRewardReceiptIx {
 pub struct CreateRewardReceiptCtx<'info> {
     #[account(
         init,
-        payer = payer,
+        payer = initializer,
         space = REWARD_RECEIPT_SIZE,
         seeds = [REWARD_RECEIPT_SEED.as_bytes(), reward_receipt_manager.key().as_ref(), stake_entry.key().as_ref()],
         bump,
@@ -25,10 +25,16 @@ pub struct CreateRewardReceiptCtx<'info> {
     reward_receipt_manager: Box<Account<'info, RewardReceiptManager>>,
     stake_entry: Box<Account<'info, StakeEntry>>,
 
+    #[account(mut, constraint = target_token_account.mint == reward_receipt_manager.payment_mint && target_token_account.owner == reward_receipt_manager.payment_target @ ErrorCode::InvalidPaymentTargetTokenAccount)]
+    payment_target_token_account: Box<Account<'info, TokenAccount>>,
+    #[account(mut, constraint = payer_token_account.mint == reward_receipt_manager.payment_mint && payer_token_account.owner == payer.key() @ ErrorCode::InvalidPayerTokenAcount)]
+    payer_token_account: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     payer: Signer<'info>,
     #[account(mut, constraint = stake_entry.last_staker == claimer.key() @ ErrorCode::InvalidClaimer)]
     claimer: Signer<'info>,
+    #[account(mut)]
+    initializer: Signer<'info>,
     system_program: Program<'info, System>,
 }
 
@@ -53,14 +59,16 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>, ix: CreateRewardReceiptIx) 
         }
     }
 
-    // let cpi_accounts = token::Transfer {
-    //     from: reward_distributor_token_account.to_account_info(),
-    //     to: ctx.accounts.user_reward_mint_token_account.to_account_info(),
-    //     authority: reward_distributor.to_account_info(),
-    // };
-    // let cpi_program = ctx.accounts.token_program.to_account_info();
-    // let cpi_context = CpiContext::new(cpi_program, cpi_accounts).with_signer(reward_distributor_signer);
-    // token::transfer(cpi_context, reward_amount_to_receive.try_into().expect("Too many rewards to receive"))?;
+    if (reward_receipt_manager.payment_amount > 0) {
+        let cpi_accounts = token::Transfer {
+            from: ctx.accounts.payer_token_account.to_account_info(),
+            to: ctx.accounts.payment_target_token_account.to_account_info(),
+            authority: ctx.accounts.payer.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
+        token::transfer(cpi_context, reward_receipt_manager.payment_amount)?;
+    }
 
     Ok(())
 }
