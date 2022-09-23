@@ -56,4 +56,15 @@ pub enum ErrorCode {
     InvalidMintMetadataOwner,
     #[msg("Stake mint already intialized")]
     StakeMintAlreadyInitialized,
+    #[msg("Invalid stake entry")]
+    InvalidStakeEntry,
+    // boost errors
+    #[msg("Cannot boost stake entry during cooldown")]
+    CannotBoostDuringCooldown,
+    #[msg("Cannot boost past current time less than start time")]
+    CannotBoostMoreThanCurrentTime,
+    #[msg("Invalid boost payer token account")]
+    InvalidBoostPayerTokenAccount,
+    #[msg("Invalid boost payment recipient token account")]
+    InvalidBoostPaymentRecipientTokenAccount,
 }

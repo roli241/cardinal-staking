@@ -73,4 +73,21 @@ pub mod cardinal_stake_pool {
     pub fn reasssign_stake_entry(ctx: Context<ReassignStakeEntryCtx>, ix: ReassignStakeEntryIx) -> Result<()> {
         reassign_stake_entry::handler(ctx, ix)
     }
+
+    //// stake_booster ////
+    pub fn init_stake_booster(ctx: Context<InitStakeBoosterCtx>, ix: InitStakeBoosterIx) -> Result<()> {
+        stake_booster::init_stake_booster::handler(ctx, ix)
+    }
+
+    pub fn update_stake_booster(ctx: Context<UpdateStakeBoosterCtx>, ix: UpdateStakeBoosterIx) -> Result<()> {
+        stake_booster::update_stake_booster::handler(ctx, ix)
+    }
+
+    pub fn boost_stake_entry(ctx: Context<BoostStakeEntryCtx>, ix: BoostStakeEntryIx) -> Result<()> {
+        stake_booster::boost_stake_entry::handler(ctx, ix)
+    }
+
+    pub fn close_stake_booster(ctx: Context<CloseStakeBoosterCtx>) -> Result<()> {
+        stake_booster::close_stake_booster::handler(ctx)
+    }
 }

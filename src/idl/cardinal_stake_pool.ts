@@ -570,6 +570,146 @@ export type CardinalStakePool = {
           };
         }
       ];
+    },
+    {
+      name: "initStakeBooster";
+      accounts: [
+        {
+          name: "stakeBooster";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "stakePool";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "authority";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "payer";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "ix";
+          type: {
+            defined: "InitStakeBoosterIx";
+          };
+        }
+      ];
+    },
+    {
+      name: "updateStakeBooster";
+      accounts: [
+        {
+          name: "stakeBooster";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "stakePool";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "authority";
+          isMut: true;
+          isSigner: true;
+        }
+      ];
+      args: [
+        {
+          name: "ix";
+          type: {
+            defined: "UpdateStakeBoosterIx";
+          };
+        }
+      ];
+    },
+    {
+      name: "boostStakeEntry";
+      accounts: [
+        {
+          name: "stakeBooster";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "stakePool";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "stakeEntry";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "payerTokenAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "paymentRecipientTokenAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "payer";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "ix";
+          type: {
+            defined: "BoostStakeEntryIx";
+          };
+        }
+      ];
+    },
+    {
+      name: "closeStakeBooster";
+      accounts: [
+        {
+          name: "stakeBooster";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "stakePool";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "authority";
+          isMut: true;
+          isSigner: true;
+        }
+      ];
+      args: [];
     }
   ];
   accounts: [
@@ -704,6 +844,46 @@ export type CardinalStakePool = {
       };
     },
     {
+      name: "stakeBooster";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "bump";
+            type: "u8";
+          },
+          {
+            name: "stakePool";
+            type: "publicKey";
+          },
+          {
+            name: "identifier";
+            type: "u64";
+          },
+          {
+            name: "paymentAmount";
+            type: "u64";
+          },
+          {
+            name: "paymentMint";
+            type: "publicKey";
+          },
+          {
+            name: "paymentRecipient";
+            type: "publicKey";
+          },
+          {
+            name: "boostSeconds";
+            type: "u128";
+          },
+          {
+            name: "startTimeSeconds";
+            type: "i64";
+          }
+        ];
+      };
+    },
+    {
       name: "stakeAuthorizationRecord";
       type: {
         kind: "struct";
@@ -823,6 +1003,74 @@ export type CardinalStakePool = {
           {
             name: "target";
             type: "publicKey";
+          }
+        ];
+      };
+    },
+    {
+      name: "BoostStakeEntryIx";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "secondsToBoost";
+            type: "u64";
+          }
+        ];
+      };
+    },
+    {
+      name: "InitStakeBoosterIx";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "stakePool";
+            type: "publicKey";
+          },
+          {
+            name: "identifier";
+            type: "u64";
+          },
+          {
+            name: "paymentAmount";
+            type: "u64";
+          },
+          {
+            name: "paymentMint";
+            type: "publicKey";
+          },
+          {
+            name: "boostSeconds";
+            type: "u128";
+          },
+          {
+            name: "startTimeSeconds";
+            type: "i64";
+          }
+        ];
+      };
+    },
+    {
+      name: "UpdateStakeBoosterIx";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "paymentAmount";
+            type: "u64";
+          },
+          {
+            name: "paymentMint";
+            type: "publicKey";
+          },
+          {
+            name: "boostSeconds";
+            type: "u128";
+          },
+          {
+            name: "startTimeSeconds";
+            type: "i64";
           }
         ];
       };
@@ -1037,6 +1285,31 @@ export type CardinalStakePool = {
       code: 6026;
       name: "StakeMintAlreadyInitialized";
       msg: "Stake mint already intialized";
+    },
+    {
+      code: 6027;
+      name: "InvalidStakeEntry";
+      msg: "Invalid stake entry";
+    },
+    {
+      code: 6028;
+      name: "CannotBoostDuringCooldown";
+      msg: "Cannot boost stake entry during cooldown";
+    },
+    {
+      code: 6029;
+      name: "CannotBoostMoreThanCurrentTime";
+      msg: "Cannot boost past current time less than start time";
+    },
+    {
+      code: 6030;
+      name: "InvalidBoostPayerTokenAccount";
+      msg: "Invalid boost payer token account";
+    },
+    {
+      code: 6031;
+      name: "InvalidBoostPaymentRecipientTokenAccount";
+      msg: "Invalid boost payment recipient token account";
     }
   ];
 };
@@ -1614,6 +1887,146 @@ export const IDL: CardinalStakePool = {
         },
       ],
     },
+    {
+      name: "initStakeBooster",
+      accounts: [
+        {
+          name: "stakeBooster",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "stakePool",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "authority",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "payer",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "ix",
+          type: {
+            defined: "InitStakeBoosterIx",
+          },
+        },
+      ],
+    },
+    {
+      name: "updateStakeBooster",
+      accounts: [
+        {
+          name: "stakeBooster",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "stakePool",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "authority",
+          isMut: true,
+          isSigner: true,
+        },
+      ],
+      args: [
+        {
+          name: "ix",
+          type: {
+            defined: "UpdateStakeBoosterIx",
+          },
+        },
+      ],
+    },
+    {
+      name: "boostStakeEntry",
+      accounts: [
+        {
+          name: "stakeBooster",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "stakePool",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "stakeEntry",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "payerTokenAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "paymentRecipientTokenAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "payer",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "ix",
+          type: {
+            defined: "BoostStakeEntryIx",
+          },
+        },
+      ],
+    },
+    {
+      name: "closeStakeBooster",
+      accounts: [
+        {
+          name: "stakeBooster",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "stakePool",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "authority",
+          isMut: true,
+          isSigner: true,
+        },
+      ],
+      args: [],
+    },
   ],
   accounts: [
     {
@@ -1747,6 +2160,46 @@ export const IDL: CardinalStakePool = {
       },
     },
     {
+      name: "stakeBooster",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "bump",
+            type: "u8",
+          },
+          {
+            name: "stakePool",
+            type: "publicKey",
+          },
+          {
+            name: "identifier",
+            type: "u64",
+          },
+          {
+            name: "paymentAmount",
+            type: "u64",
+          },
+          {
+            name: "paymentMint",
+            type: "publicKey",
+          },
+          {
+            name: "paymentRecipient",
+            type: "publicKey",
+          },
+          {
+            name: "boostSeconds",
+            type: "u128",
+          },
+          {
+            name: "startTimeSeconds",
+            type: "i64",
+          },
+        ],
+      },
+    },
+    {
       name: "stakeAuthorizationRecord",
       type: {
         kind: "struct",
@@ -1866,6 +2319,74 @@ export const IDL: CardinalStakePool = {
           {
             name: "target",
             type: "publicKey",
+          },
+        ],
+      },
+    },
+    {
+      name: "BoostStakeEntryIx",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "secondsToBoost",
+            type: "u64",
+          },
+        ],
+      },
+    },
+    {
+      name: "InitStakeBoosterIx",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "stakePool",
+            type: "publicKey",
+          },
+          {
+            name: "identifier",
+            type: "u64",
+          },
+          {
+            name: "paymentAmount",
+            type: "u64",
+          },
+          {
+            name: "paymentMint",
+            type: "publicKey",
+          },
+          {
+            name: "boostSeconds",
+            type: "u128",
+          },
+          {
+            name: "startTimeSeconds",
+            type: "i64",
+          },
+        ],
+      },
+    },
+    {
+      name: "UpdateStakeBoosterIx",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "paymentAmount",
+            type: "u64",
+          },
+          {
+            name: "paymentMint",
+            type: "publicKey",
+          },
+          {
+            name: "boostSeconds",
+            type: "u128",
+          },
+          {
+            name: "startTimeSeconds",
+            type: "i64",
           },
         ],
       },
@@ -2080,6 +2601,31 @@ export const IDL: CardinalStakePool = {
       code: 6026,
       name: "StakeMintAlreadyInitialized",
       msg: "Stake mint already intialized",
+    },
+    {
+      code: 6027,
+      name: "InvalidStakeEntry",
+      msg: "Invalid stake entry",
+    },
+    {
+      code: 6028,
+      name: "CannotBoostDuringCooldown",
+      msg: "Cannot boost stake entry during cooldown",
+    },
+    {
+      code: 6029,
+      name: "CannotBoostMoreThanCurrentTime",
+      msg: "Cannot boost past current time less than start time",
+    },
+    {
+      code: 6030,
+      name: "InvalidBoostPayerTokenAccount",
+      msg: "Invalid boost payer token account",
+    },
+    {
+      code: 6031,
+      name: "InvalidBoostPaymentRecipientTokenAccount",
+      msg: "Invalid boost payment recipient token account",
     },
   ],
 };
