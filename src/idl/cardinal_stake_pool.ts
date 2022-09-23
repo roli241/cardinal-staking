@@ -1,5 +1,5 @@
 export type CardinalStakePool = {
-  version: "1.8.1";
+  version: "1.8.4";
   name: "cardinal_stake_pool";
   instructions: [
     {
@@ -434,7 +434,7 @@ export type CardinalStakePool = {
         {
           name: "lastStaker";
           isMut: true;
-          isSigner: false;
+          isSigner: true;
         }
       ];
       args: [];
@@ -978,12 +978,17 @@ export type CardinalStakePool = {
       code: 6025;
       name: "InvalidMintMetadataOwner";
       msg: "Mint metadata is owned by the incorrect program";
+    },
+    {
+      code: 6026;
+      name: "StakeMintAlreadyInitialized";
+      msg: "Stake mint already intialized";
     }
   ];
 };
 
 export const IDL: CardinalStakePool = {
-  version: "1.8.1",
+  version: "1.8.4",
   name: "cardinal_stake_pool",
   instructions: [
     {
@@ -1418,7 +1423,7 @@ export const IDL: CardinalStakePool = {
         {
           name: "lastStaker",
           isMut: true,
-          isSigner: false,
+          isSigner: true,
         },
       ],
       args: [],
@@ -1962,6 +1967,11 @@ export const IDL: CardinalStakePool = {
       code: 6025,
       name: "InvalidMintMetadataOwner",
       msg: "Mint metadata is owned by the incorrect program",
+    },
+    {
+      code: 6026,
+      name: "StakeMintAlreadyInitialized",
+      msg: "Stake mint already intialized",
     },
   ],
 };

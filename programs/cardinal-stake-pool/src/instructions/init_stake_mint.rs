@@ -1,3 +1,5 @@
+use mpl_token_metadata::utils::assert_derivation;
+
 use {
     crate::{errors::ErrorCode, state::*},
     anchor_lang::{
@@ -23,9 +25,9 @@ pub struct InitStakeMintIx {
 #[derive(Accounts)]
 #[instruction(ix: InitStakeMintIx)]
 pub struct InitStakeMintCtx<'info> {
-    #[account(mut, constraint = stake_entry.pool == stake_pool.key() @ ErrorCode::InvalidStakePool)]
+    #[account(mut, constraint = stake_entry.stake_mint.is_none() @ ErrorCode::StakeMintAlreadyInitialized)]
     stake_entry: Box<Account<'info, StakeEntry>>,
-    #[account(mut)]
+    #[account(mut, constraint = stake_entry.pool == stake_pool.key() @ ErrorCode::InvalidStakePool)]
     stake_pool: Box<Account<'info, StakePool>>,
 
     original_mint: Box<Account<'info, Mint>>,
@@ -100,6 +102,16 @@ pub fn handler(ctx: Context<InitStakeMintCtx>, ix: InitStakeMintIx) -> Result<()
 
     // create metadata
     let mut metadata_uri_param: String = "".to_string();
+    // assert metadata account derivation
+    assert_derivation(
+        &mpl_token_metadata::id(),
+        &&ctx.accounts.original_mint_metadata.to_account_info(),
+        &[
+            mpl_token_metadata::state::PREFIX.as_bytes(),
+            mpl_token_metadata::id().as_ref(),
+            ctx.accounts.original_mint.key().as_ref(),
+        ],
+    )?;
     if !ctx.accounts.original_mint_metadata.data_is_empty() {
         let mint_metadata_data = ctx.accounts.original_mint_metadata.try_borrow_mut_data().expect("Failed to borrow data");
         let original_mint_metadata = Metadata::deserialize(&mut mint_metadata_data.as_ref())?;

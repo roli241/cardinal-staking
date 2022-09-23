@@ -1,3 +1,5 @@
+use mpl_token_metadata::utils::assert_derivation;
+
 use {
     crate::{errors::ErrorCode, state::*},
     anchor_lang::prelude::*,
@@ -37,6 +39,16 @@ pub fn handler(ctx: Context<InitEntryCtx>, _user: Pubkey) -> Result<()> {
     stake_entry.original_mint = ctx.accounts.original_mint.key();
     stake_entry.amount = 0;
 
+    // assert metadata account derivation
+    assert_derivation(
+        &mpl_token_metadata::id(),
+        &&ctx.accounts.original_mint_metadata.to_account_info(),
+        &[
+            mpl_token_metadata::state::PREFIX.as_bytes(),
+            mpl_token_metadata::id().as_ref(),
+            ctx.accounts.original_mint.key().as_ref(),
+        ],
+    )?;
     // check allowlist
     if !stake_pool.requires_creators.is_empty() || !stake_pool.requires_collections.is_empty() || stake_pool.requires_authorization {
         let mut allowed = false;

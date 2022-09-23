@@ -11,7 +11,6 @@ pub struct InitIdentifierCtx<'info> {
     )]
     identifier: Account<'info, Identifier>,
 
-    // #[account(mut, constraint = is_authority(&payer.key()) @ ErrorCode::InvalidPoolAuthority)]
     #[account(mut)]
     payer: Signer<'info>,
     system_program: Program<'info, System>,

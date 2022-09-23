@@ -14,4 +14,14 @@ pub enum ErrorCode {
     CannotBlacklistClaimeReceipt,
     #[msg("Reward seconds not satisifed")]
     RewardSecondsNotSatisfied,
+    #[msg("Invalid payer token account")]
+    InvalidPayerTokenAcount,
+    #[msg("Invalid payment target account")]
+    InvalidPaymentTargetTokenAccount,
+    #[msg("Invalid payment mint")]
+    InvalidPaymentMint,
+    #[msg("Invalid payment target")]
+    InvalidPaymentTarget,
+    #[msg("Invalid payment amount")]
+    InvalidPaymentAmount,
 }
