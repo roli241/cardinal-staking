@@ -1,28 +1,38 @@
+use crate::errors::ErrorCode;
 use anchor_lang::prelude::*;
+use std::collections::HashMap;
 
-pub const CLAIM_AMOUNT: u64 = 10_u64.pow(9);
-
-pub fn assert_allowed_payment_amount(amount: u64, payment_mint: &Pubkey) -> Result<()> {
-    if amount != CLAIM_AMOUNT {
-        return Err(error!(ErrorCode::InvalidPaymentAmount));
-    }
-    Ok(())
-}
-
-pub fn assert_allowed_payment_mint(key: &Pubkey) -> Result<()> {
-    let allowed_mint = [
-        Pubkey::from_str("DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ").unwrap(), // DUST
-    ];
-    if (!allowed_mints.contains(key)) {
+pub fn assert_allowed_payment_info(mint: &str, payment_amount: u64) -> Result<()> {
+    let payment_mints: HashMap<&str, u64> = HashMap::from([
+        ("DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ", 10_u64.pow(9)),
+        ("DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ", 2_000_000),
+    ]);
+    if !payment_mints.contains_key(mint) {
         return Err(error!(ErrorCode::InvalidPaymentMint));
     }
+    let amount = payment_mints[mint];
+    if amount != payment_amount {
+        return Err(error!(ErrorCode::InvalidPaymentAmountForMint));
+    }
     Ok(())
 }
 
-pub fn assert_allowed_payment_target(key: &Pubkey) -> Result<()> {
-    let allowed_payment_target = [Pubkey::from_str("DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ").unwrap()];
-    if (!allowed_payment_target.contains(key)) {
-        return Err(error!(ErrorCode::InvalidPaymentTarget));
+pub fn assert_allowed_payment_manager(key: &str) -> Result<()> {
+    let allowed_payment_managers: Vec<&str> = [
+        "DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ", // cardinal pm (no split)
+        "DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ", // degods pm (x-y split)
+    ]
+    .to_vec();
+    if !allowed_payment_managers.contains(&key) {
+        return Err(error!(ErrorCode::InvalidPaymentManager));
+    }
+    Ok(())
+}
+
+pub fn assert_allowed_payment_collector(key: &str) -> Result<()> {
+    let allowed_payment_collectors: Vec<&str> = ["cpmaMZyBQiPxpeuxNsQhW7N8z1o9yaNdLgiPhWGUEiX"].to_vec();
+    if !allowed_payment_collectors.contains(&key) {
+        return Err(error!(ErrorCode::InvalidPaymentCollector));
     }
     Ok(())
 }
@@ -39,7 +49,7 @@ pub struct RewardReceiptManager {
     pub claimed_receipts_counter: u128,
     pub payment_amount: u64,
     pub payment_mint: Pubkey,
-    pub payment_target: Pubkey,
+    pub payment_manager: Pubkey,
     pub max_claimed_receipts: Option<u128>,
 }
 

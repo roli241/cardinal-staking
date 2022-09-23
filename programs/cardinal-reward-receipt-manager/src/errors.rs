@@ -10,8 +10,8 @@ pub enum ErrorCode {
     InvalidClaimer,
     #[msg("Invalid rewards receipt manager")]
     InvalidRewardReceiptManager,
-    #[msg("Cannot blacklist claim reward receipt")]
-    CannotBlacklistClaimeReceipt,
+    #[msg("Cannot disallow claim reward receipt")]
+    CannotBlacklistDisallowReceipt,
     #[msg("Reward seconds not satisifed")]
     RewardSecondsNotSatisfied,
     #[msg("Invalid payer token account")]
@@ -22,6 +22,18 @@ pub enum ErrorCode {
     InvalidPaymentMint,
     #[msg("Invalid payment target")]
     InvalidPaymentTarget,
-    #[msg("Invalid payment amount")]
-    InvalidPaymentAmount,
+    #[msg("Invalid payment manager")]
+    InvalidPaymentManager,
+    #[msg("Invalid payment amount for mint")]
+    InvalidPaymentAmountForMint,
+    #[msg("Invalid max claimed receipts")]
+    InvalidMaxClaimedReceipts,
+    #[msg("Invalid payment token account")]
+    InvalidPaymentTokenAccount,
+    #[msg("Invalid fee collector token account")]
+    InvalidFeeCollectorTokenAccount,
+    #[msg("Invalid payment collector")]
+    InvalidPaymentCollector,
+    #[msg("Invalid reward receipt")]
+    InvalidRewardReceipt,
 }
