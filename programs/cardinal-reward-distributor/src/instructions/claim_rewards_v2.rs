@@ -26,7 +26,7 @@ pub struct ClaimRewardsCtx<'info> {
     #[account(mut, constraint = reward_mint.key() == reward_distributor.reward_mint @ ErrorCode::InvalidRewardMint)]
     reward_mint: Box<Account<'info, Mint>>,
 
-    #[account(mut, constraint = user_reward_mint_token_account.mint == reward_distributor.reward_mint && user_reward_mint_token_account.owner == user.key() @ ErrorCode::InvalidUserRewardMintTokenAccount)]
+    #[account(mut, constraint = user_reward_mint_token_account.mint == reward_distributor.reward_mint && user_reward_mint_token_account.owner == stake_entry.last_staker @ ErrorCode::InvalidUserRewardMintTokenAccount)]
     user_reward_mint_token_account: Box<Account<'info, TokenAccount>>,
 
     /// CHECK: This is not dangerous because we don't read or write from this account
@@ -44,7 +44,7 @@ pub fn handler<'key, 'accounts, 'remaining, 'info>(ctx: Context<'key, 'accounts,
     let reward_distributor = &mut ctx.accounts.reward_distributor;
     let stake_pool = reward_distributor.stake_pool;
     let stake_entry = &mut ctx.accounts.stake_entry;
-    if stake_entry.kind == StakeEntryKind::V2 as u8 {
+    if stake_entry.kind == StakeEntryKind::V1 as u8 {
         return Err(error!(ErrorCode::InvalidStakeEntryKind));
     }
 

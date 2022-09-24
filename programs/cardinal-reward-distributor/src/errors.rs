@@ -34,4 +34,6 @@ pub enum ErrorCode {
     InvalidAuthorityTokenAccount,
     #[msg("Invalid payer")]
     InvalidPayer,
+    #[msg("Invalid stake entry kind")]
+    InvalidStakeEntryKind,
 }

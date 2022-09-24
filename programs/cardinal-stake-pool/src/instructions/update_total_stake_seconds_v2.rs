@@ -4,17 +4,18 @@ use {
 };
 
 #[derive(Accounts)]
-pub struct UpdateTotalStakeSecondsCtx<'info> {
+pub struct UpdateTotalStakeSecondsV2Ctx<'info> {
     #[account(mut)]
     stake_entry: Account<'info, StakeEntry>,
 
-    #[account(mut, constraint = last_staker.key() == stake_entry.last_staker @ErrorCode::InvalidLastStaker)]
-    last_staker: Signer<'info>,
+    /// CHECK: This is not dangerous because we don't read or write from this account
+    #[account(mut)]
+    last_staker: UncheckedAccount<'info>,
 }
 
-pub fn handler(ctx: Context<UpdateTotalStakeSecondsCtx>) -> Result<()> {
+pub fn handler(ctx: Context<UpdateTotalStakeSecondsV2Ctx>) -> Result<()> {
     let stake_entry = &mut ctx.accounts.stake_entry;
-    if stake_entry.kind == StakeEntryKind::V2 as u8 {
+    if stake_entry.kind == StakeEntryKind::V1 as u8 {
         return Err(error!(ErrorCode::InvalidStakeEntryKind));
     }
 

@@ -13,6 +13,7 @@ pub mod stake_pool_fill_zeros;
 pub mod unstake;
 pub mod update_pool;
 pub mod update_total_stake_seconds;
+pub mod update_total_stake_seconds_v2;
 
 pub use authorize_mint::*;
 pub use claim_receipt_mint::*;
@@ -29,3 +30,4 @@ pub use stake_pool_fill_zeros::*;
 pub use unstake::*;
 pub use update_pool::*;
 pub use update_total_stake_seconds::*;
+pub use update_total_stake_seconds_v2::*;

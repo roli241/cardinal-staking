@@ -13,6 +13,13 @@ pub const IDENTIFIER_SIZE: usize = 8 + std::mem::size_of::<Identifier>() + 8;
 pub const STAKE_AUTHORIZATION_PREFIX: &str = "stake-authorization";
 pub const STAKE_AUTHORIZATION_SIZE: usize = 8 + std::mem::size_of::<StakeAuthorizationRecord>() + 8;
 
+#[derive(Clone, Debug, PartialEq, Eq, AnchorSerialize, AnchorDeserialize)]
+#[repr(u8)]
+pub enum StakeEntryKind {
+    V1 = 0, // original version
+    V2 = 1, // allows for permissionless update_total_stake_seconds
+}
+
 #[account]
 pub struct StakeEntry {
     pub bump: u8,

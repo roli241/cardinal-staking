@@ -56,4 +56,6 @@ pub enum ErrorCode {
     InvalidMintMetadataOwner,
     #[msg("Stake mint already intialized")]
     StakeMintAlreadyInitialized,
+    #[msg("Invalid stake entry kind")]
+    InvalidStakeEntryKind,
 }
