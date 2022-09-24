@@ -32,7 +32,10 @@ import {
   getRewardDistributor,
   getRewardEntry,
 } from "../src/programs/rewardDistributor/accounts";
-import { claimRewards as claimRewardsV1 } from "../src/programs/rewardDistributor/instruction";
+import {
+  claimRewards as claimRewardsV1,
+  initRewardEntry,
+} from "../src/programs/rewardDistributor/instruction";
 import {
   findRewardDistributorId,
   findRewardEntryId,
@@ -245,39 +248,64 @@ describe("Stake and claim rewards V2", () => {
 
   it("Fail Claim Rewards", async () => {
     const provider = getProvider();
-    const [rewardDistributorId] = await findRewardDistributorId(stakePoolId);
+    const transaction = new Transaction();
+
     const [stakeEntryId] = await findStakeEntryIdFromMint(
       provider.connection,
       provider.wallet.publicKey,
       stakePoolId,
-      originalMint.publicKey
+      originalMint.publicKey,
+      false
+    );
+    const [rewardDistributorId] = await findRewardDistributorId(stakePoolId);
+    const rewardDistributorData = await getRewardDistributor(
+      provider.connection,
+      rewardDistributorId
     );
 
-    const transaction = new Transaction();
-    const remainingAccountsForKind = await withRemainingAccountsForKind(
-      transaction,
-      provider.connection,
-      provider.wallet,
-      rewardDistributorId,
-      RewardDistributorKind.Treasury,
-      rewardMint.publicKey,
-      true
-    );
     const rewardMintTokenAccountId = await withFindOrInitAssociatedTokenAccount(
       transaction,
       provider.connection,
-      rewardMint.publicKey,
+      rewardDistributorData.parsed.rewardMint,
       provider.wallet.publicKey,
       provider.wallet.publicKey
     );
+
+    const remainingAccountsForKind = await withRemainingAccountsForKind(
+      transaction,
+      provider.connection,
+      provider.wallet.publicKey,
+      rewardDistributorId,
+      rewardDistributorData.parsed.kind,
+      rewardDistributorData.parsed.rewardMint,
+      provider.wallet.publicKey,
+      true
+    );
+
+    const [rewardEntryId] = await findRewardEntryId(
+      rewardDistributorId,
+      stakeEntryId
+    );
     transaction.add(
-      await claimRewardsV1(provider.connection, provider.wallet, {
-        stakePoolId: stakePoolId,
+      initRewardEntry(provider.connection, provider.wallet, {
         stakeEntryId: stakeEntryId,
-        rewardMintId: rewardMint.publicKey,
-        rewardMintTokenAccountId: rewardMintTokenAccountId,
-        remainingAccountsForKind: remainingAccountsForKind,
+        rewardDistributor: rewardDistributorData.pubkey,
+        rewardEntryId: rewardEntryId,
       })
+    );
+
+    transaction.add(
+      await claimRewardsV1(
+        provider.connection,
+        emptyWallet(provider.wallet.publicKey),
+        {
+          stakePoolId: stakePoolId,
+          stakeEntryId: stakeEntryId,
+          rewardMintId: rewardMint.publicKey,
+          rewardMintTokenAccountId: rewardMintTokenAccountId,
+          remainingAccountsForKind: remainingAccountsForKind,
+        }
+      )
     );
 
     expect(async () => {
@@ -285,7 +313,7 @@ describe("Stake and claim rewards V2", () => {
         new TransactionEnvelope(SolanaProvider.init(provider), [
           ...transaction.instructions,
         ]),
-        "Fail close"
+        "Fail claim rewards"
       ).to.be.rejectedWith(Error);
     });
   });
@@ -310,6 +338,7 @@ describe("Stake and claim rewards V2", () => {
       provider.connection,
       emptyWallet(permissonlessUser.publicKey),
       {
+        user: provider.wallet.publicKey,
         stakePoolId: stakePoolId,
         stakeEntryId: stakeEntryId,
       }
@@ -332,7 +361,7 @@ describe("Stake and claim rewards V2", () => {
     const checkUserOriginalTokenAccount = await originalMint.getAccountInfo(
       userOriginalMintTokenAccountId
     );
-    expect(checkUserOriginalTokenAccount.amount.toNumber()).to.eq(0);
+    expect(checkUserOriginalTokenAccount.amount.toNumber()).to.eq(1);
 
     const rewardEntryAfter = await getRewardEntry(
       provider.connection,

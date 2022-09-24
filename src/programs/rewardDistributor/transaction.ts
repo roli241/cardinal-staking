@@ -49,7 +49,7 @@ export const withInitRewardDistributor = async (
   const remainingAccountsForKind = await withRemainingAccountsForKind(
     transaction,
     connection,
-    wallet,
+    wallet.publicKey,
     rewardDistributorId,
     params.kind || RewardDistributorKind.Mint,
     params.rewardMintId
@@ -101,6 +101,7 @@ export const withClaimRewards = async (
   connection: Connection,
   wallet: Wallet,
   params: {
+    user: PublicKey;
     stakePoolId: PublicKey;
     stakeEntryId: PublicKey;
     payer?: PublicKey;
@@ -118,24 +119,25 @@ export const withClaimRewards = async (
     const rewardMintTokenAccountId = params.skipRewardMintTokenAccount
       ? await findAta(
           rewardDistributorData.parsed.rewardMint,
-          wallet.publicKey,
+          params.user,
           true
         )
       : await withFindOrInitAssociatedTokenAccount(
           transaction,
           connection,
           rewardDistributorData.parsed.rewardMint,
-          wallet.publicKey,
+          params.user,
           wallet.publicKey
         );
 
     const remainingAccountsForKind = await withRemainingAccountsForKind(
       transaction,
       connection,
-      wallet,
+      params.user,
       rewardDistributorId,
       rewardDistributorData.parsed.kind,
       rewardDistributorData.parsed.rewardMint,
+      wallet.publicKey,
       true
     );
 
@@ -207,7 +209,7 @@ export const withCloseRewardDistributor = async (
     const remainingAccountsForKind = await withRemainingAccountsForKind(
       transaction,
       connection,
-      wallet,
+      wallet.publicKey,
       rewardDistributorId,
       rewardDistributorData.parsed.kind,
       rewardDistributorData.parsed.rewardMint

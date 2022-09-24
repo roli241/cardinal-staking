@@ -82,62 +82,6 @@ export type CardinalRewardDistributor = {
       args: [];
     },
     {
-      name: "claimRewards";
-      accounts: [
-        {
-          name: "rewardEntry";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "rewardDistributor";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "stakeEntry";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "stakePool";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "rewardMint";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "userRewardMintTokenAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "rewardManager";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "user";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        }
-      ];
-      args: [];
-    },
-    {
       name: "claimRewardsV2";
       accounts: [
         {
@@ -331,6 +275,62 @@ export type CardinalRewardDistributor = {
           type: "u64";
         }
       ];
+    },
+    {
+      name: "claimRewards";
+      accounts: [
+        {
+          name: "rewardEntry";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "rewardDistributor";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "stakeEntry";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "stakePool";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "rewardMint";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "userRewardMintTokenAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "rewardManager";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "user";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [];
     }
   ];
   accounts: [
@@ -704,62 +704,6 @@ export const IDL: CardinalRewardDistributor = {
       args: [],
     },
     {
-      name: "claimRewards",
-      accounts: [
-        {
-          name: "rewardEntry",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "rewardDistributor",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "stakeEntry",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "stakePool",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "rewardMint",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "userRewardMintTokenAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "rewardManager",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "user",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [],
-    },
-    {
       name: "claimRewardsV2",
       accounts: [
         {
@@ -953,6 +897,62 @@ export const IDL: CardinalRewardDistributor = {
           type: "u64",
         },
       ],
+    },
+    {
+      name: "claimRewards",
+      accounts: [
+        {
+          name: "rewardEntry",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "rewardDistributor",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "stakeEntry",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "stakePool",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "rewardMint",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "userRewardMintTokenAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "rewardManager",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "user",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
     },
   ],
   accounts: [

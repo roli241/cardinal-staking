@@ -254,6 +254,7 @@ describe("Stake and claim rewards from treasury", () => {
       provider.connection,
       provider.wallet,
       {
+        user: provider.wallet.publicKey,
         stakePoolId: stakePoolId,
         stakeEntryId: stakeEntryId,
       }

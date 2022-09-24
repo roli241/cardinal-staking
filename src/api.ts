@@ -286,6 +286,7 @@ export const claimRewards = async (
   connection: Connection,
   wallet: Wallet,
   params: {
+    user: PublicKey;
     stakePoolId: PublicKey;
     stakeEntryId: PublicKey;
     payer?: PublicKey;
@@ -300,6 +301,7 @@ export const claimRewards = async (
   });
 
   await withClaimRewards(transaction, connection, wallet, {
+    user: params.user,
     stakePoolId: params.stakePoolId,
     stakeEntryId: params.stakeEntryId,
     payer: params.payer,

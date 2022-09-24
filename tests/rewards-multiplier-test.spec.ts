@@ -243,6 +243,7 @@ describe("Stake and claim rewards", () => {
       new TransactionEnvelope(SolanaProvider.init(provider), [
         ...(
           await claimRewards(provider.connection, provider.wallet, {
+            user: provider.wallet.publicKey,
             stakePoolId: stakePoolId,
             stakeEntryId: stakeEntryId,
           })

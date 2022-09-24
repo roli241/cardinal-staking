@@ -424,22 +424,6 @@ export type CardinalStakePool = {
       ];
     },
     {
-      name: "updateTotalStakeSeconds";
-      accounts: [
-        {
-          name: "stakeEntry";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "lastStaker";
-          isMut: true;
-          isSigner: true;
-        }
-      ];
-      args: [];
-    },
-    {
       name: "updateTotalStakeSecondsV2";
       accounts: [
         {
@@ -555,6 +539,22 @@ export type CardinalStakePool = {
           name: "stakePool";
           isMut: true;
           isSigner: false;
+        }
+      ];
+      args: [];
+    },
+    {
+      name: "updateTotalStakeSeconds";
+      accounts: [
+        {
+          name: "stakeEntry";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "lastStaker";
+          isMut: true;
+          isSigner: true;
         }
       ];
       args: [];
@@ -1448,22 +1448,6 @@ export const IDL: CardinalStakePool = {
       ],
     },
     {
-      name: "updateTotalStakeSeconds",
-      accounts: [
-        {
-          name: "stakeEntry",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "lastStaker",
-          isMut: true,
-          isSigner: true,
-        },
-      ],
-      args: [],
-    },
-    {
       name: "updateTotalStakeSecondsV2",
       accounts: [
         {
@@ -1579,6 +1563,22 @@ export const IDL: CardinalStakePool = {
           name: "stakePool",
           isMut: true,
           isSigner: false,
+        },
+      ],
+      args: [],
+    },
+    {
+      name: "updateTotalStakeSeconds",
+      accounts: [
+        {
+          name: "stakeEntry",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "lastStaker",
+          isMut: true,
+          isSigner: true,
         },
       ],
       args: [],

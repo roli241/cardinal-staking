@@ -42,7 +42,7 @@ export enum ReceiptType {
 
 export enum StakeEntryKind {
   // Original stake entry version
-  V1 = 1,
+  V1 = 0,
   // Allows for permissionless update_total_stake_seconds
-  V2 = 2,
+  V2 = 1,
 }

@@ -2,7 +2,6 @@ import {
   findAta,
   withFindOrInitAssociatedTokenAccount,
 } from "@cardinal/common";
-import type { Wallet } from "@saberhq/solana-contrib";
 import type {
   AccountMeta,
   Connection,
@@ -15,10 +14,11 @@ import { RewardDistributorKind } from "./constants";
 export const withRemainingAccountsForKind = async (
   transaction: Transaction,
   connection: Connection,
-  wallet: Wallet,
+  user: PublicKey,
   rewardDistributorId: PublicKey,
   kind: RewardDistributorKind,
   rewardMint: PublicKey,
+  payer = user,
   isClaimRewards?: boolean
 ): Promise<AccountMeta[]> => {
   switch (kind) {
@@ -32,12 +32,12 @@ export const withRemainingAccountsForKind = async (
           connection,
           rewardMint,
           rewardDistributorId,
-          wallet.publicKey,
+          payer,
           true
         );
       const userRewardMintTokenAccountId = await findAta(
         rewardMint,
-        wallet.publicKey,
+        user,
         true
       );
       return [
