@@ -92,6 +92,9 @@ export const initRewardEntry = (
   });
 };
 
+/**
+ * @deprecated Moving to claimRewardsV2 that makes the instruction permissionless and ensures the reward funds are directed to the staker
+ */
 export const claimRewards = async (
   connection: Connection,
   wallet: Wallet,
@@ -120,6 +123,50 @@ export const claimRewards = async (
   );
 
   return rewardDistributorProgram.instruction.claimRewards({
+    accounts: {
+      rewardEntry: rewardEntryId,
+      rewardDistributor: rewardDistributorId,
+      stakeEntry: params.stakeEntryId,
+      stakePool: params.stakePoolId,
+      rewardMint: params.rewardMintId,
+      userRewardMintTokenAccount: params.rewardMintTokenAccountId,
+      rewardManager: REWARD_MANAGER,
+      user: wallet.publicKey,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      systemProgram: SystemProgram.programId,
+    },
+    remainingAccounts: [...params.remainingAccountsForKind],
+  });
+};
+
+export const claimRewardsV2 = async (
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: PublicKey;
+    stakeEntryId: PublicKey;
+    rewardMintId: PublicKey;
+    rewardMintTokenAccountId: PublicKey;
+    remainingAccountsForKind: AccountMeta[];
+    payer?: PublicKey;
+  }
+): Promise<TransactionInstruction> => {
+  const provider = new AnchorProvider(connection, wallet, {});
+  const rewardDistributorProgram = new Program<REWARD_DISTRIBUTOR_PROGRAM>(
+    REWARD_DISTRIBUTOR_IDL,
+    REWARD_DISTRIBUTOR_ADDRESS,
+    provider
+  );
+
+  const [rewardDistributorId] = await findRewardDistributorId(
+    params.stakePoolId
+  );
+  const [rewardEntryId] = await findRewardEntryId(
+    rewardDistributorId,
+    params.stakeEntryId
+  );
+
+  return rewardDistributorProgram.instruction.claimRewardsV2({
     accounts: {
       rewardEntry: rewardEntryId,
       rewardDistributor: rewardDistributorId,

@@ -411,6 +411,9 @@ export const updateStakePool = (
   );
 };
 
+/**
+ * @deprecated Moving to updateTotalStakeSecondsV2 that makes the instruction permissionless
+ */
 export const updateTotalStakeSeconds = (
   connection: Connection,
   wallet: Wallet,
@@ -426,6 +429,28 @@ export const updateTotalStakeSeconds = (
     provider
   );
   return stakePoolProgram.instruction.updateTotalStakeSeconds({
+    accounts: {
+      stakeEntry: params.stakEntryId,
+      lastStaker: params.lastStaker,
+    },
+  });
+};
+
+export const updateTotalStakeSecondsV2 = (
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    stakEntryId: PublicKey;
+    lastStaker: PublicKey;
+  }
+) => {
+  const provider = new AnchorProvider(connection, wallet, {});
+  const stakePoolProgram = new Program<STAKE_POOL_PROGRAM>(
+    STAKE_POOL_IDL,
+    STAKE_POOL_ADDRESS,
+    provider
+  );
+  return stakePoolProgram.instruction.updateTotalStakeSecondsV2({
     accounts: {
       stakeEntry: params.stakEntryId,
       lastStaker: params.lastStaker,

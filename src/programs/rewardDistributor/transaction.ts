@@ -8,10 +8,13 @@ import { BN } from "@project-serum/anchor";
 import type { Wallet } from "@saberhq/solana-contrib";
 import type { Connection, PublicKey, Transaction } from "@solana/web3.js";
 
+import { StakeEntryKind } from "../stakePool";
+import { getStakeEntry } from "../stakePool/accounts";
 import { getRewardDistributor, getRewardEntry } from "./accounts";
 import { RewardDistributorKind } from "./constants";
 import {
   claimRewards,
+  claimRewardsV2,
   closeRewardDistributor,
   closeRewardEntry,
   initRewardDistributor,
@@ -154,15 +157,33 @@ export const withClaimRewards = async (
       );
     }
 
-    transaction.add(
-      await claimRewards(connection, wallet, {
-        stakePoolId: params.stakePoolId,
-        stakeEntryId: params.stakeEntryId,
-        rewardMintId: rewardDistributorData.parsed.rewardMint,
-        rewardMintTokenAccountId: rewardMintTokenAccountId,
-        remainingAccountsForKind,
-      })
+    const checkStakeEntry = await tryGetAccount(() =>
+      getStakeEntry(connection, params.stakeEntryId)
     );
+    if (!checkStakeEntry) {
+      throw `No stake entry found for ${params.stakeEntryId.toString()}`;
+    }
+    if (checkStakeEntry.parsed.kind === StakeEntryKind.V1) {
+      transaction.add(
+        await claimRewards(connection, wallet, {
+          stakePoolId: params.stakePoolId,
+          stakeEntryId: params.stakeEntryId,
+          rewardMintId: rewardDistributorData.parsed.rewardMint,
+          rewardMintTokenAccountId: rewardMintTokenAccountId,
+          remainingAccountsForKind,
+        })
+      );
+    } else {
+      transaction.add(
+        await claimRewardsV2(connection, wallet, {
+          stakePoolId: params.stakePoolId,
+          stakeEntryId: params.stakeEntryId,
+          rewardMintId: rewardDistributorData.parsed.rewardMint,
+          rewardMintTokenAccountId: rewardMintTokenAccountId,
+          remainingAccountsForKind,
+        })
+      );
+    }
   }
   return transaction;
 };

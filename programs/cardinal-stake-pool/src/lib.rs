@@ -50,8 +50,8 @@ pub mod cardinal_stake_pool {
         update_pool::handler(ctx, ix)
     }
 
-    pub fn update_total_stake_seconds(ctx: Context<UpdateTotalStakeSecondsCtx>) -> Result<()> {
-        update_total_stake_seconds::handler(ctx)
+    pub fn update_total_stake_seconds_v2(ctx: Context<UpdateTotalStakeSecondsV2Ctx>) -> Result<()> {
+        update_total_stake_seconds_v2::handler(ctx)
     }
 
     pub fn return_receipt_mint<'key, 'accounts, 'remaining, 'info>(ctx: Context<'key, 'accounts, 'remaining, 'info, ReturnReceiptMintCtx<'info>>) -> Result<()> {
@@ -68,5 +68,11 @@ pub mod cardinal_stake_pool {
 
     pub fn stake_pool_fill_zeros(ctx: Context<StakePoolFillZeros>) -> Result<()> {
         stake_pool_fill_zeros::handler(ctx)
+    }
+
+    // Moving to update_total_stake_seconds_v2 that makes the instruction permissionless
+    #[deprecated]
+    pub fn update_total_stake_seconds(ctx: Context<UpdateTotalStakeSecondsCtx>) -> Result<()> {
+        update_total_stake_seconds::handler(ctx)
     }
 }

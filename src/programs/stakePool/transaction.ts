@@ -20,7 +20,7 @@ import { getRewardDistributor } from "../rewardDistributor/accounts";
 import { findRewardDistributorId } from "../rewardDistributor/pda";
 import { withClaimRewards } from "../rewardDistributor/transaction";
 import { getPoolIdentifier, getStakeEntry, getStakePool } from "./accounts";
-import { ReceiptType } from "./constants";
+import { ReceiptType, StakeEntryKind } from "./constants";
 import {
   authorizeStakeEntry,
   claimReceiptMint,
@@ -36,6 +36,7 @@ import {
   unstake,
   updateStakePool,
   updateTotalStakeSeconds,
+  updateTotalStakeSecondsV2,
 } from "./instruction";
 import { findIdentifierId, findStakePoolId } from "./pda";
 import {
@@ -497,7 +498,7 @@ export const withUpdateStakePool = (
   return [transaction, params.stakePoolId];
 };
 
-export const withUpdateTotalStakeSeconds = (
+export const withUpdateTotalStakeSeconds = async (
   transaction: web3.Transaction,
   connection: web3.Connection,
   wallet: Wallet,
@@ -505,13 +506,28 @@ export const withUpdateTotalStakeSeconds = (
     stakeEntryId: web3.PublicKey;
     lastStaker: web3.PublicKey;
   }
-): web3.Transaction => {
-  transaction.add(
-    updateTotalStakeSeconds(connection, wallet, {
-      stakEntryId: params.stakeEntryId,
-      lastStaker: params.lastStaker,
-    })
+): Promise<web3.Transaction> => {
+  const checkStakeEntry = await tryGetAccount(() =>
+    getStakeEntry(connection, params.stakeEntryId)
   );
+  if (!checkStakeEntry) {
+    throw `No stake entry found for ${params.stakeEntryId.toString()}`;
+  }
+  if (checkStakeEntry.parsed.kind === StakeEntryKind.V1) {
+    transaction.add(
+      updateTotalStakeSeconds(connection, wallet, {
+        stakEntryId: params.stakeEntryId,
+        lastStaker: params.lastStaker,
+      })
+    );
+  } else {
+    transaction.add(
+      updateTotalStakeSecondsV2(connection, wallet, {
+        stakEntryId: params.stakeEntryId,
+        lastStaker: params.lastStaker,
+      })
+    );
+  }
   return transaction;
 };
 

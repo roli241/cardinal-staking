@@ -39,3 +39,10 @@ export enum ReceiptType {
   // Receive nothing
   None = 3,
 }
+
+export enum StakeEntryKind {
+  // Original stake entry version
+  V1 = 1,
+  // Allows for permissionless update_total_stake_seconds
+  V2 = 2,
+}

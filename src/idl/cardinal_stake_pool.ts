@@ -440,6 +440,22 @@ export type CardinalStakePool = {
       args: [];
     },
     {
+      name: "updateTotalStakeSecondsV2";
+      accounts: [
+        {
+          name: "stakeEntry";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "lastStaker";
+          isMut: true;
+          isSigner: false;
+        }
+      ];
+      args: [];
+    },
+    {
       name: "returnReceiptMint";
       accounts: [
         {
@@ -846,6 +862,20 @@ export type CardinalStakePool = {
           }
         ];
       };
+    },
+    {
+      name: "StakeEntryKind";
+      type: {
+        kind: "enum";
+        variants: [
+          {
+            name: "V1";
+          },
+          {
+            name: "V2";
+          }
+        ];
+      };
     }
   ];
   errors: [
@@ -983,6 +1013,11 @@ export type CardinalStakePool = {
       code: 6026;
       name: "StakeMintAlreadyInitialized";
       msg: "Stake mint already intialized";
+    },
+    {
+      code: 6027;
+      name: "InvalidStakeEntryKind";
+      msg: "Invalid stake entry kind";
     }
   ];
 };
@@ -1429,6 +1464,22 @@ export const IDL: CardinalStakePool = {
       args: [],
     },
     {
+      name: "updateTotalStakeSecondsV2",
+      accounts: [
+        {
+          name: "stakeEntry",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "lastStaker",
+          isMut: true,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
+    {
       name: "returnReceiptMint",
       accounts: [
         {
@@ -1836,6 +1887,20 @@ export const IDL: CardinalStakePool = {
         ],
       },
     },
+    {
+      name: "StakeEntryKind",
+      type: {
+        kind: "enum",
+        variants: [
+          {
+            name: "V1",
+          },
+          {
+            name: "V2",
+          },
+        ],
+      },
+    },
   ],
   errors: [
     {
@@ -1972,6 +2037,11 @@ export const IDL: CardinalStakePool = {
       code: 6026,
       name: "StakeMintAlreadyInitialized",
       msg: "Stake mint already intialized",
+    },
+    {
+      code: 6027,
+      name: "InvalidStakeEntryKind",
+      msg: "Invalid stake entry kind",
     },
   ],
 };

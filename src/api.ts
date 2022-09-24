@@ -294,7 +294,7 @@ export const claimRewards = async (
 ): Promise<Transaction> => {
   const transaction = new Transaction();
 
-  withUpdateTotalStakeSeconds(transaction, connection, wallet, {
+  await withUpdateTotalStakeSeconds(transaction, connection, wallet, {
     stakeEntryId: params.stakeEntryId,
     lastStaker: wallet.publicKey,
   });

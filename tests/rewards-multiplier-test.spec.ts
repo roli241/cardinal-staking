@@ -2,7 +2,7 @@
 import { findAta } from "@cardinal/common";
 import { expectTXTable } from "@saberhq/chai-solana";
 import { SolanaProvider, TransactionEnvelope } from "@saberhq/solana-contrib";
-import * as splToken from "@solana/spl-token";
+import type * as splToken from "@solana/spl-token";
 import type { PublicKey } from "@solana/web3.js";
 import { Keypair, Transaction } from "@solana/web3.js";
 import { BN } from "bn.js";
@@ -265,31 +265,6 @@ describe("Stake and claim rewards", () => {
       provider.connection,
       rewardEntryId
     );
-
-    const userRewardMintTokenAccount = await findAta(
-      rewardMint.publicKey,
-      provider.wallet.publicKey,
-      true
-    );
-    const checkMint = new splToken.Token(
-      provider.connection,
-      rewardMint.publicKey,
-      splToken.TOKEN_PROGRAM_ID,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      null
-    );
-    const rewardDistributorData = await getRewardDistributor(
-      provider.connection,
-      rewardDistributorId
-    );
-    const a = await checkMint.getAccountInfo(userRewardMintTokenAccount);
-    console.log("user reward mint token acount", a.amount.toNumber());
-    console.log(
-      "rewardsIssued",
-      rewardDistributorData.parsed.rewardsIssued.toNumber()
-    );
-
     expect(rewardEntryAfter.parsed.rewardSecondsReceived.toNumber()).to.gt(0);
   });
 });

@@ -18,8 +18,8 @@ pub mod cardinal_reward_distributor {
         init_reward_entry::handler(ctx)
     }
 
-    pub fn claim_rewards<'key, 'accounts, 'remaining, 'info>(ctx: Context<'key, 'accounts, 'remaining, 'info, ClaimRewardsCtx<'info>>) -> Result<()> {
-        claim_rewards::handler(ctx)
+    pub fn claim_rewards_v2<'key, 'accounts, 'remaining, 'info>(ctx: Context<'key, 'accounts, 'remaining, 'info, ClaimRewardsV2Ctx<'info>>) -> Result<()> {
+        claim_rewards_v2::handler(ctx)
     }
 
     pub fn update_reward_entry(ctx: Context<UpdateRewardEntryCtx>, ix: UpdateRewardEntryIx) -> Result<()> {
@@ -40,5 +40,11 @@ pub mod cardinal_reward_distributor {
 
     pub fn reclaim_funds(ctx: Context<ReclaimFundsCtx>, amount: u64) -> Result<()> {
         reclaim_funds::handler(ctx, amount)
+    }
+
+    // Moving to claim_rewards_v2 that makes the instruction permissionless and ensures the reward funds are directed to the staker
+    #[deprecated]
+    pub fn claim_rewards<'key, 'accounts, 'remaining, 'info>(ctx: Context<'key, 'accounts, 'remaining, 'info, ClaimRewardsCtx<'info>>) -> Result<()> {
+        claim_rewards::handler(ctx)
     }
 }

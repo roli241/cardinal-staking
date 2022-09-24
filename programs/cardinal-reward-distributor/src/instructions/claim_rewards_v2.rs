@@ -12,7 +12,7 @@ use {
 };
 
 #[derive(Accounts)]
-pub struct ClaimRewardsCtx<'info> {
+pub struct ClaimRewardsV2Ctx<'info> {
     #[account(mut)]
     reward_entry: Box<Account<'info, RewardEntry>>,
     #[account(mut, constraint = reward_distributor.stake_pool == stake_pool.key())]
@@ -39,7 +39,7 @@ pub struct ClaimRewardsCtx<'info> {
     system_program: Program<'info, System>,
 }
 
-pub fn handler<'key, 'accounts, 'remaining, 'info>(ctx: Context<'key, 'accounts, 'remaining, 'info, ClaimRewardsCtx<'info>>) -> Result<()> {
+pub fn handler<'key, 'accounts, 'remaining, 'info>(ctx: Context<'key, 'accounts, 'remaining, 'info, ClaimRewardsV2Ctx<'info>>) -> Result<()> {
     let reward_entry = &mut ctx.accounts.reward_entry;
     let reward_distributor = &mut ctx.accounts.reward_distributor;
     let stake_pool = reward_distributor.stake_pool;

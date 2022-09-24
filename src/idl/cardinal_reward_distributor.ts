@@ -138,6 +138,62 @@ export type CardinalRewardDistributor = {
       args: [];
     },
     {
+      name: "claimRewardsV2";
+      accounts: [
+        {
+          name: "rewardEntry";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "rewardDistributor";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "stakeEntry";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "stakePool";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "rewardMint";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "userRewardMintTokenAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "rewardManager";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "user";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [];
+    },
+    {
       name: "updateRewardEntry";
       accounts: [
         {
@@ -555,6 +611,11 @@ export type CardinalRewardDistributor = {
       code: 6015;
       name: "InvalidPayer";
       msg: "Invalid payer";
+    },
+    {
+      code: 6016;
+      name: "InvalidStakeEntryKind";
+      msg: "Invalid stake entry kind";
     }
   ];
 };
@@ -644,6 +705,62 @@ export const IDL: CardinalRewardDistributor = {
     },
     {
       name: "claimRewards",
+      accounts: [
+        {
+          name: "rewardEntry",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "rewardDistributor",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "stakeEntry",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "stakePool",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "rewardMint",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "userRewardMintTokenAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "rewardManager",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "user",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
+    {
+      name: "claimRewardsV2",
       accounts: [
         {
           name: "rewardEntry",
@@ -1116,6 +1233,11 @@ export const IDL: CardinalRewardDistributor = {
       code: 6015,
       name: "InvalidPayer",
       msg: "Invalid payer",
+    },
+    {
+      code: 6016,
+      name: "InvalidStakeEntryKind",
+      msg: "Invalid stake entry kind",
     },
   ],
 };
