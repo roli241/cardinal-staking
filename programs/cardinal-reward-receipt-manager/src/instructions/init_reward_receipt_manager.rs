@@ -8,8 +8,8 @@ pub struct InitRewardReceiptManagerIx {
     pub authority: Pubkey,
     pub required_reward_seconds: u128,
     pub payment_amount: u64,
-    pub payment_manager: Pubkey,
     pub payment_mint: Pubkey,
+    pub payment_manager: Pubkey,
     pub max_claimed_receipts: Option<u128>,
 }
 

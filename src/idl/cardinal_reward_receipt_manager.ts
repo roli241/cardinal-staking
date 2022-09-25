@@ -156,7 +156,7 @@ export type CardinalRewardReceiptManager = {
       name: "closeRewardReceipt";
       accounts: [
         {
-          name: "rewardReceiptReceipt";
+          name: "rewardReceipt";
           isMut: true;
           isSigner: false;
         },
@@ -216,10 +216,6 @@ export type CardinalRewardReceiptManager = {
             type: "u8";
           },
           {
-            name: "name";
-            type: "string";
-          },
-          {
             name: "stakePool";
             type: "publicKey";
           },
@@ -246,6 +242,10 @@ export type CardinalRewardReceiptManager = {
           {
             name: "paymentManager";
             type: "publicKey";
+          },
+          {
+            name: "name";
+            type: "string";
           },
           {
             name: "maxClaimedReceipts";
@@ -316,11 +316,11 @@ export type CardinalRewardReceiptManager = {
             type: "u64";
           },
           {
-            name: "paymentManager";
+            name: "paymentMint";
             type: "publicKey";
           },
           {
-            name: "paymentMint";
+            name: "paymentManager";
             type: "publicKey";
           },
           {
@@ -614,7 +614,7 @@ export const IDL: CardinalRewardReceiptManager = {
       name: "closeRewardReceipt",
       accounts: [
         {
-          name: "rewardReceiptReceipt",
+          name: "rewardReceipt",
           isMut: true,
           isSigner: false,
         },
@@ -674,10 +674,6 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "u8",
           },
           {
-            name: "name",
-            type: "string",
-          },
-          {
             name: "stakePool",
             type: "publicKey",
           },
@@ -704,6 +700,10 @@ export const IDL: CardinalRewardReceiptManager = {
           {
             name: "paymentManager",
             type: "publicKey",
+          },
+          {
+            name: "name",
+            type: "string",
           },
           {
             name: "maxClaimedReceipts",
@@ -774,11 +774,11 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "u64",
           },
           {
-            name: "paymentManager",
+            name: "paymentMint",
             type: "publicKey",
           },
           {
-            name: "paymentMint",
+            name: "paymentManager",
             type: "publicKey",
           },
           {

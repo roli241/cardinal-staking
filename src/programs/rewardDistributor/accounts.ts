@@ -47,12 +47,12 @@ export const getRewardEntries = async (
 ): Promise<AccountData<RewardEntryData>[]> => {
   const rewardDistributorProgram = getProgram(connection);
 
-  const stakeEntries =
+  const rewardEntries =
     (await rewardDistributorProgram.account.rewardEntry.fetchMultiple(
       rewardEntryIds
     )) as RewardEntryData[];
-  return stakeEntries.map((tm, i) => ({
-    parsed: tm,
+  return rewardEntries.map((entry, i) => ({
+    parsed: entry,
     pubkey: rewardEntryIds[i]!,
   }));
 };
@@ -79,12 +79,12 @@ export const getRewardDistributors = async (
 ): Promise<AccountData<RewardDistributorData>[]> => {
   const rewardDistributorProgram = getProgram(connection);
 
-  const stakeEntries =
+  const rewardDistributors =
     (await rewardDistributorProgram.account.rewardDistributor.fetchMultiple(
       rewardDistributorIds
     )) as RewardDistributorData[];
-  return stakeEntries.map((tm, i) => ({
-    parsed: tm,
+  return rewardDistributors.map((distributor, i) => ({
+    parsed: distributor,
     pubkey: rewardDistributorIds[i]!,
   }));
 };

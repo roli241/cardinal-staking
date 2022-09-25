@@ -5,7 +5,7 @@ use std::collections::HashMap;
 pub fn assert_allowed_payment_info(mint: &str, payment_amount: u64) -> Result<()> {
     let payment_mints: HashMap<&str, u64> = HashMap::from([
         ("DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ", 10_u64.pow(9)),
-        ("DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ", 2_000_000),
+        ("So11111111111111111111111111111111111111112", 2_000_000),
     ]);
     if !payment_mints.contains_key(mint) {
         return Err(error!(ErrorCode::InvalidPaymentMint));
@@ -42,7 +42,6 @@ pub const REWARD_RECEIPT_MANAGER_SIZE: usize = 8 + std::mem::size_of::<RewardRec
 #[account]
 pub struct RewardReceiptManager {
     pub bump: u8,
-    pub name: String,
     pub stake_pool: Pubkey,
     pub authority: Pubkey,
     pub required_reward_seconds: u128,
@@ -50,6 +49,7 @@ pub struct RewardReceiptManager {
     pub payment_amount: u64,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
+    pub name: String,
     pub max_claimed_receipts: Option<u128>,
 }
 
