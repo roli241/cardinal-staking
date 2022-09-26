@@ -538,3 +538,31 @@ export const closeStakeEntry = (
     },
   });
 };
+
+export const reassignStakeEntry = (
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    stakeEntryId: PublicKey;
+    currentStaker: PublicKey;
+    newStaker: PublicKey;
+  }
+) => {
+  const provider = new AnchorProvider(connection, wallet, {});
+  const stakePoolProgram = new Program<STAKE_POOL_PROGRAM>(
+    STAKE_POOL_IDL,
+    STAKE_POOL_ADDRESS,
+    provider
+  );
+  return stakePoolProgram.instruction.reasssignStakeEntry(
+    {
+      newStaker: params.newStaker,
+    },
+    {
+      accounts: {
+        stakeEntry: params.stakeEntryId,
+        currentStaker: params.currentStaker,
+      },
+    }
+  );
+};

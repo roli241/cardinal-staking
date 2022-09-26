@@ -31,6 +31,7 @@ import {
   initStakeEntry,
   initStakeMint,
   initStakePool,
+  reassignStakeEntry,
   returnReceiptMint,
   stake,
   unstake,
@@ -612,6 +613,26 @@ export const withCloseStakeEntry = (
       stakePoolId: params.stakePoolId,
       stakeEntryId: params.stakeEntryId,
       authority: wallet.publicKey,
+    })
+  );
+  return transaction;
+};
+
+export const withReassignStakeEntry = (
+  transaction: web3.Transaction,
+  connection: web3.Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: web3.PublicKey;
+    stakeEntryId: web3.PublicKey;
+    newStaker: web3.PublicKey;
+  }
+): web3.Transaction => {
+  transaction.add(
+    reassignStakeEntry(connection, wallet, {
+      stakeEntryId: params.stakeEntryId,
+      currentStaker: wallet.publicKey,
+      newStaker: params.newStaker,
     })
   );
   return transaction;
