@@ -439,6 +439,18 @@ export const withUnstake = async (
     stakeEntryData?.parsed.stakeMint
   );
 
+  // claim any rewards deserved
+  if (rewardDistributorData) {
+    withUpdateTotalStakeSeconds(transaction, connection, wallet, {
+      stakeEntryId: stakeEntryId,
+      lastStaker: wallet.publicKey,
+    });
+    await withClaimRewards(transaction, connection, wallet, {
+      stakePoolId: params.stakePoolId,
+      stakeEntryId: stakeEntryId,
+    });
+  }
+
   transaction.add(
     unstake(connection, wallet, {
       stakePoolId: params.stakePoolId,
@@ -450,14 +462,6 @@ export const withUnstake = async (
       remainingAccounts,
     })
   );
-
-  // claim any rewards deserved
-  if (rewardDistributorData) {
-    await withClaimRewards(transaction, connection, wallet, {
-      stakePoolId: params.stakePoolId,
-      stakeEntryId: stakeEntryId,
-    });
-  }
 
   return transaction;
 };

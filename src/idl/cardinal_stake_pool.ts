@@ -846,6 +846,20 @@ export type CardinalStakePool = {
           }
         ];
       };
+    },
+    {
+      name: "StakeEntryKind";
+      type: {
+        kind: "enum";
+        variants: [
+          {
+            name: "Permissioned";
+          },
+          {
+            name: "Permissionless";
+          }
+        ];
+      };
     }
   ];
   errors: [
@@ -1832,6 +1846,20 @@ export const IDL: CardinalStakePool = {
             type: {
               option: "i64",
             },
+          },
+        ],
+      },
+    },
+    {
+      name: "StakeEntryKind",
+      type: {
+        kind: "enum",
+        variants: [
+          {
+            name: "Permissioned",
+          },
+          {
+            name: "Permissionless",
           },
         ],
       },
