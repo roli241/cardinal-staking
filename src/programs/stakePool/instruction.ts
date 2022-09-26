@@ -544,8 +544,8 @@ export const reassignStakeEntry = (
   wallet: Wallet,
   params: {
     stakeEntryId: PublicKey;
-    currentStaker: PublicKey;
-    newStaker: PublicKey;
+    lastStaker: PublicKey;
+    target: PublicKey;
   }
 ) => {
   const provider = new AnchorProvider(connection, wallet, {});
@@ -556,12 +556,12 @@ export const reassignStakeEntry = (
   );
   return stakePoolProgram.instruction.reasssignStakeEntry(
     {
-      newStaker: params.newStaker,
+      target: params.target,
     },
     {
       accounts: {
         stakeEntry: params.stakeEntryId,
-        currentStaker: params.currentStaker,
+        lastStaker: params.lastStaker,
       },
     }
   );

@@ -627,14 +627,14 @@ export const withReassignStakeEntry = (
   params: {
     stakePoolId: web3.PublicKey;
     stakeEntryId: web3.PublicKey;
-    newStaker: web3.PublicKey;
+    target: web3.PublicKey;
   }
 ): web3.Transaction => {
   transaction.add(
     reassignStakeEntry(connection, wallet, {
       stakeEntryId: params.stakeEntryId,
-      currentStaker: wallet.publicKey,
-      newStaker: params.newStaker,
+      lastStaker: wallet.publicKey,
+      target: params.target,
     })
   );
   return transaction;

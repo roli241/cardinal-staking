@@ -173,7 +173,7 @@ describe("Reassign staker", () => {
     withReassignStakeEntry(transaction, provider.connection, provider.wallet, {
       stakePoolId: stakePoolId,
       stakeEntryId: stakeEntryId,
-      newStaker: newStaker.publicKey,
+      target: newStaker.publicKey,
     });
 
     await expectTXTable(

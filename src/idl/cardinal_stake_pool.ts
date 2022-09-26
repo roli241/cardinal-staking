@@ -552,7 +552,7 @@ export type CardinalStakePool = {
           isSigner: false;
         },
         {
-          name: "currentStaker";
+          name: "lastStaker";
           isMut: true;
           isSigner: true;
         }
@@ -816,7 +816,7 @@ export type CardinalStakePool = {
         kind: "struct";
         fields: [
           {
-            name: "newStaker";
+            name: "target";
             type: "publicKey";
           }
         ];
@@ -1590,7 +1590,7 @@ export const IDL: CardinalStakePool = {
           isSigner: false,
         },
         {
-          name: "currentStaker",
+          name: "lastStaker",
           isMut: true,
           isSigner: true,
         },
@@ -1854,7 +1854,7 @@ export const IDL: CardinalStakePool = {
         kind: "struct",
         fields: [
           {
-            name: "newStaker",
+            name: "target",
             type: "publicKey",
           },
         ],
