@@ -407,7 +407,9 @@ export const withUnstake = async (
       stakePoolData.parsed.minStakeSeconds === 0 ||
       (stakeEntryData?.parsed.lastStakedAt &&
         Date.now() / 1000 - stakeEntryData.parsed.lastStakedAt.toNumber() >=
-          stakePoolData.parsed.minStakeSeconds))
+          stakePoolData.parsed.minStakeSeconds)) &&
+    (stakeEntryData.parsed.originalMintClaimed ||
+      stakeEntryData.parsed.stakeMintClaimed)
   ) {
     // return receipt mint if its claimed
     await withReturnReceiptMint(transaction, connection, wallet, {
