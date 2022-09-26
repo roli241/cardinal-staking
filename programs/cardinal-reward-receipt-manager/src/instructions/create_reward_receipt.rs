@@ -7,11 +7,6 @@ use {
     anchor_lang::prelude::*,
 };
 
-#[derive(AnchorSerialize, AnchorDeserialize)]
-pub struct CreateRewardReceiptIx {
-    pub name: String,
-}
-
 #[derive(Accounts)]
 pub struct CreateRewardReceiptCtx<'info> {
     #[account(
@@ -48,8 +43,10 @@ pub struct CreateRewardReceiptCtx<'info> {
     system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateRewardReceiptCtx>, _ix: CreateRewardReceiptIx) -> Result<()> {
+pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
+    // assert cardinal payment collector
     assert_allowed_payment_collector(&ctx.accounts.payment_token_account.owner.to_string())?;
+
     let reward_receipt = &mut ctx.accounts.reward_receipt;
     reward_receipt.bump = *ctx.bumps.get("reward_receipt").unwrap();
     reward_receipt.stake_entry = ctx.accounts.stake_entry.key();
@@ -69,6 +66,9 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>, _ix: CreateRewardReceiptIx)
         }
     }
 
+    let payment_mints = get_payment_mints();
+    let payment_mint = &ctx.accounts.reward_receipt_manager.payment_mint.to_string()[..];
+    let payment_amount = payment_mints.get(payment_mint).expect("Could not fetch payment amount");
     let cpi_accounts = cardinal_payment_manager::cpi::accounts::HandlePaymentCtx {
         payment_manager: ctx.accounts.payment_manager.to_account_info(),
         payer_token_account: ctx.accounts.payer_token_account.to_account_info(),
@@ -78,7 +78,7 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>, _ix: CreateRewardReceiptIx)
         token_program: ctx.accounts.token_program.to_account_info(),
     };
     let cpi_ctx = CpiContext::new(ctx.accounts.cardinal_payment_manager.to_account_info(), cpi_accounts);
-    cardinal_payment_manager::cpi::manage_payment(cpi_ctx, ctx.accounts.reward_receipt_manager.payment_amount)?;
+    cardinal_payment_manager::cpi::manage_payment(cpi_ctx, *payment_amount)?;
 
     Ok(())
 }

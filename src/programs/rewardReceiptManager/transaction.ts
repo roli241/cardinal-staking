@@ -8,6 +8,7 @@ import type { BN, web3 } from "@project-serum/anchor";
 import type { Wallet } from "@saberhq/solana-contrib";
 import type { Connection, PublicKey, Transaction } from "@solana/web3.js";
 
+import { updateTotalStakeSeconds } from "../stakePool/instruction";
 import { findStakeEntryId } from "../stakePool/pda";
 import { getRewardReceiptManager } from "./accounts";
 import { DEFAULT_PAYMENT_COLLECTOR } from "./constants";
@@ -30,9 +31,8 @@ export const withInitRewardReceiptManager = async (
     stakePoolId: PublicKey;
     authority: PublicKey;
     requiredRewardSeconds: BN;
-    paymentAmount: BN;
     paymentMint: PublicKey;
-    paymentManagerName: PublicKey;
+    paymentManagerName: string;
     maxClaimedReceipts?: BN;
   }
 ): Promise<[Transaction, web3.PublicKey]> => {
@@ -40,12 +40,14 @@ export const withInitRewardReceiptManager = async (
     params.stakePoolId,
     params.name
   );
-  const [paymentManagerId] = await findPaymentManagerAddress(params.name);
+  const [paymentManagerId] = await findPaymentManagerAddress(
+    params.paymentManagerName
+  );
   const checkPaymentManager = await tryGetAccount(() =>
     getPaymentManager(connection, paymentManagerId)
   );
   if (!checkPaymentManager) {
-    throw `Payment manager with name ${params.name} not found`;
+    throw `Payment manager with name ${params.paymentManagerName} not found`;
   }
 
   transaction.add(
@@ -55,7 +57,6 @@ export const withInitRewardReceiptManager = async (
       name: params.name,
       authority: params.authority,
       requiredRewardSeconds: params.requiredRewardSeconds,
-      paymentAmount: params.paymentAmount,
       paymentMint: params.paymentMint,
       paymentManager: paymentManagerId,
       maxClaimedReceipts: params.maxClaimedReceipts,
@@ -73,7 +74,6 @@ export const withUpdateRewardReceiptManager = async (
     stakePoolId: PublicKey;
     authority: PublicKey;
     requiredRewardSeconds: BN;
-    paymentAmount: BN;
     paymentMint: PublicKey;
     paymentManagerName: string;
     maxClaimedReceipts?: BN;
@@ -99,7 +99,6 @@ export const withUpdateRewardReceiptManager = async (
       stakePoolId: params.stakePoolId,
       authority: params.authority,
       requiredRewardSeconds: params.requiredRewardSeconds,
-      paymentAmount: params.paymentAmount,
       paymentMint: params.paymentMint,
       paymentManager: paymentManagerId,
       maxClaimedReceipts: params.maxClaimedReceipts,
@@ -167,6 +166,13 @@ export const withCreateRewardReceipt = async (
     checkRewardReceiptManager.parsed.paymentMint,
     params.payer,
     wallet.publicKey
+  );
+
+  transaction.add(
+    updateTotalStakeSeconds(connection, wallet, {
+      stakEntryId: params.stakeEntryId,
+      lastStaker: params.claimer,
+    })
   );
 
   transaction.add(

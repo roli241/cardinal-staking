@@ -2,25 +2,17 @@ use crate::errors::ErrorCode;
 use anchor_lang::prelude::*;
 use std::collections::HashMap;
 
-pub fn assert_allowed_payment_info(mint: &str, payment_amount: u64) -> Result<()> {
-    let payment_mints: HashMap<&str, u64> = HashMap::from([
-        ("DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ", 10_u64.pow(9)),
-        ("So11111111111111111111111111111111111111112", 2_000_000),
-    ]);
+pub fn assert_allowed_payment_info(mint: &str) -> Result<()> {
+    let payment_mints = get_payment_mints();
     if !payment_mints.contains_key(mint) {
         return Err(error!(ErrorCode::InvalidPaymentMint));
-    }
-    let amount = payment_mints[mint];
-    if amount != payment_amount {
-        return Err(error!(ErrorCode::InvalidPaymentAmountForMint));
     }
     Ok(())
 }
 
 pub fn assert_allowed_payment_manager(key: &str) -> Result<()> {
     let allowed_payment_managers: Vec<&str> = [
-        "DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ", // cardinal pm (no split)
-        "DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ", // degods pm (x-y split)
+        "FwuXGrYYDvMTbQDikZwVi1Sj4uwdBfXepTa7oCYtXBM8", // cardinal pm (no split)
     ]
     .to_vec();
     if !allowed_payment_managers.contains(&key) {
@@ -37,6 +29,13 @@ pub fn assert_allowed_payment_collector(key: &str) -> Result<()> {
     Ok(())
 }
 
+pub fn get_payment_mints() -> HashMap<&'static str, u64> {
+    return HashMap::from([
+        ("DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ", 10_u64.pow(9)),
+        ("So11111111111111111111111111111111111111112", 2_000_000),
+    ]);
+}
+
 pub const REWARD_RECEIPT_MANAGER_SEED: &str = "reward-receipt-manager";
 pub const REWARD_RECEIPT_MANAGER_SIZE: usize = 8 + std::mem::size_of::<RewardReceiptManager>() + 64;
 #[account]
@@ -46,7 +45,6 @@ pub struct RewardReceiptManager {
     pub authority: Pubkey,
     pub required_reward_seconds: u128,
     pub claimed_receipts_counter: u128,
-    pub payment_amount: u64,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
     pub name: String,

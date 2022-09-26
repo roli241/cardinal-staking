@@ -14,8 +14,8 @@ pub mod cardinal_reward_receipt_manager {
         init_reward_receipt_manager::handler(ctx, ix)
     }
 
-    pub fn create_reward_receipt(ctx: Context<CreateRewardReceiptCtx>, ix: CreateRewardReceiptIx) -> Result<()> {
-        create_reward_receipt::handler(ctx, ix)
+    pub fn create_reward_receipt(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
+        create_reward_receipt::handler(ctx)
     }
 
     pub fn update_reward_receipt_manager(ctx: Context<UpdateRewarReceiptManagerCtx>, ix: UpdateRewardReceiptManagerIx) -> Result<()> {

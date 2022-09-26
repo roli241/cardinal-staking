@@ -104,14 +104,7 @@ export type CardinalRewardReceiptManager = {
           isSigner: false;
         }
       ];
-      args: [
-        {
-          name: "ix";
-          type: {
-            defined: "CreateRewardReceiptIx";
-          };
-        }
-      ];
+      args: [];
     },
     {
       name: "updateRewardReceiptManager";
@@ -232,10 +225,6 @@ export type CardinalRewardReceiptManager = {
             type: "u128";
           },
           {
-            name: "paymentAmount";
-            type: "u64";
-          },
-          {
             name: "paymentMint";
             type: "publicKey";
           },
@@ -283,18 +272,6 @@ export type CardinalRewardReceiptManager = {
   ];
   types: [
     {
-      name: "CreateRewardReceiptIx";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "name";
-            type: "string";
-          }
-        ];
-      };
-    },
-    {
       name: "InitRewardReceiptManagerIx";
       type: {
         kind: "struct";
@@ -310,10 +287,6 @@ export type CardinalRewardReceiptManager = {
           {
             name: "requiredRewardSeconds";
             type: "u128";
-          },
-          {
-            name: "paymentAmount";
-            type: "u64";
           },
           {
             name: "paymentMint";
@@ -344,10 +317,6 @@ export type CardinalRewardReceiptManager = {
           {
             name: "requiredRewardSeconds";
             type: "u128";
-          },
-          {
-            name: "paymentAmount";
-            type: "u64";
           },
           {
             name: "paymentMint";
@@ -562,14 +531,7 @@ export const IDL: CardinalRewardReceiptManager = {
           isSigner: false,
         },
       ],
-      args: [
-        {
-          name: "ix",
-          type: {
-            defined: "CreateRewardReceiptIx",
-          },
-        },
-      ],
+      args: [],
     },
     {
       name: "updateRewardReceiptManager",
@@ -690,10 +652,6 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "u128",
           },
           {
-            name: "paymentAmount",
-            type: "u64",
-          },
-          {
             name: "paymentMint",
             type: "publicKey",
           },
@@ -741,18 +699,6 @@ export const IDL: CardinalRewardReceiptManager = {
   ],
   types: [
     {
-      name: "CreateRewardReceiptIx",
-      type: {
-        kind: "struct",
-        fields: [
-          {
-            name: "name",
-            type: "string",
-          },
-        ],
-      },
-    },
-    {
       name: "InitRewardReceiptManagerIx",
       type: {
         kind: "struct",
@@ -768,10 +714,6 @@ export const IDL: CardinalRewardReceiptManager = {
           {
             name: "requiredRewardSeconds",
             type: "u128",
-          },
-          {
-            name: "paymentAmount",
-            type: "u64",
           },
           {
             name: "paymentMint",
@@ -802,10 +744,6 @@ export const IDL: CardinalRewardReceiptManager = {
           {
             name: "requiredRewardSeconds",
             type: "u128",
-          },
-          {
-            name: "paymentAmount",
-            type: "u64",
           },
           {
             name: "paymentMint",

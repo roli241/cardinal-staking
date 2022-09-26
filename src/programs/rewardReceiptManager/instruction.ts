@@ -25,7 +25,6 @@ export const initRewardReceiptManager = (
     name: string;
     authority: PublicKey;
     requiredRewardSeconds: BN;
-    paymentAmount: BN;
     paymentMint: PublicKey;
     paymentManager: PublicKey;
     maxClaimedReceipts?: BN;
@@ -43,7 +42,6 @@ export const initRewardReceiptManager = (
       name: params.name,
       authority: params.authority,
       requiredRewardSeconds: params.requiredRewardSeconds,
-      paymentAmount: params.paymentAmount,
       paymentMint: params.paymentMint,
       paymentManager: params.paymentManager,
       maxClaimedReceipts: params.maxClaimedReceipts ?? null,
@@ -67,7 +65,6 @@ export const updateRewardReceiptManager = (
     stakePoolId: PublicKey;
     authority: PublicKey;
     requiredRewardSeconds: BN;
-    paymentAmount: BN;
     paymentMint: PublicKey;
     paymentManager: PublicKey;
     maxClaimedReceipts?: BN;
@@ -84,7 +81,6 @@ export const updateRewardReceiptManager = (
     {
       authority: params.authority,
       requiredRewardSeconds: params.requiredRewardSeconds,
-      paymentAmount: params.paymentAmount,
       paymentMint: params.paymentMint,
       paymentManager: params.paymentManager,
       maxClaimedReceipts: params.maxClaimedReceipts ?? null,
