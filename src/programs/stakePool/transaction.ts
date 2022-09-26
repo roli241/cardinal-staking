@@ -391,6 +391,8 @@ export const withUnstake = async (
     tryGetAccount(() => getRewardDistributor(connection, rewardDistributorId)),
   ]);
 
+  if (!stakeEntryData) throw "Stake entry not found";
+
   const stakePoolData = await getStakePool(connection, params.stakePoolId);
 
   if (
@@ -448,6 +450,7 @@ export const withUnstake = async (
     await withClaimRewards(transaction, connection, wallet, {
       stakePoolId: params.stakePoolId,
       stakeEntryId: stakeEntryId,
+      lastStaker: stakeEntryData?.parsed.lastStaker,
     });
   }
 

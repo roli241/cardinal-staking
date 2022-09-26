@@ -73,6 +73,7 @@ export const initRewardEntry = (
     stakeEntryId: PublicKey;
     rewardDistributor: PublicKey;
     rewardEntryId: PublicKey;
+    payer?: PublicKey;
   }
 ): TransactionInstruction => {
   const provider = new AnchorProvider(connection, wallet, {});
@@ -86,7 +87,7 @@ export const initRewardEntry = (
       rewardEntry: params.rewardEntryId,
       stakeEntry: params.stakeEntryId,
       rewardDistributor: params.rewardDistributor,
-      payer: wallet.publicKey,
+      payer: params.payer ?? wallet.publicKey,
       systemProgram: SystemProgram.programId,
     },
   });
@@ -128,7 +129,7 @@ export const claimRewards = async (
       rewardMint: params.rewardMintId,
       userRewardMintTokenAccount: params.rewardMintTokenAccountId,
       rewardManager: REWARD_MANAGER,
-      user: wallet.publicKey,
+      user: params.payer ?? wallet.publicKey,
       tokenProgram: TOKEN_PROGRAM_ID,
       systemProgram: SystemProgram.programId,
     },

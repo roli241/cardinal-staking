@@ -288,6 +288,7 @@ export const claimRewards = async (
   params: {
     stakePoolId: PublicKey;
     stakeEntryId: PublicKey;
+    lastStaker?: PublicKey;
     payer?: PublicKey;
     skipRewardMintTokenAccount?: boolean;
   }
@@ -302,6 +303,7 @@ export const claimRewards = async (
   await withClaimRewards(transaction, connection, wallet, {
     stakePoolId: params.stakePoolId,
     stakeEntryId: params.stakeEntryId,
+    lastStaker: params.lastStaker ?? wallet.publicKey,
     payer: params.payer,
     skipRewardMintTokenAccount: params.skipRewardMintTokenAccount,
   });
