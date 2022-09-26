@@ -10,15 +10,21 @@ import {
   TransactionEnvelope,
 } from "@saberhq/solana-contrib";
 import type * as splToken from "@solana/spl-token";
-import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import {
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  Transaction,
+} from "@solana/web3.js";
 import { BN } from "bn.js";
 import { expect } from "chai";
 
-import { createStakeEntry, createStakePool, stake, unstake } from "../src";
+import { createStakeEntry, createStakePool, unstake } from "../src";
 import { ReceiptType } from "../src/programs/stakePool";
 import { getStakeEntry } from "../src/programs/stakePool/accounts";
 import { findStakeEntryId } from "../src/programs/stakePool/pda";
 import {
+  withClaimReceiptMint,
   withReassignStakeEntry,
   withStake,
 } from "../src/programs/stakePool/transaction";
@@ -35,6 +41,12 @@ describe("Reassign staker", () => {
 
   before(async () => {
     const provider = getProvider();
+    const fromAirdropSignature = await provider.connection.requestAirdrop(
+      newStaker.publicKey,
+      10 * LAMPORTS_PER_SOL
+    );
+    await provider.connection.confirmTransaction(fromAirdropSignature);
+
     // original mint
     [originalMintTokenAccountId, originalMint] = await createMint(
       provider.connection,
@@ -113,14 +125,7 @@ describe("Reassign staker", () => {
 
     await expectTXTable(
       new TransactionEnvelope(SolanaProvider.init(provider), [
-        ...(
-          await stake(provider.connection, provider.wallet, {
-            stakePoolId: stakePoolId,
-            originalMintId: originalMint.publicKey,
-            userOriginalMintTokenAccountId: originalMintTokenAccountId,
-            receiptType: ReceiptType.Original,
-          })
-        ).instructions,
+        ...transaction.instructions,
       ]),
       "Stake"
     ).to.be.fulfilled;
@@ -155,7 +160,7 @@ describe("Reassign staker", () => {
     expect(checkUserOriginalTokenAccount.isFrozen).to.eq(false);
   });
 
-  it("Reassign stake antry", async () => {
+  it("Reassign stake entry", async () => {
     const provider = getProvider();
     const transaction = new Transaction();
 
@@ -185,6 +190,51 @@ describe("Reassign staker", () => {
     expect(stakeEntryData.parsed.lastStaker.toString()).to.eq(
       newStaker.publicKey.toString()
     );
+  });
+
+  it("Claim receipt mint", async () => {
+    const provider = getProvider();
+    const transaction = new Transaction();
+
+    const [stakeEntryId] = await findStakeEntryId(
+      provider.wallet.publicKey,
+      stakePoolId,
+      originalMint.publicKey,
+      false
+    );
+
+    await withClaimReceiptMint(
+      transaction,
+      provider.connection,
+      new SignerWallet(newStaker),
+      {
+        stakePoolId: stakePoolId,
+        stakeEntryId: stakeEntryId,
+        originalMintId: originalMint.publicKey,
+        receiptMintId: originalMint.publicKey,
+        receiptType: ReceiptType.Original,
+      }
+    );
+
+    await expectTXTable(
+      new TransactionEnvelope(
+        SolanaProvider.init(provider),
+        [...transaction.instructions],
+        [newStaker]
+      ),
+      "Claim receipt mint"
+    ).to.be.fulfilled;
+
+    const userOriginalMintTokenAccountId = await findAta(
+      originalMint.publicKey,
+      newStaker.publicKey,
+      true
+    );
+    const checkUserOriginalTokenAccount = await originalMint.getAccountInfo(
+      userOriginalMintTokenAccountId
+    );
+    expect(checkUserOriginalTokenAccount.amount.toNumber()).to.eq(1);
+    expect(checkUserOriginalTokenAccount.isFrozen).to.eq(true);
   });
 
   it("Unstake", async () => {
