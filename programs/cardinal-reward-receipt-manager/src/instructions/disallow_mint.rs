@@ -25,6 +25,8 @@ pub struct DisallowMintCtx<'info> {
 
 pub fn handler(ctx: Context<DisallowMintCtx>) -> Result<()> {
     let reward_receipt = &mut ctx.accounts.reward_receipt;
+    reward_receipt.stake_entry = ctx.accounts.stake_entry.key();
+    reward_receipt.reward_receipt_manager = ctx.accounts.reward_receipt_manager.key();
     reward_receipt.target = Pubkey::default();
 
     Ok(())
