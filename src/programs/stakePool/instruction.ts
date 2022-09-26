@@ -543,8 +543,8 @@ export const reassignStakeEntry = (
   connection: Connection,
   wallet: Wallet,
   params: {
+    stakePoolId: PublicKey;
     stakeEntryId: PublicKey;
-    lastStaker: PublicKey;
     target: PublicKey;
   }
 ) => {
@@ -560,8 +560,9 @@ export const reassignStakeEntry = (
     },
     {
       accounts: {
+        stakePool: params.stakePoolId,
         stakeEntry: params.stakeEntryId,
-        lastStaker: params.lastStaker,
+        lastStaker: provider.wallet.publicKey,
       },
     }
   );
