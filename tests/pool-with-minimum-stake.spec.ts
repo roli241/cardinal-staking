@@ -187,7 +187,7 @@ describe("Create stake pool", () => {
   });
 
   it("Unstake min stake seconds satisfied", async () => {
-    await delay(5000);
+    await delay(7000);
     const provider = getProvider();
 
     await expectTXTable(

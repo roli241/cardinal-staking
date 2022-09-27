@@ -250,6 +250,30 @@ describe("Stake and claim rewards from treasury", () => {
       originalMint.publicKey
     );
 
+    const checkRewardMint = new splToken.Token(
+      provider.connection,
+      rewardMint,
+      splToken.TOKEN_PROGRAM_ID,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      null
+    );
+
+    const userRewardMintTokenAccountId = await findAta(
+      rewardMint,
+      provider.wallet.publicKey,
+      true
+    );
+
+    let beforeAmount = 0;
+    try {
+      beforeAmount = (
+        await checkRewardMint.getAccountInfo(userRewardMintTokenAccountId)
+      ).amount.toNumber();
+    } catch (e) {
+      beforeAmount = 0;
+    }
+
     const transaction = await claimRewards(
       provider.connection,
       provider.wallet,
@@ -266,25 +290,10 @@ describe("Stake and claim rewards from treasury", () => {
       "Claim Rewards"
     ).to.be.fulfilled;
 
-    const checkRewardMint = new splToken.Token(
-      provider.connection,
-      rewardMint,
-      splToken.TOKEN_PROGRAM_ID,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      null
-    );
-
-    const userRewardMintTokenAccountId = await findAta(
-      rewardMint,
-      provider.wallet.publicKey,
-      true
-    );
-
-    const checkUserRewardMintTokenAccountId =
+    const afterCheckUserRewardMintTokenAccountId =
       await checkRewardMint.getAccountInfo(userRewardMintTokenAccountId);
-    expect(checkUserRewardMintTokenAccountId.amount.toNumber()).to.eq(
-      3000000000
+    expect(afterCheckUserRewardMintTokenAccountId.amount.toNumber()).to.eq(
+      beforeAmount + 3000000000
     );
   });
 });

@@ -217,7 +217,7 @@ describe("Create stake pool", () => {
   });
 
   it("Unstake cooldown completed", async () => {
-    await delay(5000);
+    await delay(7000);
     const provider = getProvider();
     await expectTXTable(
       new TransactionEnvelope(SolanaProvider.init(provider), [
