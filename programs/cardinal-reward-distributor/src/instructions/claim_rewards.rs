@@ -48,7 +48,7 @@ pub fn handler<'key, 'accounts, 'remaining, 'info>(ctx: Context<'key, 'accounts,
     let reward_amount = reward_distributor.reward_amount;
     let reward_duration_seconds = reward_distributor.reward_duration_seconds;
 
-    if stake_entry.kind == StakeEntryKind::Permissionless as u8
+    if stake_entry.kind == StakeEntryKind::Permissioned as u8
         // if someone else updated this users stake_entry then it must be checked that they are still the staker - this should be called BEFORE unstake
         && ctx.accounts.user_reward_mint_token_account.owner != stake_entry.last_staker
         // can only be signed by the last_staker or the reward distributor authority

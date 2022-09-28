@@ -24,7 +24,7 @@ pub fn handler(ctx: Context<UpdateTotalStakeSecondsCtx>) -> Result<()> {
     }
 
     if ctx.accounts.last_staker.key() != stake_entry.last_staker {
-        stake_entry.kind = StakeEntryKind::Permissionless as u8
+        stake_entry.kind = StakeEntryKind::Permissioned as u8
     }
     Ok(())
 }

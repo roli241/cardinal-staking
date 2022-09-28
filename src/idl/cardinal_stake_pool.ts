@@ -893,10 +893,10 @@ export type CardinalStakePool = {
         kind: "enum";
         variants: [
           {
-            name: "Permissioned";
+            name: "Permissionless";
           },
           {
-            name: "Permissionless";
+            name: "Permissioned";
           }
         ];
       };
@@ -1936,10 +1936,10 @@ export const IDL: CardinalStakePool = {
         kind: "enum",
         variants: [
           {
-            name: "Permissioned",
+            name: "Permissionless",
           },
           {
-            name: "Permissionless",
+            name: "Permissioned",
           },
         ],
       },
