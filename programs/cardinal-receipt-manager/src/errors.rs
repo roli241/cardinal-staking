@@ -8,8 +8,8 @@ pub enum ErrorCode {
     MaxNumberOfReceiptsExceeded,
     #[msg("Invalid claimer")]
     InvalidClaimer,
-    #[msg("Invalid rewards receipt manager")]
-    InvalidRewardReceiptManager,
+    #[msg("Invalid receipt manager")]
+    InvaliReceiptManager,
     #[msg("Cannot disallow claim reward receipt")]
     CannotBlacklistDisallowReceipt,
     #[msg("Reward seconds not satisifed")]

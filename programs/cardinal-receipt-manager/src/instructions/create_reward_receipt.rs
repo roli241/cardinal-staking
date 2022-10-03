@@ -13,12 +13,12 @@ pub struct CreateRewardReceiptCtx<'info> {
         init,
         payer = initializer,
         space = REWARD_RECEIPT_SIZE,
-        seeds = [REWARD_RECEIPT_SEED.as_bytes(), reward_receipt_manager.key().as_ref(), stake_entry.key().as_ref()],
+        seeds = [REWARD_RECEIPT_SEED.as_bytes(), receipt_manager.key().as_ref(), stake_entry.key().as_ref()],
         bump,
     )]
     reward_receipt: Box<Account<'info, RewardReceipt>>,
     #[account(mut)]
-    reward_receipt_manager: Box<Account<'info, RewardReceiptManager>>,
+    receipt_manager: Box<Account<'info, ReceiptManager>>,
     stake_entry: Box<Account<'info, StakeEntry>>,
 
     // TODO maybe maybe init_if_needed for ease of use in client
@@ -26,13 +26,13 @@ pub struct CreateRewardReceiptCtx<'info> {
     receipt_entry: Box<Account<'info, ReceiptEntry>>,
 
     // payment manager info
-    #[account(mut, constraint = payment_manager.key() == reward_receipt_manager.payment_manager @ ErrorCode::InvalidPaymentManager)]
+    #[account(mut, constraint = payment_manager.key() == receipt_manager.payment_manager @ ErrorCode::InvalidPaymentManager)]
     payment_manager: Box<Account<'info, PaymentManager>>,
     #[account(mut)]
     fee_collector_token_account: Box<Account<'info, TokenAccount>>,
-    #[account(mut, constraint = payment_token_account.mint == reward_receipt_manager.payment_mint @ ErrorCode::InvalidPaymentTokenAccount)]
+    #[account(mut, constraint = payment_token_account.mint == receipt_manager.payment_mint @ ErrorCode::InvalidPaymentTokenAccount)]
     payment_token_account: Box<Account<'info, TokenAccount>>,
-    #[account(mut, constraint = payer_token_account.mint == reward_receipt_manager.payment_mint && payer_token_account.owner == payer.key() @ ErrorCode::InvalidPayerTokenAcount)]
+    #[account(mut, constraint = payer_token_account.mint == receipt_manager.payment_mint && payer_token_account.owner == payer.key() @ ErrorCode::InvalidPayerTokenAcount)]
     payer_token_account: Box<Account<'info, TokenAccount>>,
 
     #[account(mut)]
@@ -54,28 +54,25 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
     let reward_receipt = &mut ctx.accounts.reward_receipt;
     reward_receipt.bump = *ctx.bumps.get("reward_receipt").unwrap();
     reward_receipt.receipt_entry = ctx.accounts.receipt_entry.key();
-    reward_receipt.reward_receipt_manager = ctx.accounts.reward_receipt_manager.key();
+    reward_receipt.receipt_manager = ctx.accounts.receipt_manager.key();
     reward_receipt.target = ctx.accounts.claimer.key();
     // increment counter
-    ctx.accounts.reward_receipt_manager.claimed_receipts_counter = ctx.accounts.reward_receipt_manager.claimed_receipts_counter.checked_add(1).expect("Add error");
+    ctx.accounts.receipt_manager.claimed_receipts_counter = ctx.accounts.receipt_manager.claimed_receipts_counter.checked_add(1).expect("Add error");
 
-    if ctx.accounts.stake_entry.total_stake_seconds < ctx.accounts.reward_receipt_manager.required_stake_seconds {
+    if ctx.accounts.stake_entry.total_stake_seconds < ctx.accounts.receipt_manager.required_stake_seconds {
         return Err(error!(ErrorCode::RewardSecondsNotSatisfied));
     }
 
-    let reward_receipt_manager = &mut ctx.accounts.reward_receipt_manager;
-    if let Some(max_reward_receipts) = reward_receipt_manager.max_claimed_receipts {
-        if max_reward_receipts == reward_receipt_manager.claimed_receipts_counter {
+    let receipt_manager = &mut ctx.accounts.receipt_manager;
+    if let Some(max_reward_receipts) = receipt_manager.max_claimed_receipts {
+        if max_reward_receipts == receipt_manager.claimed_receipts_counter {
             return Err(error!(ErrorCode::MaxNumberOfReceiptsExceeded));
         }
     }
 
     // add to used seconds
     let receipt_entry = &mut ctx.accounts.receipt_entry;
-    receipt_entry.used_stake_seconds = receipt_entry
-        .used_stake_seconds
-        .checked_add(ctx.accounts.reward_receipt_manager.uses_staked_seconds)
-        .expect("Add error");
+    receipt_entry.used_stake_seconds = receipt_entry.used_stake_seconds.checked_add(ctx.accounts.receipt_manager.uses_stake_seconds).expect("Add error");
 
     if receipt_entry.used_stake_seconds > ctx.accounts.stake_entry.total_stake_seconds {
         return Err(error!(ErrorCode::RewardSecondsNotSatisfied));
@@ -83,7 +80,7 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
 
     // handle payment
     let payment_mints = get_payment_mints();
-    let payment_mint = &ctx.accounts.reward_receipt_manager.payment_mint.to_string()[..];
+    let payment_mint = &ctx.accounts.receipt_manager.payment_mint.to_string()[..];
     let payment_amount = payment_mints.get(payment_mint).expect("Could not fetch payment amount");
     let cpi_accounts = cardinal_payment_manager::cpi::accounts::HandlePaymentCtx {
         payment_manager: ctx.accounts.payment_manager.to_account_info(),

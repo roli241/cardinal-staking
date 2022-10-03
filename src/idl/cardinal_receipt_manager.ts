@@ -1,12 +1,12 @@
-export type CardinalRewardReceiptManager = {
+export type CardinalReceiptManager = {
   version: "1.8.4";
-  name: "cardinal_reward_receipt_manager";
+  name: "cardinal_receipt_manager";
   instructions: [
     {
-      name: "initRewardReceiptManager";
+      name: "initReceiptManager";
       accounts: [
         {
-          name: "rewardReceiptManager";
+          name: "receiptManager";
           isMut: true;
           isSigner: false;
         },
@@ -30,7 +30,7 @@ export type CardinalRewardReceiptManager = {
         {
           name: "ix";
           type: {
-            defined: "InitRewardReceiptManagerIx";
+            defined: "InitReceiptManagerIx";
           };
         }
       ];
@@ -44,7 +44,7 @@ export type CardinalRewardReceiptManager = {
           isSigner: false;
         },
         {
-          name: "rewardReceiptManager";
+          name: "receiptManager";
           isMut: true;
           isSigner: false;
         },
@@ -112,10 +112,10 @@ export type CardinalRewardReceiptManager = {
       args: [];
     },
     {
-      name: "updateRewardReceiptManager";
+      name: "updateReceiptManager";
       accounts: [
         {
-          name: "rewardReceiptManager";
+          name: "receiptManager";
           isMut: true;
           isSigner: false;
         },
@@ -129,16 +129,16 @@ export type CardinalRewardReceiptManager = {
         {
           name: "ix";
           type: {
-            defined: "UpdateRewardReceiptManagerIx";
+            defined: "UpdateReceiptManagerIx";
           };
         }
       ];
     },
     {
-      name: "closeRewardReceiptManager";
+      name: "closeReceiptManager";
       accounts: [
         {
-          name: "rewardReceiptManager";
+          name: "receiptManager";
           isMut: true;
           isSigner: false;
         },
@@ -185,7 +185,7 @@ export type CardinalRewardReceiptManager = {
           isSigner: false;
         },
         {
-          name: "rewardReceiptManager";
+          name: "receiptManager";
           isMut: false;
           isSigner: false;
         },
@@ -206,7 +206,7 @@ export type CardinalRewardReceiptManager = {
           isSigner: false;
         },
         {
-          name: "rewardReceiptManager";
+          name: "receiptManager";
           isMut: false;
           isSigner: false;
         },
@@ -231,7 +231,7 @@ export type CardinalRewardReceiptManager = {
   ];
   accounts: [
     {
-      name: "rewardReceiptManager";
+      name: "receiptManager";
       type: {
         kind: "struct";
         fields: [
@@ -252,7 +252,7 @@ export type CardinalRewardReceiptManager = {
             type: "u128";
           },
           {
-            name: "usesStakedSeconds";
+            name: "usesStakeSeconds";
             type: "u128";
           },
           {
@@ -294,7 +294,7 @@ export type CardinalRewardReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "rewardReceiptManager";
+            name: "receiptManager";
             type: "publicKey";
           },
           {
@@ -327,7 +327,7 @@ export type CardinalRewardReceiptManager = {
   ];
   types: [
     {
-      name: "InitRewardReceiptManagerIx";
+      name: "InitReceiptManagerIx";
       type: {
         kind: "struct";
         fields: [
@@ -344,7 +344,7 @@ export type CardinalRewardReceiptManager = {
             type: "u128";
           },
           {
-            name: "usesStakedSeconds";
+            name: "usesStakeSeconds";
             type: "u128";
           },
           {
@@ -365,7 +365,7 @@ export type CardinalRewardReceiptManager = {
       };
     },
     {
-      name: "UpdateRewardReceiptManagerIx";
+      name: "UpdateReceiptManagerIx";
       type: {
         kind: "struct";
         fields: [
@@ -378,7 +378,7 @@ export type CardinalRewardReceiptManager = {
             type: "u128";
           },
           {
-            name: "usesStakedSeconds";
+            name: "usesStakeSeconds";
             type: "u128";
           },
           {
@@ -417,8 +417,8 @@ export type CardinalRewardReceiptManager = {
     },
     {
       code: 6003;
-      name: "InvalidRewardReceiptManager";
-      msg: "Invalid rewards receipt manager";
+      name: "InvaliReceiptManager";
+      msg: "Invalid receipt manager";
     },
     {
       code: 6004;
@@ -498,15 +498,15 @@ export type CardinalRewardReceiptManager = {
   ];
 };
 
-export const IDL: CardinalRewardReceiptManager = {
+export const IDL: CardinalReceiptManager = {
   version: "1.8.4",
-  name: "cardinal_reward_receipt_manager",
+  name: "cardinal_receipt_manager",
   instructions: [
     {
-      name: "initRewardReceiptManager",
+      name: "initReceiptManager",
       accounts: [
         {
-          name: "rewardReceiptManager",
+          name: "receiptManager",
           isMut: true,
           isSigner: false,
         },
@@ -530,7 +530,7 @@ export const IDL: CardinalRewardReceiptManager = {
         {
           name: "ix",
           type: {
-            defined: "InitRewardReceiptManagerIx",
+            defined: "InitReceiptManagerIx",
           },
         },
       ],
@@ -544,7 +544,7 @@ export const IDL: CardinalRewardReceiptManager = {
           isSigner: false,
         },
         {
-          name: "rewardReceiptManager",
+          name: "receiptManager",
           isMut: true,
           isSigner: false,
         },
@@ -612,10 +612,10 @@ export const IDL: CardinalRewardReceiptManager = {
       args: [],
     },
     {
-      name: "updateRewardReceiptManager",
+      name: "updateReceiptManager",
       accounts: [
         {
-          name: "rewardReceiptManager",
+          name: "receiptManager",
           isMut: true,
           isSigner: false,
         },
@@ -629,16 +629,16 @@ export const IDL: CardinalRewardReceiptManager = {
         {
           name: "ix",
           type: {
-            defined: "UpdateRewardReceiptManagerIx",
+            defined: "UpdateReceiptManagerIx",
           },
         },
       ],
     },
     {
-      name: "closeRewardReceiptManager",
+      name: "closeReceiptManager",
       accounts: [
         {
-          name: "rewardReceiptManager",
+          name: "receiptManager",
           isMut: true,
           isSigner: false,
         },
@@ -685,7 +685,7 @@ export const IDL: CardinalRewardReceiptManager = {
           isSigner: false,
         },
         {
-          name: "rewardReceiptManager",
+          name: "receiptManager",
           isMut: false,
           isSigner: false,
         },
@@ -706,7 +706,7 @@ export const IDL: CardinalRewardReceiptManager = {
           isSigner: false,
         },
         {
-          name: "rewardReceiptManager",
+          name: "receiptManager",
           isMut: false,
           isSigner: false,
         },
@@ -731,7 +731,7 @@ export const IDL: CardinalRewardReceiptManager = {
   ],
   accounts: [
     {
-      name: "rewardReceiptManager",
+      name: "receiptManager",
       type: {
         kind: "struct",
         fields: [
@@ -752,7 +752,7 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "u128",
           },
           {
-            name: "usesStakedSeconds",
+            name: "usesStakeSeconds",
             type: "u128",
           },
           {
@@ -794,7 +794,7 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "rewardReceiptManager",
+            name: "receiptManager",
             type: "publicKey",
           },
           {
@@ -827,7 +827,7 @@ export const IDL: CardinalRewardReceiptManager = {
   ],
   types: [
     {
-      name: "InitRewardReceiptManagerIx",
+      name: "InitReceiptManagerIx",
       type: {
         kind: "struct",
         fields: [
@@ -844,7 +844,7 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "u128",
           },
           {
-            name: "usesStakedSeconds",
+            name: "usesStakeSeconds",
             type: "u128",
           },
           {
@@ -865,7 +865,7 @@ export const IDL: CardinalRewardReceiptManager = {
       },
     },
     {
-      name: "UpdateRewardReceiptManagerIx",
+      name: "UpdateReceiptManagerIx",
       type: {
         kind: "struct",
         fields: [
@@ -878,7 +878,7 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "u128",
           },
           {
-            name: "usesStakedSeconds",
+            name: "usesStakeSeconds",
             type: "u128",
           },
           {
@@ -917,8 +917,8 @@ export const IDL: CardinalRewardReceiptManager = {
     },
     {
       code: 6003,
-      name: "InvalidRewardReceiptManager",
-      msg: "Invalid rewards receipt manager",
+      name: "InvaliReceiptManager",
+      msg: "Invalid receipt manager",
     },
     {
       code: 6004,

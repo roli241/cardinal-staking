@@ -21,23 +21,24 @@ import { expect } from "chai";
 import {
   createStakeEntry,
   createStakePool,
-  rewardReceiptManager,
+  receiptManager,
   stake,
 } from "../src";
-import { DEFAULT_PAYMENT_COLLECTOR } from "../src/programs/rewardReceiptManager";
+import { DEFAULT_PAYMENT_COLLECTOR } from "../src/programs/receiptManager";
 import {
+  getreceiptManager,
   getRewardReceipt,
-  getRewardReceiptManager,
-} from "../src/programs/rewardReceiptManager/accounts";
+} from "../src/programs/receiptManager/accounts";
 import {
+  findReceiptEntryId,
+  findReceiptManagerId,
   findRewardReceiptId,
-  findRewardReceiptManagerId,
-} from "../src/programs/rewardReceiptManager/pda";
+} from "../src/programs/receiptManager/pda";
 import {
   withCloseRewardReceipt,
   withCreateRewardReceipt,
   withDisallowMint,
-} from "../src/programs/rewardReceiptManager/transaction";
+} from "../src/programs/receiptManager/transaction";
 import { ReceiptType } from "../src/programs/stakePool";
 import { getStakeEntry } from "../src/programs/stakePool/accounts";
 import { findStakeEntryId } from "../src/programs/stakePool/pda";
@@ -52,8 +53,9 @@ describe("Disallow mint", () => {
 
   const originalMintAuthority = Keypair.generate();
 
-  const rewardReceiptManagerName = `mgr-${Math.random()}`;
-  const requiredRewardSeconds = new BN(5);
+  const receiptManagerName = `mgr-${Math.random()}`;
+  const requiredStakeSeconds = new BN(5);
+  const usesStakeSeconds = new BN(0);
 
   const MAKER_FEE = 0;
   const TAKER_FEE = 0;
@@ -179,16 +181,17 @@ describe("Disallow mint", () => {
   it("Create Reward Receipt Manager", async () => {
     const provider = getProvider();
     const transaction = new Transaction();
-    const [, rewardReceiptManagerId] =
-      await rewardReceiptManager.transaction.withInitRewardReceiptManager(
+    const [, receiptManagerId] =
+      await receiptManager.transaction.withInitReceiptManager(
         transaction,
         provider.connection,
         provider.wallet,
         {
-          name: rewardReceiptManagerName,
+          name: receiptManagerName,
           stakePoolId: stakePoolId,
           authority: provider.wallet.publicKey,
-          requiredRewardSeconds: requiredRewardSeconds,
+          requiredStakeSeconds: requiredStakeSeconds,
+          usesStakeSeconds: usesStakeSeconds,
           paymentMint: paymentMint,
           paymentManagerName: paymentManagerName,
         }
@@ -208,28 +211,28 @@ describe("Disallow mint", () => {
       formatLogs: true,
     }).to.be.fulfilled;
 
-    const rewardReceiptManagerData = await getRewardReceiptManager(
+    const receiptManagerData = await getreceiptManager(
       provider.connection,
-      rewardReceiptManagerId
+      receiptManagerId
     );
     const [payamentManagerId] = await findPaymentManagerAddress(
       paymentManagerName
     );
-    expect(rewardReceiptManagerData.parsed.paymentManager.toString()).to.eq(
+    expect(receiptManagerData.parsed.paymentManager.toString()).to.eq(
       payamentManagerId.toString()
     );
-    expect(rewardReceiptManagerData.parsed.authority.toString()).to.eq(
+    expect(receiptManagerData.parsed.authority.toString()).to.eq(
       provider.wallet.publicKey.toString()
     );
-    expect(rewardReceiptManagerData.parsed.paymentMint.toString()).to.eq(
+    expect(receiptManagerData.parsed.paymentMint.toString()).to.eq(
       paymentMint.toString()
     );
-    expect(rewardReceiptManagerData.parsed.stakePool.toString()).to.eq(
+    expect(receiptManagerData.parsed.stakePool.toString()).to.eq(
       stakePoolId.toString()
     );
-    expect(
-      rewardReceiptManagerData.parsed.requiredRewardSeconds.toString()
-    ).to.eq(requiredRewardSeconds.toString());
+    expect(receiptManagerData.parsed.requiredStakeSeconds.toString()).to.eq(
+      requiredStakeSeconds.toString()
+    );
   });
 
   it("Init stake entry for pool", async () => {
@@ -326,18 +329,18 @@ describe("Disallow mint", () => {
       false
     );
 
-    const [rewardReceiptManagerId] = await findRewardReceiptManagerId(
+    const [receiptManagerId] = await findReceiptManagerId(
       stakePoolId,
-      rewardReceiptManagerName
+      receiptManagerName
     );
     const [rewardReceiptId] = await findRewardReceiptId(
-      rewardReceiptManagerId,
+      receiptManagerId,
       stakeEntryId
     );
 
     const transaction = new Transaction();
     await withDisallowMint(transaction, provider.connection, provider.wallet, {
-      rewardReceiptManagerId: rewardReceiptManagerId,
+      receiptManagerId: receiptManagerId,
       rewardReceiptId: rewardReceiptId,
       mintId: originalMint.publicKey,
     });
@@ -371,7 +374,7 @@ describe("Disallow mint", () => {
       provider.connection,
       provider.wallet,
       {
-        rewardReceiptManagerName: rewardReceiptManagerName,
+        receiptManagerName: receiptManagerName,
         stakePoolId: stakePoolId,
         stakeEntryId: stakeEntryId,
         claimer: provider.wallet.publicKey,
@@ -397,17 +400,17 @@ describe("Disallow mint", () => {
       false
     );
 
-    const [rewardReceiptManagerId] = await findRewardReceiptManagerId(
+    const [receiptManagerId] = await findReceiptManagerId(
       stakePoolId,
-      rewardReceiptManagerName
+      receiptManagerName
     );
     const [rewardReceiptId] = await findRewardReceiptId(
-      rewardReceiptManagerId,
+      receiptManagerId,
       stakeEntryId
     );
     const transaction = new Transaction();
     withCloseRewardReceipt(transaction, provider.connection, provider.wallet, {
-      rewardReceiptManagerId: rewardReceiptManagerId,
+      receiptManagerId: receiptManagerId,
       rewardReceiptId: rewardReceiptId,
     });
     await expectTXTable(
@@ -432,6 +435,8 @@ describe("Disallow mint", () => {
       originalMint.publicKey,
       false
     );
+    const [receiptEntryId] = await findReceiptEntryId(stakeEntryId);
+
     const checkMint = new splToken.Token(
       provider.connection,
       paymentMint,
@@ -460,7 +465,7 @@ describe("Disallow mint", () => {
       provider.connection,
       provider.wallet,
       {
-        rewardReceiptManagerName: rewardReceiptManagerName,
+        receiptManagerName: receiptManagerName,
         stakePoolId: stakePoolId,
         stakeEntryId: stakeEntryId,
         claimer: provider.wallet.publicKey,
@@ -474,9 +479,9 @@ describe("Disallow mint", () => {
       "Create Reward Receipt"
     ).to.be.fulfilled;
 
-    const [rewardReceiptManagerId] = await findRewardReceiptManagerId(
+    const [receiptManagerId] = await findReceiptManagerId(
       stakePoolId,
-      rewardReceiptManagerName
+      receiptManagerName
     );
 
     const checkRewardReceiptData = await tryGetAccount(() =>
@@ -486,12 +491,12 @@ describe("Disallow mint", () => {
     expect(checkRewardReceiptData?.parsed.target.toString()).to.eq(
       provider.wallet.publicKey.toString()
     );
-    expect(checkRewardReceiptData?.parsed.stakeEntry.toString()).to.eq(
-      stakeEntryId.toString()
+    expect(checkRewardReceiptData?.parsed.receiptEntry.toString()).to.eq(
+      receiptEntryId.toString()
     );
-    expect(
-      checkRewardReceiptData?.parsed.rewardReceiptManager.toString()
-    ).to.eq(rewardReceiptManagerId.toString());
+    expect(checkRewardReceiptData?.parsed.receiptManager.toString()).to.eq(
+      receiptManagerId.toString()
+    );
 
     const paymentTokenAccountData = await checkMint.getAccountInfo(
       paymentTokenAccountId

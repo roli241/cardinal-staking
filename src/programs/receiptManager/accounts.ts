@@ -12,14 +12,11 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 
 import { REWARD_DISTRIBUTOR_ADDRESS } from "../rewardDistributor";
 import type {
-  REWARD_RECEIPT_MANAGER_PROGRAM,
+  RECEIPT_MANAGER_PROGRAM,
+  ReceiptManagerData,
   RewardReceiptData,
-  RewardReceiptManagerData,
 } from "./constants";
-import {
-  REWARD_RECEIPT_MANAGER_ADDRESS,
-  REWARD_RECEIPT_MANAGER_IDL,
-} from "./constants";
+import { RECEIPT_MANAGER_ADDRESS, RECEIPT_MANAGER_IDL } from "./constants";
 
 const getProgram = (connection: Connection) => {
   const provider = new AnchorProvider(
@@ -27,36 +24,35 @@ const getProgram = (connection: Connection) => {
     new SignerWallet(Keypair.generate()),
     {}
   );
-  return new Program<REWARD_RECEIPT_MANAGER_PROGRAM>(
-    REWARD_RECEIPT_MANAGER_IDL,
+  return new Program<RECEIPT_MANAGER_PROGRAM>(
+    RECEIPT_MANAGER_IDL,
     REWARD_DISTRIBUTOR_ADDRESS,
     provider
   );
 };
 
 //////// REWARD RECEIPT MANAGER ////////
-export const getRewardReceiptManager = async (
+export const getreceiptManager = async (
   connection: Connection,
-  rewardReceiptManagerId: PublicKey
-): Promise<AccountData<RewardReceiptManagerData>> => {
-  const rewardReceiptManagerProgram = getProgram(connection);
+  receiptManagerId: PublicKey
+): Promise<AccountData<ReceiptManagerData>> => {
+  const receiptManagerProgram = getProgram(connection);
 
-  const parsed =
-    (await rewardReceiptManagerProgram.account.rewardReceiptManager.fetch(
-      rewardReceiptManagerId
-    )) as RewardReceiptManagerData;
+  const parsed = (await receiptManagerProgram.account.receiptManager.fetch(
+    receiptManagerId
+  )) as ReceiptManagerData;
   return {
     parsed,
-    pubkey: rewardReceiptManagerId,
+    pubkey: receiptManagerId,
   };
 };
 
-export const getAllRewardReceiptManagers = async (
+export const getAllreceiptManagers = async (
   connection: Connection
-): Promise<AccountData<RewardReceiptManagerData>[]> =>
-  getAllOfType<RewardReceiptManagerData>(connection, "rewardReceiptManager");
+): Promise<AccountData<ReceiptManagerData>[]> =>
+  getAllOfType<ReceiptManagerData>(connection, "receiptManager");
 
-export const getRewardReceiptManagersForPool = async (
+export const getreceiptManagersForPool = async (
   connection: Connection,
   stakePoolId: PublicKey
 ): Promise<AccountData<RewardReceiptData>[]> => {
@@ -68,7 +64,7 @@ export const getRewardReceiptManagersForPool = async (
           memcmp: {
             offset: 0,
             bytes: utils.bytes.bs58.encode(
-              BorshAccountsCoder.accountDiscriminator("rewardReceiptManager")
+              BorshAccountsCoder.accountDiscriminator("receiptManager")
             ),
           },
         },
@@ -81,24 +77,24 @@ export const getRewardReceiptManagersForPool = async (
       ],
     }
   );
-  const rewardReceiptManagerDatas: AccountData<RewardReceiptData>[] = [];
-  const coder = new BorshAccountsCoder(REWARD_RECEIPT_MANAGER_IDL);
+  const ReceiptManagerDatas: AccountData<RewardReceiptData>[] = [];
+  const coder = new BorshAccountsCoder(RECEIPT_MANAGER_IDL);
   programAccounts.forEach((account) => {
     try {
-      const rewardReceiptManagerData: RewardReceiptData = coder.decode(
-        "rewardReceiptManager",
+      const ReceiptManagerData: RewardReceiptData = coder.decode(
+        "receiptManager",
         account.account.data
       );
-      if (rewardReceiptManagerData) {
-        rewardReceiptManagerDatas.push({
+      if (ReceiptManagerData) {
+        ReceiptManagerDatas.push({
           ...account,
-          parsed: rewardReceiptManagerData,
+          parsed: ReceiptManagerData,
         });
       }
       // eslint-disable-next-line no-empty
     } catch (e) {}
   });
-  return rewardReceiptManagerDatas.sort((a, b) =>
+  return ReceiptManagerDatas.sort((a, b) =>
     a.pubkey.toBase58().localeCompare(b.pubkey.toBase58())
   );
 };
@@ -108,9 +104,9 @@ export const getRewardReceipt = async (
   connection: Connection,
   rewardReceiptId: PublicKey
 ): Promise<AccountData<RewardReceiptData>> => {
-  const rewardReceiptManagerProgram = getProgram(connection);
+  const receiptManagerProgram = getProgram(connection);
 
-  const parsed = (await rewardReceiptManagerProgram.account.rewardReceipt.fetch(
+  const parsed = (await receiptManagerProgram.account.rewardReceipt.fetch(
     rewardReceiptId
   )) as RewardReceiptData;
   return {
@@ -121,8 +117,8 @@ export const getRewardReceipt = async (
 
 export const getAllRewardReceipts = async (
   connection: Connection
-): Promise<AccountData<RewardReceiptManagerData>[]> =>
-  getAllOfType<RewardReceiptManagerData>(connection, "rewardReceipt");
+): Promise<AccountData<ReceiptManagerData>[]> =>
+  getAllOfType<ReceiptManagerData>(connection, "rewardReceipt");
 
 export const getRewardReceiptsForManager = async (
   connection: Connection,
@@ -150,7 +146,7 @@ export const getRewardReceiptsForManager = async (
     }
   );
   const rewardReceiptDatas: AccountData<RewardReceiptData>[] = [];
-  const coder = new BorshAccountsCoder(REWARD_RECEIPT_MANAGER_IDL);
+  const coder = new BorshAccountsCoder(RECEIPT_MANAGER_IDL);
   programAccounts.forEach((account) => {
     try {
       const rewardReceiptData: RewardReceiptData = coder.decode(
@@ -173,17 +169,17 @@ export const getRewardReceiptsForManager = async (
 
 export const getClaimableRewardReceiptsForManager = async (
   connection: Connection,
-  rewardReceiptManagerId: PublicKey
+  receiptManagerId: PublicKey
 ): Promise<AccountData<RewardReceiptData>[]> => {
-  const checkRewardReceiptManagerData = await tryGetAccount(() =>
-    getRewardReceiptManager(connection, rewardReceiptManagerId)
+  const ReceiptManagerData = await tryGetAccount(() =>
+    getreceiptManager(connection, receiptManagerId)
   );
-  if (!checkRewardReceiptManagerData) {
-    throw `No reward receipt manager found for ${rewardReceiptManagerId.toString()}`;
+  if (!ReceiptManagerData) {
+    throw `No reward receipt manager found for ${receiptManagerId.toString()}`;
   }
   const rewardReceipts = await getRewardReceiptsForManager(
     connection,
-    rewardReceiptManagerId
+    receiptManagerId
   );
   return rewardReceipts.filter(
     (receipt) =>
@@ -197,7 +193,7 @@ export const getAllOfType = async <T>(
   key: string
 ): Promise<AccountData<T>[]> => {
   const programAccounts = await connection.getProgramAccounts(
-    REWARD_RECEIPT_MANAGER_ADDRESS,
+    RECEIPT_MANAGER_ADDRESS,
     {
       filters: [
         {
@@ -213,7 +209,7 @@ export const getAllOfType = async <T>(
   );
 
   const datas: AccountData<T>[] = [];
-  const coder = new BorshAccountsCoder(REWARD_RECEIPT_MANAGER_IDL);
+  const coder = new BorshAccountsCoder(RECEIPT_MANAGER_IDL);
   programAccounts.forEach((account) => {
     try {
       const data: T = coder.decode(key, account.account.data);

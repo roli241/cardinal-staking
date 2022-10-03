@@ -36,15 +36,15 @@ pub fn get_payment_mints() -> HashMap<&'static str, u64> {
     ]);
 }
 
-pub const REWARD_RECEIPT_MANAGER_SEED: &str = "reward-receipt-manager";
-pub const REWARD_RECEIPT_MANAGER_SIZE: usize = 8 + std::mem::size_of::<RewardReceiptManager>() + 64;
+pub const RECEIPT_MANAGER_SEED: &str = "receipt-manager";
+pub const RECEIPT_MANAGER_SIZE: usize = 8 + std::mem::size_of::<ReceiptManager>() + 64;
 #[account]
-pub struct RewardReceiptManager {
+pub struct ReceiptManager {
     pub bump: u8,
     pub stake_pool: Pubkey,
     pub authority: Pubkey,
     pub required_stake_seconds: u128,
-    pub uses_staked_seconds: u128,
+    pub uses_stake_seconds: u128,
     pub claimed_receipts_counter: u128,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
@@ -58,7 +58,7 @@ pub const REWARD_RECEIPT_SIZE: usize = 8 + std::mem::size_of::<RewardReceipt>() 
 pub struct RewardReceipt {
     pub bump: u8,
     pub receipt_entry: Pubkey,
-    pub reward_receipt_manager: Pubkey,
+    pub receipt_manager: Pubkey,
     pub target: Pubkey,
 }
 
