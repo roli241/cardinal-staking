@@ -48,6 +48,7 @@ pub struct ReceiptManager {
     pub claimed_receipts_counter: u128,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
+    pub requires_authorization: bool,
     pub name: String,
     pub max_claimed_receipts: Option<u128>,
 }
@@ -60,6 +61,14 @@ pub struct RewardReceipt {
     pub receipt_entry: Pubkey,
     pub receipt_manager: Pubkey,
     pub target: Pubkey,
+}
+
+pub const REWARD_RECEIPT_SEED: &str = "reward-receipt";
+pub const REWARD_RECEIPT_SIZE: usize = 8 + std::mem::size_of::<RewardReceipt>() + 64;
+#[account]
+pub struct RewardReceiptAllowEntry {
+    pub bump: u8,
+    pub allowed: bool,
 }
 
 pub const RECEIPT_ENTRY_SEED: &str = "receipt-entry";
