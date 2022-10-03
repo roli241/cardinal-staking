@@ -54,6 +54,11 @@ export type CardinalRewardReceiptManager = {
           isSigner: false;
         },
         {
+          name: "receiptEntry";
+          isMut: true;
+          isSigner: false;
+        },
+        {
           name: "paymentManager";
           isMut: true;
           isSigner: false;
@@ -146,6 +151,32 @@ export type CardinalRewardReceiptManager = {
       args: [];
     },
     {
+      name: "initReceiptEntry";
+      accounts: [
+        {
+          name: "receiptEntry";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "stakeEntry";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "payer";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [];
+    },
+    {
       name: "closeRewardReceipt";
       accounts: [
         {
@@ -167,7 +198,7 @@ export type CardinalRewardReceiptManager = {
       args: [];
     },
     {
-      name: "disallowMint";
+      name: "disallowEntry";
       accounts: [
         {
           name: "rewardReceipt";
@@ -180,7 +211,7 @@ export type CardinalRewardReceiptManager = {
           isSigner: false;
         },
         {
-          name: "stakeEntry";
+          name: "receiptEntry";
           isMut: false;
           isSigner: false;
         },
@@ -217,7 +248,11 @@ export type CardinalRewardReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "requiredRewardSeconds";
+            name: "requiredStakeSeconds";
+            type: "u128";
+          },
+          {
+            name: "usesStakedSeconds";
             type: "u128";
           },
           {
@@ -255,7 +290,7 @@ export type CardinalRewardReceiptManager = {
             type: "u8";
           },
           {
-            name: "stakeEntry";
+            name: "receiptEntry";
             type: "publicKey";
           },
           {
@@ -265,6 +300,26 @@ export type CardinalRewardReceiptManager = {
           {
             name: "target";
             type: "publicKey";
+          }
+        ];
+      };
+    },
+    {
+      name: "receiptEntry";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "bump";
+            type: "u8";
+          },
+          {
+            name: "stakeEntry";
+            type: "publicKey";
+          },
+          {
+            name: "usedStakeSeconds";
+            type: "u128";
           }
         ];
       };
@@ -285,7 +340,11 @@ export type CardinalRewardReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "requiredRewardSeconds";
+            name: "requiredStakeSeconds";
+            type: "u128";
+          },
+          {
+            name: "usesStakedSeconds";
             type: "u128";
           },
           {
@@ -315,7 +374,11 @@ export type CardinalRewardReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "requiredRewardSeconds";
+            name: "requiredStakeSeconds";
+            type: "u128";
+          },
+          {
+            name: "usesStakedSeconds";
             type: "u128";
           },
           {
@@ -421,6 +484,16 @@ export type CardinalRewardReceiptManager = {
       code: 6016;
       name: "InvalidRewardReceipt";
       msg: "Invalid reward receipt";
+    },
+    {
+      code: 6017;
+      name: "InvalidReceiptEntry";
+      msg: "Invalid receipt entry";
+    },
+    {
+      code: 6018;
+      name: "InsufficientAvailableStakeSeconds";
+      msg: "Insufficient available stake seconds to use";
     }
   ];
 };
@@ -478,6 +551,11 @@ export const IDL: CardinalRewardReceiptManager = {
         {
           name: "stakeEntry",
           isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "receiptEntry",
+          isMut: true,
           isSigner: false,
         },
         {
@@ -573,6 +651,32 @@ export const IDL: CardinalRewardReceiptManager = {
       args: [],
     },
     {
+      name: "initReceiptEntry",
+      accounts: [
+        {
+          name: "receiptEntry",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "stakeEntry",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "payer",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
+    {
       name: "closeRewardReceipt",
       accounts: [
         {
@@ -594,7 +698,7 @@ export const IDL: CardinalRewardReceiptManager = {
       args: [],
     },
     {
-      name: "disallowMint",
+      name: "disallowEntry",
       accounts: [
         {
           name: "rewardReceipt",
@@ -607,7 +711,7 @@ export const IDL: CardinalRewardReceiptManager = {
           isSigner: false,
         },
         {
-          name: "stakeEntry",
+          name: "receiptEntry",
           isMut: false,
           isSigner: false,
         },
@@ -644,7 +748,11 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "requiredRewardSeconds",
+            name: "requiredStakeSeconds",
+            type: "u128",
+          },
+          {
+            name: "usesStakedSeconds",
             type: "u128",
           },
           {
@@ -682,7 +790,7 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "u8",
           },
           {
-            name: "stakeEntry",
+            name: "receiptEntry",
             type: "publicKey",
           },
           {
@@ -692,6 +800,26 @@ export const IDL: CardinalRewardReceiptManager = {
           {
             name: "target",
             type: "publicKey",
+          },
+        ],
+      },
+    },
+    {
+      name: "receiptEntry",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "bump",
+            type: "u8",
+          },
+          {
+            name: "stakeEntry",
+            type: "publicKey",
+          },
+          {
+            name: "usedStakeSeconds",
+            type: "u128",
           },
         ],
       },
@@ -712,7 +840,11 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "requiredRewardSeconds",
+            name: "requiredStakeSeconds",
+            type: "u128",
+          },
+          {
+            name: "usesStakedSeconds",
             type: "u128",
           },
           {
@@ -742,7 +874,11 @@ export const IDL: CardinalRewardReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "requiredRewardSeconds",
+            name: "requiredStakeSeconds",
+            type: "u128",
+          },
+          {
+            name: "usesStakedSeconds",
             type: "u128",
           },
           {
@@ -848,6 +984,16 @@ export const IDL: CardinalRewardReceiptManager = {
       code: 6016,
       name: "InvalidRewardReceipt",
       msg: "Invalid reward receipt",
+    },
+    {
+      code: 6017,
+      name: "InvalidReceiptEntry",
+      msg: "Invalid receipt entry",
+    },
+    {
+      code: 6018,
+      name: "InsufficientAvailableStakeSeconds",
+      msg: "Insufficient available stake seconds to use",
     },
   ],
 };

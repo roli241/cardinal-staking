@@ -36,4 +36,8 @@ pub enum ErrorCode {
     InvalidPaymentCollector,
     #[msg("Invalid reward receipt")]
     InvalidRewardReceipt,
+    #[msg("Invalid receipt entry")]
+    InvalidReceiptEntry,
+    #[msg("Insufficient available stake seconds to use")]
+    InsufficientAvailableStakeSeconds,
 }

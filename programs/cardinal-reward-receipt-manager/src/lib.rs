@@ -26,11 +26,15 @@ pub mod cardinal_reward_receipt_manager {
         close_reward_receipt_manager::handler(ctx)
     }
 
+    pub fn init_receipt_entry(ctx: Context<InitReceiptEntryCtx>) -> Result<()> {
+        init_receipt_entry::handler(ctx)
+    }
+
     pub fn close_reward_receipt(ctx: Context<CloseRewardReceiptCtx>) -> Result<()> {
         close_reward_receipt::handler(ctx)
     }
 
-    pub fn disallow_mint(ctx: Context<DisallowMintCtx>) -> Result<()> {
-        disallow_mint::handler(ctx)
+    pub fn disallow_entry(ctx: Context<DisallowEntryCtx>) -> Result<()> {
+        disallow_entry::handler(ctx)
     }
 }

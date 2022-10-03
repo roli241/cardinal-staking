@@ -6,7 +6,8 @@ use {
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct UpdateRewardReceiptManagerIx {
     pub authority: Pubkey,
-    pub required_reward_seconds: u128,
+    pub required_stake_seconds: u128,
+    pub uses_staked_seconds: u128,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
     pub max_claimed_receipts: Option<u128>,
@@ -33,7 +34,8 @@ pub fn handler(ctx: Context<UpdateRewarReceiptManagerCtx>, ix: UpdateRewardRecei
 
     let reward_receipt_manager = &mut ctx.accounts.reward_receipt_manager;
     reward_receipt_manager.authority = ix.authority;
-    reward_receipt_manager.required_reward_seconds = ix.required_reward_seconds;
+    reward_receipt_manager.required_stake_seconds = ix.required_stake_seconds;
+    reward_receipt_manager.uses_staked_seconds = ix.uses_staked_seconds;
     reward_receipt_manager.payment_mint = ix.payment_mint;
     reward_receipt_manager.payment_manager = ix.payment_manager;
     reward_receipt_manager.max_claimed_receipts = ix.max_claimed_receipts;

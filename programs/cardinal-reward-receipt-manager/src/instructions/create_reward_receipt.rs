@@ -21,6 +21,10 @@ pub struct CreateRewardReceiptCtx<'info> {
     reward_receipt_manager: Box<Account<'info, RewardReceiptManager>>,
     stake_entry: Box<Account<'info, StakeEntry>>,
 
+    // TODO maybe maybe init_if_needed for ease of use in client
+    #[account(mut, constraint = receipt_entry.stake_entry == stake_entry.key() @ ErrorCode::InvalidReceiptEntry)]
+    receipt_entry: Box<Account<'info, ReceiptEntry>>,
+
     // payment manager info
     #[account(mut, constraint = payment_manager.key() == reward_receipt_manager.payment_manager @ ErrorCode::InvalidPaymentManager)]
     payment_manager: Box<Account<'info, PaymentManager>>,
@@ -49,13 +53,13 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
 
     let reward_receipt = &mut ctx.accounts.reward_receipt;
     reward_receipt.bump = *ctx.bumps.get("reward_receipt").unwrap();
-    reward_receipt.stake_entry = ctx.accounts.stake_entry.key();
+    reward_receipt.receipt_entry = ctx.accounts.receipt_entry.key();
     reward_receipt.reward_receipt_manager = ctx.accounts.reward_receipt_manager.key();
     reward_receipt.target = ctx.accounts.claimer.key();
     // increment counter
     ctx.accounts.reward_receipt_manager.claimed_receipts_counter = ctx.accounts.reward_receipt_manager.claimed_receipts_counter.checked_add(1).expect("Add error");
 
-    if ctx.accounts.stake_entry.total_stake_seconds < ctx.accounts.reward_receipt_manager.required_reward_seconds {
+    if ctx.accounts.stake_entry.total_stake_seconds < ctx.accounts.reward_receipt_manager.required_stake_seconds {
         return Err(error!(ErrorCode::RewardSecondsNotSatisfied));
     }
 
@@ -66,6 +70,18 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
         }
     }
 
+    // add to used seconds
+    let receipt_entry = &mut ctx.accounts.receipt_entry;
+    receipt_entry.used_stake_seconds = receipt_entry
+        .used_stake_seconds
+        .checked_add(ctx.accounts.reward_receipt_manager.uses_staked_seconds)
+        .expect("Add error");
+
+    if receipt_entry.used_stake_seconds > ctx.accounts.stake_entry.total_stake_seconds {
+        return Err(error!(ErrorCode::RewardSecondsNotSatisfied));
+    }
+
+    // handle payment
     let payment_mints = get_payment_mints();
     let payment_mint = &ctx.accounts.reward_receipt_manager.payment_mint.to_string()[..];
     let payment_amount = payment_mints.get(payment_mint).expect("Could not fetch payment amount");

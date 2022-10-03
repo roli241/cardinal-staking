@@ -43,7 +43,8 @@ pub struct RewardReceiptManager {
     pub bump: u8,
     pub stake_pool: Pubkey,
     pub authority: Pubkey,
-    pub required_reward_seconds: u128,
+    pub required_stake_seconds: u128,
+    pub uses_staked_seconds: u128,
     pub claimed_receipts_counter: u128,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
@@ -56,7 +57,16 @@ pub const REWARD_RECEIPT_SIZE: usize = 8 + std::mem::size_of::<RewardReceipt>() 
 #[account]
 pub struct RewardReceipt {
     pub bump: u8,
-    pub stake_entry: Pubkey,
+    pub receipt_entry: Pubkey,
     pub reward_receipt_manager: Pubkey,
     pub target: Pubkey,
+}
+
+pub const RECEIPT_ENTRY_SEED: &str = "receipt-entry";
+pub const RECEIPT_ENTRY_SIZE: usize = 8 + std::mem::size_of::<ReceiptEntry>() + 64;
+#[account]
+pub struct ReceiptEntry {
+    pub bump: u8,
+    pub stake_entry: Pubkey,
+    pub used_stake_seconds: u128,
 }
