@@ -23,11 +23,14 @@ import { getPoolIdentifier, getStakeEntry, getStakePool } from "./accounts";
 import { ReceiptType } from "./constants";
 import {
   authorizeStakeEntry,
+  boostStakeEntry,
   claimReceiptMint,
+  closeStakeBooster,
   closeStakeEntry,
   closeStakePool,
   deauthorizeStakeEntry,
   initPoolIdentifier,
+  initStakeBooster,
   initStakeEntry,
   initStakeMint,
   initStakePool,
@@ -35,6 +38,7 @@ import {
   returnReceiptMint,
   stake,
   unstake,
+  updateStakeBooster,
   updateStakePool,
   updateTotalStakeSeconds,
 } from "./instruction";
@@ -633,6 +637,88 @@ export const withReassignStakeEntry = (
       stakePoolId: params.stakePoolId,
       stakeEntryId: params.stakeEntryId,
       target: params.target,
+    })
+  );
+  return transaction;
+};
+
+export const withInitStakeBooster = async (
+  transaction: web3.Transaction,
+  connection: web3.Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: web3.PublicKey;
+    stakeBoosterIdentifier?: BN;
+    paymentAmount: BN;
+    paymentMint: web3.PublicKey;
+    boostSeconds: BN;
+    startTimeSeconds: number;
+    payer?: web3.PublicKey;
+  }
+): Promise<web3.Transaction> => {
+  transaction.add(
+    await initStakeBooster(connection, wallet, {
+      ...params,
+    })
+  );
+  return transaction;
+};
+
+export const withUpdateStakeBooster = async (
+  transaction: web3.Transaction,
+  connection: web3.Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: web3.PublicKey;
+    stakeBoosterIdentifier?: BN;
+    paymentAmount: BN;
+    paymentMint: web3.PublicKey;
+    boostSeconds: BN;
+    startTimeSeconds: number;
+  }
+): Promise<web3.Transaction> => {
+  transaction.add(
+    await updateStakeBooster(connection, wallet, {
+      ...params,
+    })
+  );
+  return transaction;
+};
+
+export const withCloseStakeBooster = async (
+  transaction: web3.Transaction,
+  connection: web3.Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: web3.PublicKey;
+    stakeBoosterIdentifier?: BN;
+  }
+): Promise<web3.Transaction> => {
+  transaction.add(
+    await closeStakeBooster(connection, wallet, {
+      ...params,
+    })
+  );
+  return transaction;
+};
+
+export const withBoostStakeEntry = async (
+  transaction: web3.Transaction,
+  connection: web3.Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: web3.PublicKey;
+    stakeBoosterIdentifier?: BN;
+    stakeEntryId: web3.PublicKey;
+    payerTokenAccount: web3.PublicKey;
+    paymentRecipientTokenAccount: web3.PublicKey;
+    payer?: web3.PublicKey;
+    secondsToBoost: BN;
+  }
+): Promise<web3.Transaction> => {
+  transaction.add(
+    await boostStakeEntry(connection, wallet, {
+      ...params,
     })
   );
   return transaction;

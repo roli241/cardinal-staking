@@ -14,6 +14,7 @@ import { STAKE_POOL_ADDRESS, STAKE_POOL_IDL } from ".";
 import type {
   IdentifierData,
   StakeAuthorizationData,
+  StakeBoosterData,
   StakeEntryData,
 } from "./constants";
 import { AUTHORITY_OFFSET, POOL_OFFSET, STAKER_OFFSET } from "./constants";
@@ -467,4 +468,18 @@ export const getAllStakeEntries = async (
   return stakeEntryDatas.sort((a, b) =>
     a.pubkey.toBase58().localeCompare(b.pubkey.toBase58())
   );
+};
+
+export const getStakeBooster = async (
+  connection: Connection,
+  stakeBoosterId: PublicKey
+): Promise<AccountData<StakeBoosterData>> => {
+  const stakePoolProgram = getProgram(connection);
+  const parsed = await stakePoolProgram.account.stakeBooster.fetch(
+    stakeBoosterId
+  );
+  return {
+    parsed,
+    pubkey: stakeBoosterId,
+  };
 };
