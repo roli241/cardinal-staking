@@ -2,6 +2,7 @@ use {
     crate::{errors::ErrorCode, state::*},
     anchor_lang::prelude::*,
     anchor_spl::token::{self, Token, TokenAccount},
+    cardinal_payment_manager::{program::CardinalPaymentManager, state::PaymentManager},
 };
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
@@ -33,6 +34,12 @@ pub struct BoostStakeEntryCtx<'info> {
     #[account(mut)]
     payer: Signer<'info>,
 
+    #[account(mut, constraint = payment_manager.key() == stake_booster.payment_manager @ ErrorCode::InvalidPaymentManager)]
+    payment_manager: Box<Account<'info, PaymentManager>>,
+    /// CHECK: This is not dangerous because we don't read or write from this account
+    #[account(mut)]
+    fee_collector_token_account: UncheckedAccount<'info>,
+    cardinal_payment_manager: Program<'info, CardinalPaymentManager>,
     token_program: Program<'info, Token>,
     system_program: Program<'info, System>,
 }
@@ -63,14 +70,18 @@ pub fn handler(ctx: Context<BoostStakeEntryCtx>, ix: BoostStakeEntryIx) -> Resul
         .expect("Multiplication error")
         .checked_div(u64::try_from(ctx.accounts.stake_booster.boost_seconds).expect("Number conversion error"))
         .expect("Division error");
-    let cpi_accounts = token::Transfer {
-        from: ctx.accounts.payer_token_account.to_account_info(),
-        to: ctx.accounts.payment_recipient_token_account.to_account_info(),
-        authority: ctx.accounts.payer.to_account_info(),
+
+    // handle payment
+    let cpi_accounts = cardinal_payment_manager::cpi::accounts::HandlePaymentCtx {
+        payment_manager: ctx.accounts.payment_manager.to_account_info(),
+        payer_token_account: ctx.accounts.payer_token_account.to_account_info(),
+        fee_collector_token_account: ctx.accounts.fee_collector_token_account.to_account_info(),
+        payment_token_account: ctx.accounts.payment_recipient_token_account.to_account_info(),
+        payer: ctx.accounts.payer.to_account_info(),
+        token_program: ctx.accounts.token_program.to_account_info(),
     };
-    let cpi_program = ctx.accounts.token_program.to_account_info();
-    let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
-    token::transfer(cpi_context, payment_amount)?;
+    let cpi_ctx = CpiContext::new(ctx.accounts.cardinal_payment_manager.to_account_info(), cpi_accounts);
+    cardinal_payment_manager::cpi::manage_payment(cpi_ctx, payment_amount)?;
 
     Ok(())
 }

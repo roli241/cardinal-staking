@@ -63,6 +63,7 @@ pub struct StakeBooster {
     pub identifier: u64,
     pub payment_amount: u64,
     pub payment_mint: Pubkey,
+    pub payment_manager: Pubkey,
     pub payment_recipient: Pubkey,
     pub boost_seconds: u128,
     pub start_time_seconds: i64,

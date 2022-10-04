@@ -296,7 +296,6 @@ describe("Stake booster boost", () => {
               stakePoolId: stakePoolId,
               stakeEntryId: stakeEntryId,
               payerTokenAccount: paymentMintTokenAccount,
-              paymentRecipientTokenAccount: paymentMintTokenAccount,
               secondsToBoost: SECONDS_TO_BOOST,
             }
           )

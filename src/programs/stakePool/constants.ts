@@ -34,6 +34,8 @@ export type IdentifierData = Accounts["identifier"];
 export type StakeAuthorizationData = Accounts["stakeAuthorizationRecord"];
 export type StakeBoosterData = Accounts["stakeBooster"];
 
+export const DEFAULT_BOOST_PAYMENT_MANAGER = new PublicKey("");
+
 export enum ReceiptType {
   // Receive the original mint wrapped in a token manager
   Original = 1,

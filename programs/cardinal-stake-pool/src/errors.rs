@@ -67,4 +67,6 @@ pub enum ErrorCode {
     InvalidBoostPayerTokenAccount,
     #[msg("Invalid boost payment recipient token account")]
     InvalidBoostPaymentRecipientTokenAccount,
+    #[msg("Invalid payment manager")]
+    InvalidPaymentManager,
 }

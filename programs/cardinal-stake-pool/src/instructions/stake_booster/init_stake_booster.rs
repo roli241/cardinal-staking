@@ -9,6 +9,7 @@ pub struct InitStakeBoosterIx {
     identifier: u64,
     payment_amount: u64,
     payment_mint: Pubkey,
+    payment_manager: Pubkey,
     boost_seconds: u128,
     start_time_seconds: i64,
 }
@@ -40,6 +41,7 @@ pub fn handler(ctx: Context<InitStakeBoosterCtx>, ix: InitStakeBoosterIx) -> Res
     stake_booster.identifier = ix.identifier;
     stake_booster.payment_amount = ix.payment_amount;
     stake_booster.payment_mint = ix.payment_mint;
+    stake_booster.payment_manager = ix.payment_manager;
     stake_booster.boost_seconds = ix.boost_seconds;
     stake_booster.start_time_seconds = ix.start_time_seconds;
 

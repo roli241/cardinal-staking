@@ -1,4 +1,5 @@
 import { findAta } from "@cardinal/common";
+import { PAYMENT_MANAGER_ADDRESS } from "@cardinal/token-manager/dist/cjs/programs/paymentManager";
 import {
   CRANK_KEY,
   getRemainingAccountsForKind,
@@ -27,7 +28,7 @@ import { SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 
 import type { STAKE_POOL_PROGRAM } from ".";
 import { STAKE_POOL_ADDRESS, STAKE_POOL_IDL } from ".";
-import { ReceiptType } from "./constants";
+import { DEFAULT_BOOST_PAYMENT_MANAGER, ReceiptType } from "./constants";
 import { findStakeAuthorizationId, findStakeBoosterId } from "./pda";
 import { remainingAccountsForInitStakeEntry } from "./utils";
 
@@ -576,6 +577,7 @@ export const initStakeBooster = async (
     paymentAmount: BN;
     paymentMint: PublicKey;
     boostSeconds: BN;
+    paymentManager?: PublicKey;
     startTimeSeconds: number;
     payer?: PublicKey;
   }
@@ -598,6 +600,7 @@ export const initStakeBooster = async (
       identifier: stakeBoosterIdentifier,
       paymentAmount: params.paymentAmount,
       paymentMint: params.paymentMint,
+      paymentManager: params.paymentManager ?? DEFAULT_BOOST_PAYMENT_MANAGER,
       boostSeconds: params.boostSeconds,
       startTimeSeconds: new BN(params.startTimeSeconds),
     },
@@ -622,6 +625,7 @@ export const updateStakeBooster = async (
     paymentAmount: BN;
     paymentMint: PublicKey;
     boostSeconds: BN;
+    paymentManager?: PublicKey;
     startTimeSeconds: number;
   }
 ) => {
@@ -640,6 +644,7 @@ export const updateStakeBooster = async (
       paymentAmount: params.paymentAmount,
       paymentMint: params.paymentMint,
       boostSeconds: params.boostSeconds,
+      paymentManager: params.paymentManager ?? DEFAULT_BOOST_PAYMENT_MANAGER,
       startTimeSeconds: new BN(params.startTimeSeconds),
     },
     {
@@ -688,6 +693,8 @@ export const boostStakeEntry = async (
     stakeEntryId: PublicKey;
     payerTokenAccount: PublicKey;
     paymentRecipientTokenAccount: PublicKey;
+    feeCollectorTokenAccount: PublicKey;
+    paymentManager: PublicKey;
     payer?: PublicKey;
     secondsToBoost: BN;
   }
@@ -712,6 +719,9 @@ export const boostStakeEntry = async (
         payerTokenAccount: params.payerTokenAccount,
         paymentRecipientTokenAccount: params.paymentRecipientTokenAccount,
         payer: params.payer ?? wallet.publicKey,
+        feeCollectorTokenAccount: params.feeCollectorTokenAccount,
+        paymentManager: params.paymentManager,
+        cardinalPaymentManager: PAYMENT_MANAGER_ADDRESS,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
       },

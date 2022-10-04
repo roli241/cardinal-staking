@@ -671,6 +671,21 @@ export type CardinalStakePool = {
           isSigner: true;
         },
         {
+          name: "paymentManager";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "feeCollectorTokenAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "cardinalPaymentManager";
+          isMut: false;
+          isSigner: false;
+        },
+        {
           name: "tokenProgram";
           isMut: false;
           isSigner: false;
@@ -869,6 +884,10 @@ export type CardinalStakePool = {
             type: "publicKey";
           },
           {
+            name: "paymentManager";
+            type: "publicKey";
+          },
+          {
             name: "paymentRecipient";
             type: "publicKey";
           },
@@ -1041,6 +1060,10 @@ export type CardinalStakePool = {
             type: "publicKey";
           },
           {
+            name: "paymentManager";
+            type: "publicKey";
+          },
+          {
             name: "boostSeconds";
             type: "u128";
           },
@@ -1062,6 +1085,10 @@ export type CardinalStakePool = {
           },
           {
             name: "paymentMint";
+            type: "publicKey";
+          },
+          {
+            name: "paymentManager";
             type: "publicKey";
           },
           {
@@ -1310,6 +1337,11 @@ export type CardinalStakePool = {
       code: 6031;
       name: "InvalidBoostPaymentRecipientTokenAccount";
       msg: "Invalid boost payment recipient token account";
+    },
+    {
+      code: 6032;
+      name: "InvalidPaymentManager";
+      msg: "Invalid payment manager";
     }
   ];
 };
@@ -1987,6 +2019,21 @@ export const IDL: CardinalStakePool = {
           isSigner: true,
         },
         {
+          name: "paymentManager",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "feeCollectorTokenAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "cardinalPaymentManager",
+          isMut: false,
+          isSigner: false,
+        },
+        {
           name: "tokenProgram",
           isMut: false,
           isSigner: false,
@@ -2185,6 +2232,10 @@ export const IDL: CardinalStakePool = {
             type: "publicKey",
           },
           {
+            name: "paymentManager",
+            type: "publicKey",
+          },
+          {
             name: "paymentRecipient",
             type: "publicKey",
           },
@@ -2357,6 +2408,10 @@ export const IDL: CardinalStakePool = {
             type: "publicKey",
           },
           {
+            name: "paymentManager",
+            type: "publicKey",
+          },
+          {
             name: "boostSeconds",
             type: "u128",
           },
@@ -2378,6 +2433,10 @@ export const IDL: CardinalStakePool = {
           },
           {
             name: "paymentMint",
+            type: "publicKey",
+          },
+          {
+            name: "paymentManager",
             type: "publicKey",
           },
           {
@@ -2626,6 +2685,11 @@ export const IDL: CardinalStakePool = {
       code: 6031,
       name: "InvalidBoostPaymentRecipientTokenAccount",
       msg: "Invalid boost payment recipient token account",
+    },
+    {
+      code: 6032,
+      name: "InvalidPaymentManager",
+      msg: "Invalid payment manager",
     },
   ],
 };
