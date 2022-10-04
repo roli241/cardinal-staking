@@ -34,6 +34,9 @@ pub struct CreateRewardReceiptCtx<'info> {
     payment_token_account: Box<Account<'info, TokenAccount>>,
     #[account(mut, constraint = payer_token_account.mint == receipt_manager.payment_mint && payer_token_account.owner == payer.key() @ ErrorCode::InvalidPayerTokenAcount)]
     payer_token_account: Box<Account<'info, TokenAccount>>,
+    /// CHECK: This is not dangerous because we don't read or write from this account
+    #[account(mut)]
+    receipt_auth_record: UncheckedAccount<'info>,
 
     #[account(mut)]
     payer: Signer<'info>,
@@ -58,6 +61,11 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
     reward_receipt.target = ctx.accounts.claimer.key();
     // increment counter
     ctx.accounts.receipt_manager.claimed_receipts_counter = ctx.accounts.receipt_manager.claimed_receipts_counter.checked_add(1).expect("Add error");
+
+    // assert derivation of receipt_auth_record
+    // if ctx.accounts.receipt_manager.requires_whitelist
+    //      try deserialize account, fail if empty or not whitelisted
+    // try to deserialize, if blacklisted fail
 
     if ctx.accounts.stake_entry.total_stake_seconds < ctx.accounts.receipt_manager.required_stake_seconds {
         return Err(error!(ErrorCode::RewardSecondsNotSatisfied));

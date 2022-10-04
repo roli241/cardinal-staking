@@ -32,4 +32,6 @@ pub enum ErrorCode {
     InvalidStakeEntry,
     #[msg("Invalid receipt manager")]
     InvalidReceiptManager,
+    #[msg("Need to reset auth record before whitelisting or blacklisting")]
+    NeedToResetAuthRecord,
 }

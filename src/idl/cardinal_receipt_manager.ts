@@ -141,6 +141,11 @@ export type CardinalReceiptManager = {
           isSigner: false;
         },
         {
+          name: "receiptAuthRecord";
+          isMut: true;
+          isSigner: false;
+        },
+        {
           name: "payer";
           isMut: true;
           isSigner: true;
@@ -304,7 +309,7 @@ export type CardinalReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "requiresAuthorization";
+            name: "requiresWhitelist";
             type: "bool";
           },
           {
@@ -363,6 +368,34 @@ export type CardinalReceiptManager = {
           }
         ];
       };
+    },
+    {
+      name: "receiptAuthRecord";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "bump";
+            type: "u8";
+          },
+          {
+            name: "receiptManager";
+            type: "publicKey";
+          },
+          {
+            name: "receiptEntry";
+            type: "publicKey";
+          },
+          {
+            name: "whitelisted";
+            type: "bool";
+          },
+          {
+            name: "blacklisted";
+            type: "bool";
+          }
+        ];
+      };
     }
   ];
   types: [
@@ -394,6 +427,10 @@ export type CardinalReceiptManager = {
           {
             name: "paymentManager";
             type: "publicKey";
+          },
+          {
+            name: "requiresWhitelist";
+            type: "bool";
           },
           {
             name: "maxClaimedReceipts";
@@ -430,7 +467,7 @@ export type CardinalReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "requiresAuthorization";
+            name: "requiresWhitelist";
             type: "bool";
           },
           {
@@ -518,6 +555,11 @@ export type CardinalReceiptManager = {
       code: 6014;
       name: "InvalidReceiptManager";
       msg: "Invalid receipt manager";
+    },
+    {
+      code: 6015;
+      name: "NeedToResetAuthRecord";
+      msg: "Need to reset auth record before whitelisting or blacklisting";
     }
   ];
 };
@@ -661,6 +703,11 @@ export const IDL: CardinalReceiptManager = {
         },
         {
           name: "payerTokenAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "receiptAuthRecord",
           isMut: true,
           isSigner: false,
         },
@@ -828,7 +875,7 @@ export const IDL: CardinalReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "requiresAuthorization",
+            name: "requiresWhitelist",
             type: "bool",
           },
           {
@@ -888,6 +935,34 @@ export const IDL: CardinalReceiptManager = {
         ],
       },
     },
+    {
+      name: "receiptAuthRecord",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "bump",
+            type: "u8",
+          },
+          {
+            name: "receiptManager",
+            type: "publicKey",
+          },
+          {
+            name: "receiptEntry",
+            type: "publicKey",
+          },
+          {
+            name: "whitelisted",
+            type: "bool",
+          },
+          {
+            name: "blacklisted",
+            type: "bool",
+          },
+        ],
+      },
+    },
   ],
   types: [
     {
@@ -918,6 +993,10 @@ export const IDL: CardinalReceiptManager = {
           {
             name: "paymentManager",
             type: "publicKey",
+          },
+          {
+            name: "requiresWhitelist",
+            type: "bool",
           },
           {
             name: "maxClaimedReceipts",
@@ -954,7 +1033,7 @@ export const IDL: CardinalReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "requiresAuthorization",
+            name: "requiresWhitelist",
             type: "bool",
           },
           {
@@ -1042,6 +1121,11 @@ export const IDL: CardinalReceiptManager = {
       code: 6014,
       name: "InvalidReceiptManager",
       msg: "Invalid receipt manager",
+    },
+    {
+      code: 6015,
+      name: "NeedToResetAuthRecord",
+      msg: "Need to reset auth record before whitelisting or blacklisting",
     },
   ],
 };
