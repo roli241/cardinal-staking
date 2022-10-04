@@ -34,4 +34,6 @@ pub enum ErrorCode {
     InvalidReceiptManager,
     #[msg("Need to reset auth record before whitelisting or blacklisting")]
     NeedToResetAuthRecord,
+    #[msg("Reward receipt is not allowed")]
+    RewardReceiptIsNotAllowed,
 }

@@ -156,11 +156,6 @@ export type CardinalReceiptManager = {
           isSigner: true;
         },
         {
-          name: "initializer";
-          isMut: true;
-          isSigner: true;
-        },
-        {
           name: "cardinalPaymentManager";
           isMut: false;
           isSigner: false;
@@ -177,6 +172,32 @@ export type CardinalReceiptManager = {
         }
       ];
       args: [];
+    },
+    {
+      name: "setRewardReceiptAuth";
+      accounts: [
+        {
+          name: "receiptManager";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "rewardReceipt";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "authority";
+          isMut: true;
+          isSigner: true;
+        }
+      ];
+      args: [
+        {
+          name: "auth";
+          type: "bool";
+        }
+      ];
     },
     {
       name: "updateReceiptManager";
@@ -237,37 +258,6 @@ export type CardinalReceiptManager = {
         }
       ];
       args: [];
-    },
-    {
-      name: "disallowEntry";
-      accounts: [
-        {
-          name: "rewardReceipt";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "receiptManager";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "receiptEntry";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "authority";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        }
-      ];
-      args: [];
     }
   ];
   accounts: [
@@ -309,7 +299,7 @@ export type CardinalReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "requiresWhitelist";
+            name: "requiresAuthorization";
             type: "bool";
           },
           {
@@ -365,33 +355,9 @@ export type CardinalReceiptManager = {
           {
             name: "target";
             type: "publicKey";
-          }
-        ];
-      };
-    },
-    {
-      name: "receiptAuthRecord";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "bump";
-            type: "u8";
           },
           {
-            name: "receiptManager";
-            type: "publicKey";
-          },
-          {
-            name: "receiptEntry";
-            type: "publicKey";
-          },
-          {
-            name: "whitelisted";
-            type: "bool";
-          },
-          {
-            name: "blacklisted";
+            name: "allowed";
             type: "bool";
           }
         ];
@@ -429,7 +395,7 @@ export type CardinalReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "requiresWhitelist";
+            name: "requiresAuthorization";
             type: "bool";
           },
           {
@@ -467,7 +433,7 @@ export type CardinalReceiptManager = {
             type: "publicKey";
           },
           {
-            name: "requiresWhitelist";
+            name: "requiresAuthorization";
             type: "bool";
           },
           {
@@ -560,6 +526,11 @@ export type CardinalReceiptManager = {
       code: 6015;
       name: "NeedToResetAuthRecord";
       msg: "Need to reset auth record before whitelisting or blacklisting";
+    },
+    {
+      code: 6016;
+      name: "RewardReceiptIsNotAllowed";
+      msg: "Reward receipt is not allowed";
     }
   ];
 };
@@ -722,11 +693,6 @@ export const IDL: CardinalReceiptManager = {
           isSigner: true,
         },
         {
-          name: "initializer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
           name: "cardinalPaymentManager",
           isMut: false,
           isSigner: false,
@@ -743,6 +709,32 @@ export const IDL: CardinalReceiptManager = {
         },
       ],
       args: [],
+    },
+    {
+      name: "setRewardReceiptAuth",
+      accounts: [
+        {
+          name: "receiptManager",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "rewardReceipt",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "authority",
+          isMut: true,
+          isSigner: true,
+        },
+      ],
+      args: [
+        {
+          name: "auth",
+          type: "bool",
+        },
+      ],
     },
     {
       name: "updateReceiptManager",
@@ -804,37 +796,6 @@ export const IDL: CardinalReceiptManager = {
       ],
       args: [],
     },
-    {
-      name: "disallowEntry",
-      accounts: [
-        {
-          name: "rewardReceipt",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "receiptManager",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "receiptEntry",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "authority",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [],
-    },
   ],
   accounts: [
     {
@@ -875,7 +836,7 @@ export const IDL: CardinalReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "requiresWhitelist",
+            name: "requiresAuthorization",
             type: "bool",
           },
           {
@@ -932,32 +893,8 @@ export const IDL: CardinalReceiptManager = {
             name: "target",
             type: "publicKey",
           },
-        ],
-      },
-    },
-    {
-      name: "receiptAuthRecord",
-      type: {
-        kind: "struct",
-        fields: [
           {
-            name: "bump",
-            type: "u8",
-          },
-          {
-            name: "receiptManager",
-            type: "publicKey",
-          },
-          {
-            name: "receiptEntry",
-            type: "publicKey",
-          },
-          {
-            name: "whitelisted",
-            type: "bool",
-          },
-          {
-            name: "blacklisted",
+            name: "allowed",
             type: "bool",
           },
         ],
@@ -995,7 +932,7 @@ export const IDL: CardinalReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "requiresWhitelist",
+            name: "requiresAuthorization",
             type: "bool",
           },
           {
@@ -1033,7 +970,7 @@ export const IDL: CardinalReceiptManager = {
             type: "publicKey",
           },
           {
-            name: "requiresWhitelist",
+            name: "requiresAuthorization",
             type: "bool",
           },
           {
@@ -1126,6 +1063,11 @@ export const IDL: CardinalReceiptManager = {
       code: 6015,
       name: "NeedToResetAuthRecord",
       msg: "Need to reset auth record before whitelisting or blacklisting",
+    },
+    {
+      code: 6016,
+      name: "RewardReceiptIsNotAllowed",
+      msg: "Reward receipt is not allowed",
     },
   ],
 };

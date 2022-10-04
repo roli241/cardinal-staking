@@ -48,7 +48,7 @@ pub struct ReceiptManager {
     pub claimed_receipts_counter: u128,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
-    pub requires_whitelist: bool,
+    pub requires_authorization: bool,
     pub name: String,
     pub max_claimed_receipts: Option<u128>,
 }
@@ -70,15 +70,5 @@ pub struct RewardReceipt {
     pub receipt_entry: Pubkey,
     pub receipt_manager: Pubkey,
     pub target: Pubkey,
-}
-
-pub const RECEIPT_AUTH_RECORD_SEED: &str = "receipt-auth-record";
-pub const RECEIPT_AUTH_RECORD_SIZE: usize = 8 + std::mem::size_of::<ReceiptAuthRecord>() + 16;
-#[account]
-pub struct ReceiptAuthRecord {
-    pub bump: u8,
-    pub receipt_manager: Pubkey,
-    pub receipt_entry: Pubkey,
-    pub whitelisted: bool,
-    pub blacklisted: bool,
+    pub allowed: bool,
 }

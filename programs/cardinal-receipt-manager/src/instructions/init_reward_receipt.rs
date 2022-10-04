@@ -22,8 +22,6 @@ pub struct InitRewardReceiptCtx<'info> {
     #[account(constraint = stake_entry.pool == receipt_manager.stake_pool @ ErrorCode::InvalidStakeEntry)]
     stake_entry: Box<Account<'info, StakeEntry>>,
 
-    // TBD depends on how we implement allow/disallow
-    // #[account(mut, constraint = payer.key() == receipt_manager.authority @ ErrorCode::InvalidAuthority )]
     #[account(mut)]
     payer: Signer<'info>,
     system_program: Program<'info, System>,
@@ -35,10 +33,9 @@ pub fn handler(ctx: Context<InitRewardReceiptCtx>) -> Result<()> {
     reward_receipt.receipt_entry = ctx.accounts.receipt_entry.key();
     reward_receipt.receipt_manager = ctx.accounts.receipt_manager.key();
 
-    // TBD
-    // reward_receipt.allowed = true;
-    // if (ctx.accounts.receipt_manager.requires_authorization) {
-    //     reward_receipt.allowed = false;
-    // }
+    reward_receipt.allowed = true;
+    if ctx.accounts.receipt_manager.requires_authorization {
+        reward_receipt.allowed = false;
+    }
     Ok(())
 }

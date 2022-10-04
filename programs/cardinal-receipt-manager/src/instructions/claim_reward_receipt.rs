@@ -9,19 +9,13 @@ use {
 
 #[derive(Accounts)]
 pub struct CreateRewardReceiptCtx<'info> {
-    #[account(
-        init,
-        payer = initializer,
-        space = REWARD_RECEIPT_SIZE,
-        seeds = [REWARD_RECEIPT_SEED.as_bytes(), receipt_manager.key().as_ref(), stake_entry.key().as_ref()],
-        bump,
-    )]
+    #[account(mut, seeds = [REWARD_RECEIPT_SEED.as_bytes(), receipt_manager.key().as_ref(), stake_entry.key().as_ref()], bump=reward_receipt.bump)]
     reward_receipt: Box<Account<'info, RewardReceipt>>,
     #[account(mut)]
     receipt_manager: Box<Account<'info, ReceiptManager>>,
     stake_entry: Box<Account<'info, StakeEntry>>,
 
-    // TODO maybe maybe init_if_needed for ease of use in client
+    // TODO maybe init_if_needed for ease of use in client
     #[account(mut, constraint = receipt_entry.stake_entry == stake_entry.key() @ ErrorCode::InvalidReceiptEntry)]
     receipt_entry: Box<Account<'info, ReceiptEntry>>,
 
@@ -42,8 +36,6 @@ pub struct CreateRewardReceiptCtx<'info> {
     payer: Signer<'info>,
     #[account(mut, constraint = stake_entry.last_staker == claimer.key() @ ErrorCode::InvalidClaimer)]
     claimer: Signer<'info>,
-    #[account(mut)]
-    initializer: Signer<'info>,
 
     cardinal_payment_manager: Program<'info, CardinalPaymentManager>,
     token_program: Program<'info, Token>,
@@ -62,10 +54,9 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
     // increment counter
     ctx.accounts.receipt_manager.claimed_receipts_counter = ctx.accounts.receipt_manager.claimed_receipts_counter.checked_add(1).expect("Add error");
 
-    // assert derivation of receipt_auth_record
-    // if ctx.accounts.receipt_manager.requires_whitelist
-    //      try deserialize account, fail if empty or not whitelisted
-    // try to deserialize, if blacklisted fail
+    if ctx.accounts.receipt_manager.requires_authorization && !reward_receipt.allowed {
+        return Err(error!(ErrorCode::RewardReceiptIsNotAllowed));
+    }
 
     if ctx.accounts.stake_entry.total_stake_seconds < ctx.accounts.receipt_manager.required_stake_seconds {
         return Err(error!(ErrorCode::RewardSecondsNotSatisfied));

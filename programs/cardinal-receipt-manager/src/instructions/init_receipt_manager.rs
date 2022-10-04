@@ -10,7 +10,7 @@ pub struct InitReceiptManagerIx {
     pub stake_seconds_to_use: u128,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
-    pub requires_whitelist: bool,
+    pub requires_authorization: bool,
     pub max_claimed_receipts: Option<u128>,
 }
 
@@ -46,7 +46,7 @@ pub fn handler(ctx: Context<InitReceiptManagerCtx>, ix: InitReceiptManagerIx) ->
     receipt_manager.claimed_receipts_counter = 0;
     receipt_manager.payment_mint = ix.payment_mint;
     receipt_manager.payment_manager = ix.payment_manager;
-    receipt_manager.requires_whitelist = ix.requires_whitelist;
+    receipt_manager.requires_authorization = ix.requires_authorization;
     receipt_manager.max_claimed_receipts = ix.max_claimed_receipts;
 
     Ok(())

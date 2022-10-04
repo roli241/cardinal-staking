@@ -1,4 +1,3 @@
-pub mod blacklist_mint;
 pub mod claim_reward_receipt;
 pub mod close_receipt_entry;
 pub mod close_receipt_manager;
@@ -7,11 +6,9 @@ pub mod disallow_entry;
 pub mod init_receipt_entry;
 pub mod init_receipt_manager;
 pub mod init_reward_receipt;
-pub mod reset_auth_record;
+pub mod set_reward_receipt_auth;
 pub mod update_receipt_manager;
-pub mod whitelist_mint;
 
-pub use blacklist_mint::*;
 pub use claim_reward_receipt::*;
 pub use close_receipt_entry::*;
 pub use close_receipt_manager::*;
@@ -20,6 +17,5 @@ pub use disallow_entry::*;
 pub use init_receipt_entry::*;
 pub use init_receipt_manager::*;
 pub use init_reward_receipt::*;
-pub use reset_auth_record::*;
+pub use set_reward_receipt_auth::*;
 pub use update_receipt_manager::*;
-pub use whitelist_mint::*;
