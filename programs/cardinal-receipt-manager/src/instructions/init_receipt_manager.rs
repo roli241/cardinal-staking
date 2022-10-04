@@ -7,7 +7,7 @@ pub struct InitReceiptManagerIx {
     pub name: String,
     pub authority: Pubkey,
     pub required_stake_seconds: u128,
-    pub uses_stake_seconds: u128,
+    pub stake_seconds_to_use: u128,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
     pub max_claimed_receipts: Option<u128>,
@@ -41,7 +41,7 @@ pub fn handler(ctx: Context<InitReceiptManagerCtx>, ix: InitReceiptManagerIx) ->
     receipt_manager.stake_pool = ctx.accounts.stake_pool.key();
     receipt_manager.authority = ix.authority;
     receipt_manager.required_stake_seconds = ix.required_stake_seconds;
-    receipt_manager.uses_stake_seconds = ix.uses_stake_seconds;
+    receipt_manager.stake_seconds_to_use = ix.stake_seconds_to_use;
     receipt_manager.claimed_receipts_counter = 0;
     receipt_manager.payment_mint = ix.payment_mint;
     receipt_manager.payment_manager = ix.payment_manager;

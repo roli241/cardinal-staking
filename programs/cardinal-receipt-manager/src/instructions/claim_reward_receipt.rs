@@ -63,6 +63,18 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
         return Err(error!(ErrorCode::RewardSecondsNotSatisfied));
     }
 
+    if ctx.accounts.receipt_manager.stake_seconds_to_use != 0
+        && ctx
+            .accounts
+            .stake_entry
+            .total_stake_seconds
+            .checked_sub(ctx.accounts.receipt_entry.used_stake_seconds)
+            .expect("Sub error")
+            < ctx.accounts.receipt_manager.stake_seconds_to_use
+    {
+        return Err(error!(ErrorCode::InsufficientAvailableStakeSeconds));
+    }
+
     let receipt_manager = &mut ctx.accounts.receipt_manager;
     if let Some(max_reward_receipts) = receipt_manager.max_claimed_receipts {
         if max_reward_receipts == receipt_manager.claimed_receipts_counter {
@@ -72,7 +84,7 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
 
     // add to used seconds
     let receipt_entry = &mut ctx.accounts.receipt_entry;
-    receipt_entry.used_stake_seconds = receipt_entry.used_stake_seconds.checked_add(ctx.accounts.receipt_manager.uses_stake_seconds).expect("Add error");
+    receipt_entry.used_stake_seconds = receipt_entry.used_stake_seconds.checked_add(ctx.accounts.receipt_manager.stake_seconds_to_use).expect("Add error");
 
     if receipt_entry.used_stake_seconds > ctx.accounts.stake_entry.total_stake_seconds {
         return Err(error!(ErrorCode::RewardSecondsNotSatisfied));

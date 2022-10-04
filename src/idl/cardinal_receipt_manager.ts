@@ -36,7 +36,69 @@ export type CardinalReceiptManager = {
       ];
     },
     {
-      name: "createRewardReceipt";
+      name: "initReceiptEntry";
+      accounts: [
+        {
+          name: "receiptEntry";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "stakeEntry";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "payer";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [];
+    },
+    {
+      name: "initRewardReceipt";
+      accounts: [
+        {
+          name: "rewardReceipt";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "receiptManager";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "receiptEntry";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "stakeEntry";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "payer";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [];
+    },
+    {
+      name: "claimRewardReceipt";
       accounts: [
         {
           name: "rewardReceipt";
@@ -151,32 +213,6 @@ export type CardinalReceiptManager = {
       args: [];
     },
     {
-      name: "initReceiptEntry";
-      accounts: [
-        {
-          name: "receiptEntry";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "stakeEntry";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "payer";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        }
-      ];
-      args: [];
-    },
-    {
       name: "closeRewardReceipt";
       accounts: [
         {
@@ -252,7 +288,7 @@ export type CardinalReceiptManager = {
             type: "u128";
           },
           {
-            name: "usesStakeSeconds";
+            name: "stakeSecondsToUse";
             type: "u128";
           },
           {
@@ -268,6 +304,10 @@ export type CardinalReceiptManager = {
             type: "publicKey";
           },
           {
+            name: "requiresAuthorization";
+            type: "bool";
+          },
+          {
             name: "name";
             type: "string";
           },
@@ -276,6 +316,26 @@ export type CardinalReceiptManager = {
             type: {
               option: "u128";
             };
+          }
+        ];
+      };
+    },
+    {
+      name: "receiptEntry";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "bump";
+            type: "u8";
+          },
+          {
+            name: "stakeEntry";
+            type: "publicKey";
+          },
+          {
+            name: "usedStakeSeconds";
+            type: "u128";
           }
         ];
       };
@@ -303,26 +363,6 @@ export type CardinalReceiptManager = {
           }
         ];
       };
-    },
-    {
-      name: "receiptEntry";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "bump";
-            type: "u8";
-          },
-          {
-            name: "stakeEntry";
-            type: "publicKey";
-          },
-          {
-            name: "usedStakeSeconds";
-            type: "u128";
-          }
-        ];
-      };
     }
   ];
   types: [
@@ -344,7 +384,7 @@ export type CardinalReceiptManager = {
             type: "u128";
           },
           {
-            name: "usesStakeSeconds";
+            name: "stakeSecondsToUse";
             type: "u128";
           },
           {
@@ -378,7 +418,7 @@ export type CardinalReceiptManager = {
             type: "u128";
           },
           {
-            name: "usesStakeSeconds";
+            name: "stakeSecondsToUse";
             type: "u128";
           },
           {
@@ -388,6 +428,10 @@ export type CardinalReceiptManager = {
           {
             name: "paymentManager";
             type: "publicKey";
+          },
+          {
+            name: "requiresAuthorization";
+            type: "bool";
           },
           {
             name: "maxClaimedReceipts";
@@ -417,83 +461,63 @@ export type CardinalReceiptManager = {
     },
     {
       code: 6003;
-      name: "InvaliReceiptManager";
-      msg: "Invalid receipt manager";
-    },
-    {
-      code: 6004;
-      name: "CannotBlacklistDisallowReceipt";
-      msg: "Cannot disallow claim reward receipt";
-    },
-    {
-      code: 6005;
       name: "RewardSecondsNotSatisfied";
       msg: "Reward seconds not satisifed";
     },
     {
-      code: 6006;
+      code: 6004;
       name: "InvalidPayerTokenAcount";
       msg: "Invalid payer token account";
     },
     {
-      code: 6007;
-      name: "InvalidPaymentTargetTokenAccount";
-      msg: "Invalid payment target account";
-    },
-    {
-      code: 6008;
+      code: 6005;
       name: "InvalidPaymentMint";
       msg: "Invalid payment mint";
     },
     {
-      code: 6009;
-      name: "InvalidPaymentTarget";
-      msg: "Invalid payment target";
-    },
-    {
-      code: 6010;
+      code: 6006;
       name: "InvalidPaymentManager";
       msg: "Invalid payment manager";
     },
     {
-      code: 6011;
-      name: "InvalidPaymentAmountForMint";
-      msg: "Invalid payment amount for mint";
-    },
-    {
-      code: 6012;
+      code: 6007;
       name: "InvalidMaxClaimedReceipts";
       msg: "Invalid max claimed receipts";
     },
     {
-      code: 6013;
+      code: 6008;
       name: "InvalidPaymentTokenAccount";
       msg: "Invalid payment token account";
     },
     {
-      code: 6014;
-      name: "InvalidFeeCollectorTokenAccount";
-      msg: "Invalid fee collector token account";
-    },
-    {
-      code: 6015;
+      code: 6009;
       name: "InvalidPaymentCollector";
       msg: "Invalid payment collector";
     },
     {
-      code: 6016;
+      code: 6010;
       name: "InvalidRewardReceipt";
       msg: "Invalid reward receipt";
     },
     {
-      code: 6017;
+      code: 6011;
       name: "InvalidReceiptEntry";
       msg: "Invalid receipt entry";
     },
     {
-      code: 6018;
+      code: 6012;
       name: "InsufficientAvailableStakeSeconds";
       msg: "Insufficient available stake seconds to use";
+    },
+    {
+      code: 6013;
+      name: "InvalidStakeEntry";
+      msg: "Invalid stake entry";
+    },
+    {
+      code: 6014;
+      name: "InvalidReceiptManager";
+      msg: "Invalid receipt manager";
     }
   ];
 };
@@ -536,7 +560,69 @@ export const IDL: CardinalReceiptManager = {
       ],
     },
     {
-      name: "createRewardReceipt",
+      name: "initReceiptEntry",
+      accounts: [
+        {
+          name: "receiptEntry",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "stakeEntry",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "payer",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
+    {
+      name: "initRewardReceipt",
+      accounts: [
+        {
+          name: "rewardReceipt",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "receiptManager",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "receiptEntry",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "stakeEntry",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "payer",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
+    {
+      name: "claimRewardReceipt",
       accounts: [
         {
           name: "rewardReceipt",
@@ -651,32 +737,6 @@ export const IDL: CardinalReceiptManager = {
       args: [],
     },
     {
-      name: "initReceiptEntry",
-      accounts: [
-        {
-          name: "receiptEntry",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "stakeEntry",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "payer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [],
-    },
-    {
       name: "closeRewardReceipt",
       accounts: [
         {
@@ -752,7 +812,7 @@ export const IDL: CardinalReceiptManager = {
             type: "u128",
           },
           {
-            name: "usesStakeSeconds",
+            name: "stakeSecondsToUse",
             type: "u128",
           },
           {
@@ -768,6 +828,10 @@ export const IDL: CardinalReceiptManager = {
             type: "publicKey",
           },
           {
+            name: "requiresAuthorization",
+            type: "bool",
+          },
+          {
             name: "name",
             type: "string",
           },
@@ -776,6 +840,26 @@ export const IDL: CardinalReceiptManager = {
             type: {
               option: "u128",
             },
+          },
+        ],
+      },
+    },
+    {
+      name: "receiptEntry",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "bump",
+            type: "u8",
+          },
+          {
+            name: "stakeEntry",
+            type: "publicKey",
+          },
+          {
+            name: "usedStakeSeconds",
+            type: "u128",
           },
         ],
       },
@@ -804,26 +888,6 @@ export const IDL: CardinalReceiptManager = {
         ],
       },
     },
-    {
-      name: "receiptEntry",
-      type: {
-        kind: "struct",
-        fields: [
-          {
-            name: "bump",
-            type: "u8",
-          },
-          {
-            name: "stakeEntry",
-            type: "publicKey",
-          },
-          {
-            name: "usedStakeSeconds",
-            type: "u128",
-          },
-        ],
-      },
-    },
   ],
   types: [
     {
@@ -844,7 +908,7 @@ export const IDL: CardinalReceiptManager = {
             type: "u128",
           },
           {
-            name: "usesStakeSeconds",
+            name: "stakeSecondsToUse",
             type: "u128",
           },
           {
@@ -878,7 +942,7 @@ export const IDL: CardinalReceiptManager = {
             type: "u128",
           },
           {
-            name: "usesStakeSeconds",
+            name: "stakeSecondsToUse",
             type: "u128",
           },
           {
@@ -888,6 +952,10 @@ export const IDL: CardinalReceiptManager = {
           {
             name: "paymentManager",
             type: "publicKey",
+          },
+          {
+            name: "requiresAuthorization",
+            type: "bool",
           },
           {
             name: "maxClaimedReceipts",
@@ -917,83 +985,63 @@ export const IDL: CardinalReceiptManager = {
     },
     {
       code: 6003,
-      name: "InvaliReceiptManager",
-      msg: "Invalid receipt manager",
-    },
-    {
-      code: 6004,
-      name: "CannotBlacklistDisallowReceipt",
-      msg: "Cannot disallow claim reward receipt",
-    },
-    {
-      code: 6005,
       name: "RewardSecondsNotSatisfied",
       msg: "Reward seconds not satisifed",
     },
     {
-      code: 6006,
+      code: 6004,
       name: "InvalidPayerTokenAcount",
       msg: "Invalid payer token account",
     },
     {
-      code: 6007,
-      name: "InvalidPaymentTargetTokenAccount",
-      msg: "Invalid payment target account",
-    },
-    {
-      code: 6008,
+      code: 6005,
       name: "InvalidPaymentMint",
       msg: "Invalid payment mint",
     },
     {
-      code: 6009,
-      name: "InvalidPaymentTarget",
-      msg: "Invalid payment target",
-    },
-    {
-      code: 6010,
+      code: 6006,
       name: "InvalidPaymentManager",
       msg: "Invalid payment manager",
     },
     {
-      code: 6011,
-      name: "InvalidPaymentAmountForMint",
-      msg: "Invalid payment amount for mint",
-    },
-    {
-      code: 6012,
+      code: 6007,
       name: "InvalidMaxClaimedReceipts",
       msg: "Invalid max claimed receipts",
     },
     {
-      code: 6013,
+      code: 6008,
       name: "InvalidPaymentTokenAccount",
       msg: "Invalid payment token account",
     },
     {
-      code: 6014,
-      name: "InvalidFeeCollectorTokenAccount",
-      msg: "Invalid fee collector token account",
-    },
-    {
-      code: 6015,
+      code: 6009,
       name: "InvalidPaymentCollector",
       msg: "Invalid payment collector",
     },
     {
-      code: 6016,
+      code: 6010,
       name: "InvalidRewardReceipt",
       msg: "Invalid reward receipt",
     },
     {
-      code: 6017,
+      code: 6011,
       name: "InvalidReceiptEntry",
       msg: "Invalid receipt entry",
     },
     {
-      code: 6018,
+      code: 6012,
       name: "InsufficientAvailableStakeSeconds",
       msg: "Insufficient available stake seconds to use",
+    },
+    {
+      code: 6013,
+      name: "InvalidStakeEntry",
+      msg: "Invalid stake entry",
+    },
+    {
+      code: 6014,
+      name: "InvalidReceiptManager",
+      msg: "Invalid receipt manager",
     },
   ],
 };

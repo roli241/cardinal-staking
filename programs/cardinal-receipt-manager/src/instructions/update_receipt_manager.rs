@@ -7,9 +7,10 @@ use {
 pub struct UpdateReceiptManagerIx {
     pub authority: Pubkey,
     pub required_stake_seconds: u128,
-    pub uses_stake_seconds: u128,
+    pub stake_seconds_to_use: u128,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
+    pub requires_authorization: bool,
     pub max_claimed_receipts: Option<u128>,
 }
 
@@ -35,9 +36,10 @@ pub fn handler(ctx: Context<UpdateRewarReceiptManagerCtx>, ix: UpdateReceiptMana
     let receipt_manager = &mut ctx.accounts.receipt_manager;
     receipt_manager.authority = ix.authority;
     receipt_manager.required_stake_seconds = ix.required_stake_seconds;
-    receipt_manager.uses_stake_seconds = ix.uses_stake_seconds;
+    receipt_manager.stake_seconds_to_use = ix.stake_seconds_to_use;
     receipt_manager.payment_mint = ix.payment_mint;
     receipt_manager.payment_manager = ix.payment_manager;
+    receipt_manager.requires_authorization = ix.requires_authorization;
     receipt_manager.max_claimed_receipts = ix.max_claimed_receipts;
 
     Ok(())
