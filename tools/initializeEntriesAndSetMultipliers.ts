@@ -29,7 +29,7 @@ import { fetchMetadata } from "./getMetadataForPoolTokens";
 import type { UpdateRule } from "./updateMultipliersOnRules";
 import { chunkArray } from "./utils";
 
-const wallet = Keypair.fromSecretKey(utils.bytes.bs58.decode(""));
+const wallet = Keypair.fromSecretKey(utils.bytes.bs58.decode("SECRET_KEY"));
 
 const POOL_ID = new PublicKey("");
 const CLUSTER = "mainnet";
@@ -214,9 +214,6 @@ const initializeEntries = async (
                   rewardEntry?.parsed.multiplier.toNumber() || 0
                 } => ${multiplierToSet}`
               );
-              multiplierToSet =
-                multiplierToSet **
-                (10 ** rewardDistributorData.parsed.multiplierDecimals); // adjust for decimals
               await withUpdateRewardEntry(
                 transaction,
                 connection,

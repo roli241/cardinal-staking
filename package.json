@@ -1,6 +1,6 @@
 {
   "name": "@cardinal/staking",
-  "version": "1.8.4",
+  "version": "1.10.2",
   "description": "Cardinal stake pool SDK",
   "keywords": [
     "solana",

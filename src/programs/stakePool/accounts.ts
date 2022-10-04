@@ -180,6 +180,50 @@ export const getAllActiveStakeEntries = async (
   );
 };
 
+export const getAllStakeEntriesForPool = async (
+  connection: Connection,
+  stakePoolId: PublicKey
+): Promise<AccountData<StakeEntryData>[]> => {
+  const programAccounts = await connection.getProgramAccounts(
+    STAKE_POOL_ADDRESS,
+    {
+      filters: [
+        {
+          memcmp: {
+            offset: 0,
+            bytes: utils.bytes.bs58.encode(
+              BorshAccountsCoder.accountDiscriminator("stakeEntry")
+            ),
+          },
+        },
+        {
+          memcmp: { offset: POOL_OFFSET, bytes: stakePoolId.toBase58() },
+        },
+      ],
+    }
+  );
+  const stakeEntryDatas: AccountData<StakeEntryData>[] = [];
+  const coder = new BorshAccountsCoder(STAKE_POOL_IDL);
+  programAccounts.forEach((account) => {
+    try {
+      const stakeEntryData: StakeEntryData = coder.decode(
+        "stakeEntry",
+        account.account.data
+      );
+      stakeEntryDatas.push({
+        ...account,
+        parsed: stakeEntryData,
+      });
+    } catch (e) {
+      // console.log(`Failed to decode stake entry data`);
+    }
+  });
+
+  return stakeEntryDatas.sort((a, b) =>
+    a.pubkey.toBase58().localeCompare(b.pubkey.toBase58())
+  );
+};
+
 export const getActiveStakeEntriesForPool = async (
   connection: Connection,
   stakePoolId: PublicKey
