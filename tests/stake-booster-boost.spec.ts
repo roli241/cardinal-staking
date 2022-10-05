@@ -1,4 +1,5 @@
 import { findAta } from "@cardinal/common";
+import { paymentManager } from "@cardinal/token-manager/dist/cjs/programs";
 import { expectTXTable } from "@saberhq/chai-solana";
 import {
   SignerWallet,
@@ -11,7 +12,10 @@ import { BN } from "bn.js";
 import { expect } from "chai";
 
 import { createStakePool, stake, unstake } from "../src";
-import { ReceiptType } from "../src/programs/stakePool";
+import {
+  ReceiptType,
+  STAKE_BOOSTER_PAYMENT_MANAGER_NAME,
+} from "../src/programs/stakePool";
 import { getStakeEntry } from "../src/programs/stakePool/accounts";
 import { updateTotalStakeSeconds } from "../src/programs/stakePool/instruction";
 import {
@@ -19,7 +23,7 @@ import {
   withInitStakeBooster,
 } from "../src/programs/stakePool/transaction";
 import { findStakeEntryIdFromMint } from "../src/programs/stakePool/utils";
-import { createMasterEditionIxs, createMint } from "./utils";
+import { createMasterEditionIxs, createMint, delay } from "./utils";
 import { getProvider } from "./workspace";
 
 describe("Stake booster boost", () => {
@@ -27,6 +31,7 @@ describe("Stake booster boost", () => {
   let originalMintTokenAccountId: PublicKey;
   let originalMint: splToken.Token;
   const originalMintAuthority = Keypair.generate();
+  const feeCollector = Keypair.generate();
 
   let paymentMintTokenAccount: PublicKey;
   let paymentMint: splToken.Token;
@@ -72,6 +77,29 @@ describe("Stake booster boost", () => {
       PAYMENT_SUPPLY.toNumber(),
       provider.wallet.publicKey
     );
+
+    // create payment manager
+    await expectTXTable(
+      new TransactionEnvelope(SolanaProvider.init(provider), [
+        (
+          await paymentManager.instruction.init(
+            provider.connection,
+            provider.wallet,
+            STAKE_BOOSTER_PAYMENT_MANAGER_NAME,
+            {
+              feeCollector: feeCollector.publicKey,
+              makerFeeBasisPoints: 500,
+              takerFeeBasisPoints: 0,
+            }
+          )
+        )[0],
+      ]),
+      "before",
+      {
+        verbosity: "error",
+        formatLogs: true,
+      }
+    ).to.be.fulfilled;
   });
 
   it("Create Pool", async () => {
@@ -214,6 +242,7 @@ describe("Stake booster boost", () => {
   });
 
   it("Unstake", async () => {
+    await delay(2000);
     const provider = getProvider();
     const stakeEntryId = (
       await findStakeEntryIdFromMint(

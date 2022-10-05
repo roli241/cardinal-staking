@@ -34,6 +34,7 @@ export type IdentifierData = Accounts["identifier"];
 export type StakeAuthorizationData = Accounts["stakeAuthorizationRecord"];
 export type StakeBoosterData = Accounts["stakeBooster"];
 
+export const STAKE_BOOSTER_PAYMENT_MANAGER_NAME = "cardinal-stake-booster";
 export const STAKE_BOOSTER_PAYMENT_MANAGER = new PublicKey(
   "CuEDMUqgkGTVcAaqEDHuVR848XN38MPsD11JrkxcGD6a" // cardinal-stake-booster
 );
