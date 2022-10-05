@@ -34,7 +34,9 @@ export type IdentifierData = Accounts["identifier"];
 export type StakeAuthorizationData = Accounts["stakeAuthorizationRecord"];
 export type StakeBoosterData = Accounts["stakeBooster"];
 
-export const DEFAULT_BOOST_PAYMENT_MANAGER = new PublicKey("");
+export const STAKE_BOOSTER_PAYMENT_MANAGER = new PublicKey(
+  "CuEDMUqgkGTVcAaqEDHuVR848XN38MPsD11JrkxcGD6a" // cardinal-stake-booster
+);
 
 export enum ReceiptType {
   // Receive the original mint wrapped in a token manager

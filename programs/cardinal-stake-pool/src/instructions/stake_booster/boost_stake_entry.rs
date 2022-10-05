@@ -1,7 +1,7 @@
 use {
     crate::{errors::ErrorCode, state::*},
     anchor_lang::prelude::*,
-    anchor_spl::token::{self, Token, TokenAccount},
+    anchor_spl::token::{Token, TokenAccount},
     cardinal_payment_manager::{program::CardinalPaymentManager, state::PaymentManager},
 };
 

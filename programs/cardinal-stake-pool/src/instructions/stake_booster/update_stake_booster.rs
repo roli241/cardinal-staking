@@ -24,6 +24,7 @@ pub struct UpdateStakeBoosterCtx<'info> {
 
 pub fn handler(ctx: Context<UpdateStakeBoosterCtx>, ix: UpdateStakeBoosterIx) -> Result<()> {
     let stake_booster = &mut ctx.accounts.stake_booster;
+    assert_stake_boost_payment_manager(&ix.payment_manager);
     stake_booster.payment_amount = ix.payment_amount;
     stake_booster.payment_mint = ix.payment_mint;
     stake_booster.boost_seconds = ix.boost_seconds;

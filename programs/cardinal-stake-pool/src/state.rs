@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use std::str::FromStr;
 
 pub const STAKE_ENTRY_PREFIX: &str = "stake-entry";
 pub const STAKE_ENTRY_SIZE: usize = 8 + std::mem::size_of::<StakeEntry>() + 8;
@@ -51,6 +52,10 @@ pub struct StakePool {
     pub cooldown_seconds: Option<u32>,
     pub min_stake_seconds: Option<u32>,
     pub end_date: Option<i64>,
+}
+
+pub fn assert_stake_boost_payment_manager(pubkey: &Pubkey) -> bool {
+    pubkey.to_string() == Pubkey::from_str("CuEDMUqgkGTVcAaqEDHuVR848XN38MPsD11JrkxcGD6a").unwrap().to_string()
 }
 
 pub const STAKE_BOOSTER_PREFIX: &str = "stake-booster";

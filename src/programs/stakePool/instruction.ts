@@ -28,7 +28,7 @@ import { SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 
 import type { STAKE_POOL_PROGRAM } from ".";
 import { STAKE_POOL_ADDRESS, STAKE_POOL_IDL } from ".";
-import { DEFAULT_BOOST_PAYMENT_MANAGER, ReceiptType } from "./constants";
+import { ReceiptType, STAKE_BOOSTER_PAYMENT_MANAGER } from "./constants";
 import { findStakeAuthorizationId, findStakeBoosterId } from "./pda";
 import { remainingAccountsForInitStakeEntry } from "./utils";
 
@@ -577,7 +577,6 @@ export const initStakeBooster = async (
     paymentAmount: BN;
     paymentMint: PublicKey;
     boostSeconds: BN;
-    paymentManager?: PublicKey;
     startTimeSeconds: number;
     payer?: PublicKey;
   }
@@ -600,7 +599,7 @@ export const initStakeBooster = async (
       identifier: stakeBoosterIdentifier,
       paymentAmount: params.paymentAmount,
       paymentMint: params.paymentMint,
-      paymentManager: params.paymentManager ?? DEFAULT_BOOST_PAYMENT_MANAGER,
+      paymentManager: STAKE_BOOSTER_PAYMENT_MANAGER,
       boostSeconds: params.boostSeconds,
       startTimeSeconds: new BN(params.startTimeSeconds),
     },
@@ -625,7 +624,6 @@ export const updateStakeBooster = async (
     paymentAmount: BN;
     paymentMint: PublicKey;
     boostSeconds: BN;
-    paymentManager?: PublicKey;
     startTimeSeconds: number;
   }
 ) => {
@@ -644,7 +642,7 @@ export const updateStakeBooster = async (
       paymentAmount: params.paymentAmount,
       paymentMint: params.paymentMint,
       boostSeconds: params.boostSeconds,
-      paymentManager: params.paymentManager ?? DEFAULT_BOOST_PAYMENT_MANAGER,
+      paymentManager: STAKE_BOOSTER_PAYMENT_MANAGER,
       startTimeSeconds: new BN(params.startTimeSeconds),
     },
     {
