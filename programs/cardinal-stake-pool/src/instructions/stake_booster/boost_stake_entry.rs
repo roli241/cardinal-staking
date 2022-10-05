@@ -46,6 +46,11 @@ pub struct BoostStakeEntryCtx<'info> {
 
 pub fn handler(ctx: Context<BoostStakeEntryCtx>, ix: BoostStakeEntryIx) -> Result<()> {
     let stake_entry = &mut ctx.accounts.stake_entry;
+    stake_entry.kind = StakeEntryKind::Permissioned as u8;
+    if stake_entry.last_staker == Pubkey::default() || stake_entry.amount == 0 {
+        return Err(error!(ErrorCode::CannotBoostUnstakedToken));
+    }
+
     if stake_entry.cooldown_start_seconds.is_some() {
         return Err(error!(ErrorCode::CannotBoostDuringCooldown));
     }
@@ -55,13 +60,12 @@ pub fn handler(ctx: Context<BoostStakeEntryCtx>, ix: BoostStakeEntryIx) -> Resul
         .saturating_add(u128::try_from(ix.seconds_to_boost).expect("Number conversion error"))
         .checked_mul(u128::try_from(stake_entry.amount).expect("Number conversion error"))
         .expect("Add error");
-    stake_entry.last_staked_at = Clock::get().unwrap().unix_timestamp;
 
     if stake_entry
         .total_stake_seconds
         .gt(&u128::try_from(Clock::get().unwrap().unix_timestamp.checked_sub(ctx.accounts.stake_booster.start_time_seconds).expect("Sub error")).expect("Number conversion error"))
     {
-        return Err(error!(ErrorCode::CannotBoostDuringCooldown));
+        return Err(error!(ErrorCode::CannotBoostMoreThanCurrentTime));
     }
 
     let payment_amount = ix

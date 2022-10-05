@@ -61,6 +61,8 @@ pub enum ErrorCode {
     // boost errors
     #[msg("Cannot boost stake entry during cooldown")]
     CannotBoostDuringCooldown,
+    #[msg("Cannot boost unstaked token")]
+    CannotBoostUnstakedToken,
     #[msg("Cannot boost past current time less than start time")]
     CannotBoostMoreThanCurrentTime,
     #[msg("Invalid boost payer token account")]

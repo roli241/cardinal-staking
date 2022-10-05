@@ -14,6 +14,7 @@ import { expect } from "chai";
 import { createStakePool, stake, unstake } from "../src";
 import {
   ReceiptType,
+  STAKE_BOOSTER_PAYMENT_MANAGER,
   STAKE_BOOSTER_PAYMENT_MANAGER_NAME,
 } from "../src/programs/stakePool";
 import { getStakeEntry } from "../src/programs/stakePool/accounts";
@@ -69,7 +70,6 @@ describe("Stake booster boost", () => {
       formatLogs: true,
     }).to.be.fulfilled;
 
-    // payment mint
     [paymentMintTokenAccount, paymentMint] = await createMint(
       provider.connection,
       originalMintAuthority,
@@ -78,28 +78,34 @@ describe("Stake booster boost", () => {
       provider.wallet.publicKey
     );
 
-    // create payment manager
-    await expectTXTable(
-      new TransactionEnvelope(SolanaProvider.init(provider), [
-        (
-          await paymentManager.instruction.init(
-            provider.connection,
-            provider.wallet,
-            STAKE_BOOSTER_PAYMENT_MANAGER_NAME,
-            {
-              feeCollector: feeCollector.publicKey,
-              makerFeeBasisPoints: 500,
-              takerFeeBasisPoints: 0,
-            }
-          )
-        )[0],
-      ]),
-      "before",
-      {
-        verbosity: "error",
-        formatLogs: true,
-      }
-    ).to.be.fulfilled;
+    // payment mint
+    const stakeBoostPaymentManager = await provider.connection.getAccountInfo(
+      STAKE_BOOSTER_PAYMENT_MANAGER
+    );
+    if (!stakeBoostPaymentManager) {
+      // create payment manager
+      await expectTXTable(
+        new TransactionEnvelope(SolanaProvider.init(provider), [
+          (
+            await paymentManager.instruction.init(
+              provider.connection,
+              provider.wallet,
+              STAKE_BOOSTER_PAYMENT_MANAGER_NAME,
+              {
+                feeCollector: feeCollector.publicKey,
+                makerFeeBasisPoints: 500,
+                takerFeeBasisPoints: 0,
+              }
+            )
+          )[0],
+        ]),
+        "before",
+        {
+          verbosity: "error",
+          formatLogs: true,
+        }
+      ).to.be.fulfilled;
+    }
   });
 
   it("Create Pool", async () => {
@@ -192,6 +198,7 @@ describe("Stake booster boost", () => {
   });
 
   it("Update", async () => {
+    await delay(1000);
     const provider = getProvider();
     const stakeEntryId = (
       await findStakeEntryIdFromMint(
@@ -239,6 +246,84 @@ describe("Stake booster boost", () => {
     );
     expect(checkUserOriginalTokenAccount.amount.toNumber()).to.eq(1);
     expect(checkUserOriginalTokenAccount.isFrozen).to.eq(true);
+  });
+
+  it("Boost", async () => {
+    await delay(5000);
+    const provider = getProvider();
+    const stakeEntryId = (
+      await findStakeEntryIdFromMint(
+        provider.connection,
+        provider.wallet.publicKey,
+        stakePoolId,
+        originalMint.publicKey
+      )
+    )[0];
+    const oldStakeEntryData = await getStakeEntry(
+      provider.connection,
+      stakeEntryId
+    );
+    await expectTXTable(
+      new TransactionEnvelope(
+        SolanaProvider.init(provider),
+        (
+          await withBoostStakeEntry(
+            new Transaction(),
+            provider.connection,
+            provider.wallet,
+            {
+              stakePoolId: stakePoolId,
+              stakeEntryId: stakeEntryId,
+              payerTokenAccount: paymentMintTokenAccount,
+              secondsToBoost: SECONDS_TO_BOOST,
+            }
+          )
+        ).instructions
+      ),
+      "Boost"
+    ).to.be.fulfilled;
+
+    const stakeEntryData = await getStakeEntry(
+      provider.connection,
+      (
+        await findStakeEntryIdFromMint(
+          provider.connection,
+          provider.wallet.publicKey,
+          stakePoolId,
+          originalMint.publicKey
+        )
+      )[0]
+    );
+    expect(stakeEntryData.parsed.lastStaker.toString()).to.eq(
+      provider.wallet.publicKey.toString()
+    );
+    expect(oldStakeEntryData.parsed.lastStakedAt.toNumber()).to.eq(
+      stakeEntryData.parsed.lastStakedAt.toNumber()
+    );
+    expect(stakeEntryData.parsed.totalStakeSeconds.toNumber()).to.eq(
+      oldStakeEntryData.parsed.totalStakeSeconds
+        .add(SECONDS_TO_BOOST)
+        .toNumber()
+    );
+    const userOriginalMintTokenAccountId = await findAta(
+      originalMint.publicKey,
+      provider.wallet.publicKey,
+      true
+    );
+    const checkUserOriginalTokenAccount = await originalMint.getAccountInfo(
+      userOriginalMintTokenAccountId
+    );
+    expect(checkUserOriginalTokenAccount.amount.toNumber()).to.eq(1);
+    expect(checkUserOriginalTokenAccount.isFrozen).to.eq(true);
+
+    const checkPaymentMintTokenAccount = await paymentMint.getAccountInfo(
+      paymentMintTokenAccount
+    );
+    expect(checkPaymentMintTokenAccount.amount.toNumber()).to.eq(
+      PAYMENT_SUPPLY.sub(
+        SECONDS_TO_BOOST.mul(STAKE_BOOSTER_PAYMENT_AMOUNT).div(BOOST_SECONDS)
+      ).toNumber()
+    );
   });
 
   it("Unstake", async () => {
@@ -299,8 +384,7 @@ describe("Stake booster boost", () => {
     expect(checkUserOriginalTokenAccount.isFrozen).to.eq(false);
   });
 
-  it("Boost", async () => {
-    await delay(5000);
+  it("Fail boost while unstaked", async () => {
     const provider = getProvider();
     const stakeEntryId = (
       await findStakeEntryIdFromMint(
@@ -310,10 +394,6 @@ describe("Stake booster boost", () => {
         originalMint.publicKey
       )
     )[0];
-    const oldStakeEntryData = await getStakeEntry(
-      provider.connection,
-      stakeEntryId
-    );
     await expectTXTable(
       new TransactionEnvelope(
         SolanaProvider.init(provider),
@@ -331,48 +411,8 @@ describe("Stake booster boost", () => {
           )
         ).instructions
       ),
-      "Boost"
-    ).to.be.fulfilled;
-
-    const stakeEntryData = await getStakeEntry(
-      provider.connection,
-      (
-        await findStakeEntryIdFromMint(
-          provider.connection,
-          provider.wallet.publicKey,
-          stakePoolId,
-          originalMint.publicKey
-        )
-      )[0]
-    );
-    expect(stakeEntryData.parsed.lastStaker.toString()).to.eq(
-      PublicKey.default.toString()
-    );
-    expect(stakeEntryData.parsed.lastStakedAt.toNumber()).to.eq(
-      stakeEntryData.parsed.lastStakedAt
-    );
-    expect(stakeEntryData.parsed.totalStakeSeconds.toNumber()).to.eq(
-      oldStakeEntryData.parsed.totalStakeSeconds.add(BOOST_SECONDS).toNumber()
-    );
-    const userOriginalMintTokenAccountId = await findAta(
-      originalMint.publicKey,
-      provider.wallet.publicKey,
-      true
-    );
-    const checkUserOriginalTokenAccount = await originalMint.getAccountInfo(
-      userOriginalMintTokenAccountId
-    );
-    expect(checkUserOriginalTokenAccount.amount.toNumber()).to.eq(1);
-    expect(checkUserOriginalTokenAccount.isFrozen).to.eq(false);
-
-    const checkPaymentMintTokenAccount = await paymentMint.getAccountInfo(
-      paymentMintTokenAccount
-    );
-    expect(checkPaymentMintTokenAccount.amount.toNumber()).to.eq(
-      PAYMENT_SUPPLY.sub(
-        SECONDS_TO_BOOST.mul(STAKE_BOOSTER_PAYMENT_AMOUNT).div(BOOST_SECONDS)
-      ).toNumber()
-    );
+      "Fail boost"
+    ).to.be.rejected;
   });
 
   it("Fail boost too far", async () => {
@@ -385,10 +425,6 @@ describe("Stake booster boost", () => {
         originalMint.publicKey
       )
     )[0];
-    const oldStakeEntryData = await getStakeEntry(
-      provider.connection,
-      stakeEntryId
-    );
     await expectTXTable(
       new TransactionEnvelope(
         SolanaProvider.init(provider),
@@ -406,7 +442,7 @@ describe("Stake booster boost", () => {
           )
         ).instructions
       ),
-      "Boost"
+      "Fail boost"
     ).to.be.rejected;
   });
 });
