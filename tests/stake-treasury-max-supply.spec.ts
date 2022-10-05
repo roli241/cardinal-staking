@@ -254,9 +254,7 @@ describe("Stake and claim rewards from treasury", () => {
       provider.connection,
       rewardMint,
       splToken.TOKEN_PROGRAM_ID,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      null
+      web3.Keypair.generate() // not used
     );
 
     const userRewardMintTokenAccountId = await findAta(
