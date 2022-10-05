@@ -260,7 +260,6 @@ export const withCloseReceiptManager = (
   wallet: Wallet,
   params: {
     receiptManagerId: PublicKey;
-    rewardReceiptId: PublicKey;
   }
 ): Transaction => {
   transaction.add(

@@ -466,9 +466,7 @@ describe("Create reward receipt", () => {
       provider.connection,
       paymentMint,
       splToken.TOKEN_PROGRAM_ID,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      null
+      Keypair.generate()
     );
     const paymentTokenAccountId = await findAta(
       paymentMint,
