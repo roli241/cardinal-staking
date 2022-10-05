@@ -264,7 +264,7 @@ export const closeRewardReceipt = (
   });
 };
 
-export const setRewardReceiptAuth = (
+export const setRewardReceiptAllowed = (
   connection: Connection,
   wallet: Wallet,
   params: {
@@ -279,11 +279,14 @@ export const setRewardReceiptAuth = (
     RECEIPT_MANAGER_ADDRESS,
     provider
   );
-  return receiptManagerProgram.instruction.setRewardReceiptAuth(params.auth, {
-    accounts: {
-      receiptManager: params.receiptManager,
-      rewardReceipt: params.rewardReceipt,
-      authority: wallet.publicKey,
-    },
-  });
+  return receiptManagerProgram.instruction.setRewardReceiptAllowed(
+    params.auth,
+    {
+      accounts: {
+        receiptManager: params.receiptManager,
+        rewardReceipt: params.rewardReceipt,
+        authority: wallet.publicKey,
+      },
+    }
+  );
 };

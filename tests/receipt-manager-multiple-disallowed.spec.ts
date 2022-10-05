@@ -34,7 +34,7 @@ import {
   withInitReceiptEntry,
   withInitReceiptManager,
   withInitRewardReceipt,
-  withSetRewardReceiptAuth,
+  withSetRewardReceiptAllowed,
   withUpdateReceiptManager,
 } from "../src/programs/receiptManager/transaction";
 import { ReceiptType } from "../src/programs/stakePool";
@@ -607,7 +607,7 @@ describe("Receipt manages multiple with disallowlist", () => {
     );
     expect(beforeReceiptData.parsed.allowed).to.be.true;
 
-    withSetRewardReceiptAuth(
+    withSetRewardReceiptAllowed(
       transaction,
       provider.connection,
       provider.wallet,
