@@ -46,7 +46,7 @@ pub struct BoostStakeEntryCtx<'info> {
 
 pub fn handler(ctx: Context<BoostStakeEntryCtx>, ix: BoostStakeEntryIx) -> Result<()> {
     let stake_entry = &mut ctx.accounts.stake_entry;
-    if stake_entry.cooldown_start_seconds.is_none() {
+    if stake_entry.cooldown_start_seconds.is_some() {
         return Err(error!(ErrorCode::CannotBoostDuringCooldown));
     }
 

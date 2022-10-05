@@ -37,7 +37,7 @@ describe("Stake booster boost", () => {
   let paymentMint: splToken.Token;
   const STAKE_BOOSTER_PAYMENT_AMOUNT = new BN(2);
   const BOOST_SECONDS = new BN(10);
-  const SECONDS_TO_BOOST = new BN(30);
+  const SECONDS_TO_BOOST = new BN(3);
   const PAYMENT_SUPPLY = new BN(100);
 
   before(async () => {
@@ -300,6 +300,7 @@ describe("Stake booster boost", () => {
   });
 
   it("Boost", async () => {
+    await delay(5000);
     const provider = getProvider();
     const stakeEntryId = (
       await findStakeEntryIdFromMint(
@@ -372,5 +373,40 @@ describe("Stake booster boost", () => {
         SECONDS_TO_BOOST.mul(STAKE_BOOSTER_PAYMENT_AMOUNT).div(BOOST_SECONDS)
       ).toNumber()
     );
+  });
+
+  it("Fail boost too far", async () => {
+    const provider = getProvider();
+    const stakeEntryId = (
+      await findStakeEntryIdFromMint(
+        provider.connection,
+        provider.wallet.publicKey,
+        stakePoolId,
+        originalMint.publicKey
+      )
+    )[0];
+    const oldStakeEntryData = await getStakeEntry(
+      provider.connection,
+      stakeEntryId
+    );
+    await expectTXTable(
+      new TransactionEnvelope(
+        SolanaProvider.init(provider),
+        (
+          await withBoostStakeEntry(
+            new Transaction(),
+            provider.connection,
+            provider.wallet,
+            {
+              stakePoolId: stakePoolId,
+              stakeEntryId: stakeEntryId,
+              payerTokenAccount: paymentMintTokenAccount,
+              secondsToBoost: SECONDS_TO_BOOST.mul(new BN(10)),
+            }
+          )
+        ).instructions
+      ),
+      "Boost"
+    ).to.be.rejected;
   });
 });
