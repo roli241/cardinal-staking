@@ -27,33 +27,28 @@ import {
 import {
   findReceiptEntryId,
   findReceiptManagerId,
-  findRewardReceiptId,
 } from "../src/programs/receiptManager/pda";
 import {
   withClaimRewardReceipt,
   withInitReceiptEntry,
   withInitReceiptManager,
   withInitRewardReceipt,
-  withSetRewardReceiptAuth,
-  withUpdateReceiptManager,
 } from "../src/programs/receiptManager/transaction";
 import { ReceiptType } from "../src/programs/stakePool";
 import { getStakeEntry } from "../src/programs/stakePool/accounts";
 import { findStakeEntryId } from "../src/programs/stakePool/pda";
 import { findStakeEntryIdFromMint } from "../src/programs/stakePool/utils";
-import { createMasterEditionIxs, createMint } from "./utils";
+import { createMasterEditionIxs, createMint, delay } from "./utils";
 import { getProvider } from "./workspace";
 
-describe("Multiple receipt managers claiming", () => {
+describe("Receipt manager claim reward receipt", () => {
   let originalMintTokenAccountId: PublicKey;
   let originalMint: splToken.Token;
   let stakePoolId: PublicKey;
 
   const originalMintAuthority = Keypair.generate();
-
-  const receiptManagerName1 = `mgr-${Math.random()}`;
-  const receiptManagerName2 = `mgr-${Math.random()}`;
-  const requiredStakeSeconds = new BN(0);
+  const receiptManagerName = `mgr-${Math.random()}`;
+  const requiredStakeSeconds = new BN(5);
   const stakeSecondsToUse = new BN(1);
   const requiresAuthorization = false;
 
@@ -179,71 +174,34 @@ describe("Multiple receipt managers claiming", () => {
     ).to.be.fulfilled;
   });
 
-  it("Create Reward Receipt Manager", async () => {
+  it("Fail To Create Reward Receipt Manager", async () => {
     const provider = getProvider();
     const transaction = new Transaction();
-    const [, receiptManagerId] = await withInitReceiptManager(
+    await withInitReceiptManager(
       transaction,
       provider.connection,
       provider.wallet,
       {
-        name: receiptManagerName1,
+        name: receiptManagerName,
         stakePoolId: stakePoolId,
         authority: provider.wallet.publicKey,
         requiredStakeSeconds: requiredStakeSeconds,
         stakeSecondsToUse: stakeSecondsToUse,
-        paymentMint: paymentMint,
+        paymentMint: Keypair.generate().publicKey,
         paymentRecipientId: paymentRecipient.publicKey,
         paymentManagerName: paymentManagerName,
         requiresAuthorization: requiresAuthorization,
       }
     );
 
-    const txEnvelope = new TransactionEnvelope(
-      SolanaProvider.init({
-        connection: provider.connection,
-        wallet: provider.wallet,
-        opts: provider.opts,
-      }),
-      [...transaction.instructions]
-    );
-
-    await expectTXTable(txEnvelope, "Create receipt manager", {
-      verbosity: "error",
-      formatLogs: true,
-    }).to.be.fulfilled;
-
-    const receiptManagerData = await getReceiptManager(
-      provider.connection,
-      receiptManagerId
-    );
-    const [payamentManagerId] = await findPaymentManagerAddress(
-      paymentManagerName
-    );
-    expect(receiptManagerData.parsed.name.toString()).to.eq(
-      receiptManagerName1
-    );
-    expect(receiptManagerData.parsed.paymentManager.toString()).to.eq(
-      payamentManagerId.toString()
-    );
-    expect(receiptManagerData.parsed.authority.toString()).to.eq(
-      provider.wallet.publicKey.toString()
-    );
-    expect(receiptManagerData.parsed.paymentMint.toString()).to.eq(
-      paymentMint.toString()
-    );
-    expect(receiptManagerData.parsed.stakePool.toString()).to.eq(
-      stakePoolId.toString()
-    );
-    expect(receiptManagerData.parsed.requiredStakeSeconds.toString()).to.eq(
-      requiredStakeSeconds.toString()
-    );
-    expect(receiptManagerData.parsed.stakeSecondsToUse.toString()).to.eq(
-      stakeSecondsToUse.toString()
-    );
-    expect(receiptManagerData.parsed.requiresAuthorization.toString()).to.eq(
-      requiresAuthorization.toString()
-    );
+    expect(async () => {
+      await expectTXTable(
+        new TransactionEnvelope(SolanaProvider.init(provider), [
+          ...transaction.instructions,
+        ]),
+        "Create receipt manager"
+      ).to.be.rejectedWith(Error);
+    });
   });
 
   it("Create Reward Receipt Manager", async () => {
@@ -254,7 +212,7 @@ describe("Multiple receipt managers claiming", () => {
       provider.connection,
       provider.wallet,
       {
-        name: receiptManagerName2,
+        name: receiptManagerName,
         stakePoolId: stakePoolId,
         authority: provider.wallet.publicKey,
         requiredStakeSeconds: requiredStakeSeconds,
@@ -286,9 +244,6 @@ describe("Multiple receipt managers claiming", () => {
     );
     const [payamentManagerId] = await findPaymentManagerAddress(
       paymentManagerName
-    );
-    expect(receiptManagerData.parsed.name.toString()).to.eq(
-      receiptManagerName2
     );
     expect(receiptManagerData.parsed.paymentManager.toString()).to.eq(
       payamentManagerId.toString()
@@ -398,16 +353,21 @@ describe("Multiple receipt managers claiming", () => {
     expect(checkUserOriginalTokenAccount.isFrozen).to.eq(true);
   });
 
-  it("Init Receipt Entry", async () => {
+  it("Init Reward Entry and Receipt", async () => {
     const provider = getProvider();
     const transaction = new Transaction();
 
+    const [receiptManagerId] = await findReceiptManagerId(
+      stakePoolId,
+      receiptManagerName
+    );
     const [stakeEntryId] = await findStakeEntryId(
       provider.wallet.publicKey,
       stakePoolId,
       originalMint.publicKey,
       false
     );
+
     const [, receiptEntryId] = await withInitReceiptEntry(
       transaction,
       provider.connection,
@@ -416,11 +376,23 @@ describe("Multiple receipt managers claiming", () => {
         stakeEntryId: stakeEntryId,
       }
     );
+    const [, rewardReceiptId] = await withInitRewardReceipt(
+      transaction,
+      provider.connection,
+      provider.wallet,
+      {
+        receiptManagerId: receiptManagerId,
+        receiptEntryId: receiptEntryId,
+        stakeEntryId: stakeEntryId,
+        payer: provider.wallet.publicKey,
+      }
+    );
+
     await expectTXTable(
       new TransactionEnvelope(SolanaProvider.init(provider), [
         ...transaction.instructions,
       ]),
-      "Init Receipt Entry"
+      "Init Receipt Entry and Receipt"
     ).to.be.fulfilled;
 
     const receiptEntryData = await getReceiptEntry(
@@ -431,42 +403,6 @@ describe("Multiple receipt managers claiming", () => {
       receiptEntryData.parsed.stakeEntry.toString()
     );
     expect(receiptEntryData.parsed.usedStakeSeconds.toNumber()).to.eq(0);
-  });
-
-  it("Init Reward Receipt, first receipt manager", async () => {
-    const provider = getProvider();
-    const transaction = new Transaction();
-
-    const [receiptManagerId] = await findReceiptManagerId(
-      stakePoolId,
-      receiptManagerName1
-    );
-    const [stakeEntryId] = await findStakeEntryId(
-      provider.wallet.publicKey,
-      stakePoolId,
-      originalMint.publicKey,
-      false
-    );
-
-    const [receiptEntryId] = await findReceiptEntryId(stakeEntryId);
-    const [, rewardReceiptId] = await withInitRewardReceipt(
-      transaction,
-      provider.connection,
-      provider.wallet,
-      {
-        receiptManagerId: receiptManagerId,
-        receiptEntryId: receiptEntryId,
-        stakeEntryId: stakeEntryId,
-        payer: provider.wallet.publicKey,
-      }
-    );
-
-    await expectTXTable(
-      new TransactionEnvelope(SolanaProvider.init(provider), [
-        ...transaction.instructions,
-      ]),
-      "Init Receipt Receipt"
-    ).to.be.fulfilled;
 
     const rewardReceiptData = await getRewardReceipt(
       provider.connection,
@@ -484,14 +420,8 @@ describe("Multiple receipt managers claiming", () => {
     );
   });
 
-  it("Init Reward Receipt, second receipt manager", async () => {
+  it("Fail Create Reward Receipt, duration not satisfied", async () => {
     const provider = getProvider();
-    const transaction = new Transaction();
-
-    const [receiptManagerId] = await findReceiptManagerId(
-      stakePoolId,
-      receiptManagerName2
-    );
     const [stakeEntryId] = await findStakeEntryId(
       provider.wallet.publicKey,
       stakePoolId,
@@ -499,140 +429,31 @@ describe("Multiple receipt managers claiming", () => {
       false
     );
 
-    const [receiptEntryId] = await findReceiptEntryId(stakeEntryId);
-    const [, rewardReceiptId] = await withInitRewardReceipt(
-      transaction,
-      provider.connection,
-      provider.wallet,
-      {
-        receiptManagerId: receiptManagerId,
-        receiptEntryId: receiptEntryId,
-        stakeEntryId: stakeEntryId,
-        payer: provider.wallet.publicKey,
-      }
-    );
-
-    await expectTXTable(
-      new TransactionEnvelope(SolanaProvider.init(provider), [
-        ...transaction.instructions,
-      ]),
-      "Init Receipt"
-    ).to.be.fulfilled;
-
-    const rewardReceiptData = await getRewardReceipt(
-      provider.connection,
-      rewardReceiptId
-    );
-    expect(rewardReceiptData.parsed.allowed).to.be.true;
-    expect(rewardReceiptData.parsed.target.toString()).to.eq(
-      PublicKey.default.toString()
-    );
-    expect(rewardReceiptData.parsed.receiptEntry.toString()).to.eq(
-      receiptEntryId.toString()
-    );
-    expect(rewardReceiptData.parsed.receiptManager.toString()).to.eq(
-      receiptManagerId.toString()
-    );
-  });
-
-  it("Set requires authorization to true for second receipt manager", async () => {
-    const provider = getProvider();
     const transaction = new Transaction();
-
-    const [receiptManagerId] = await findReceiptManagerId(
-      stakePoolId,
-      receiptManagerName2
-    );
-    const beforeReceiptManagerData = await getReceiptManager(
-      provider.connection,
-      receiptManagerId
-    );
-    expect(beforeReceiptManagerData.parsed.requiresAuthorization).to.be.false;
-
-    await withUpdateReceiptManager(
+    await withClaimRewardReceipt(
       transaction,
       provider.connection,
       provider.wallet,
       {
-        name: receiptManagerName2,
+        receiptManagerName: receiptManagerName,
         stakePoolId: stakePoolId,
-        authority: beforeReceiptManagerData.parsed.authority,
-        requiredStakeSeconds:
-          beforeReceiptManagerData.parsed.requiredStakeSeconds,
-        stakeSecondsToUse: beforeReceiptManagerData.parsed.stakeSecondsToUse,
-        paymentMint: beforeReceiptManagerData.parsed.paymentMint,
-        paymentManagerName: paymentManagerName,
-        paymentRecipientId: beforeReceiptManagerData.parsed.paymentRecipient,
-        requiresAuthorization: true,
+        stakeEntryId: stakeEntryId,
+        claimer: provider.wallet.publicKey,
+        payer: provider.wallet.publicKey,
       }
     );
-
-    await expectTXTable(
-      new TransactionEnvelope(SolanaProvider.init(provider), [
-        ...transaction.instructions,
-      ]),
-      "Set requires authoritzation to true"
-    ).to.be.fulfilled;
-
-    const afterReceiptManagerData = await getReceiptManager(
-      provider.connection,
-      receiptManagerId
-    );
-    expect(afterReceiptManagerData.parsed.requiresAuthorization).to.be.true;
+    expect(async () => {
+      await expectTXTable(
+        new TransactionEnvelope(SolanaProvider.init(provider), [
+          ...transaction.instructions,
+        ]),
+        "Fail Create Reward Receipt, duration not satisfied"
+      ).to.be.rejectedWith(Error);
+    });
   });
 
-  it("Set reward receipt auth to false, second receipt manager", async () => {
-    const provider = getProvider();
-    const transaction = new Transaction();
-
-    const [stakeEntryId] = await findStakeEntryId(
-      provider.wallet.publicKey,
-      stakePoolId,
-      originalMint.publicKey,
-      false
-    );
-    const [receiptManagerId] = await findReceiptManagerId(
-      stakePoolId,
-      receiptManagerName2
-    );
-
-    const [receiptEntryId] = await findReceiptEntryId(stakeEntryId);
-    const [receiptId] = await findRewardReceiptId(
-      receiptManagerId,
-      receiptEntryId
-    );
-    const beforeReceiptData = await getRewardReceipt(
-      provider.connection,
-      receiptId
-    );
-    expect(beforeReceiptData.parsed.allowed).to.be.true;
-
-    withSetRewardReceiptAuth(
-      transaction,
-      provider.connection,
-      provider.wallet,
-      {
-        auth: false,
-        receiptManagerId: receiptManagerId,
-        rewardReceiptId: receiptId,
-      }
-    );
-
-    await expectTXTable(
-      new TransactionEnvelope(SolanaProvider.init(provider), [
-        ...transaction.instructions,
-      ]),
-      "Set reward receipt auth"
-    ).to.be.fulfilled;
-
-    const afterReceiptData = await getRewardReceipt(
-      provider.connection,
-      receiptId
-    );
-    expect(afterReceiptData.parsed.allowed).to.be.false;
-  });
-
-  it("Claim Reward Receipt, first receipt manager", async () => {
+  it("Claim Reward Receipt", async () => {
+    await delay(6000);
     const provider = getProvider();
     const [stakeEntryId] = await findStakeEntryId(
       provider.wallet.publicKey,
@@ -645,9 +466,7 @@ describe("Multiple receipt managers claiming", () => {
       provider.connection,
       paymentMint,
       splToken.TOKEN_PROGRAM_ID,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      null
+      Keypair.generate()
     );
     const paymentTokenAccountId = await findAta(
       paymentMint,
@@ -669,7 +488,7 @@ describe("Multiple receipt managers claiming", () => {
       provider.connection,
       provider.wallet,
       {
-        receiptManagerName: receiptManagerName1,
+        receiptManagerName: receiptManagerName,
         stakePoolId: stakePoolId,
         stakeEntryId: stakeEntryId,
         claimer: provider.wallet.publicKey,
@@ -685,7 +504,7 @@ describe("Multiple receipt managers claiming", () => {
 
     const [receiptManagerId] = await findReceiptManagerId(
       stakePoolId,
-      receiptManagerName1
+      receiptManagerName
     );
 
     const checkRewardReceiptData = await tryGetAccount(() =>
@@ -716,38 +535,5 @@ describe("Multiple receipt managers claiming", () => {
     expect(receiptEntryData.parsed.usedStakeSeconds.toNumber()).to.eq(
       stakeSecondsToUse.toNumber()
     );
-  });
-
-  it("Fail to Claim Reward Receipt, second receipt manager", async () => {
-    const provider = getProvider();
-    const [stakeEntryId] = await findStakeEntryId(
-      provider.wallet.publicKey,
-      stakePoolId,
-      originalMint.publicKey,
-      false
-    );
-
-    const transaction = new Transaction();
-    await withClaimRewardReceipt(
-      transaction,
-      provider.connection,
-      provider.wallet,
-      {
-        receiptManagerName: receiptManagerName2,
-        stakePoolId: stakePoolId,
-        stakeEntryId: stakeEntryId,
-        claimer: provider.wallet.publicKey,
-        payer: provider.wallet.publicKey,
-      }
-    );
-
-    expect(async () => {
-      await expectTXTable(
-        new TransactionEnvelope(SolanaProvider.init(provider), [
-          ...transaction.instructions,
-        ]),
-        "Claim Reward Receipt"
-      ).to.be.rejectedWith(Error);
-    });
   });
 });
