@@ -18,15 +18,10 @@ import {
 } from "@solana/web3.js";
 import { expect } from "chai";
 
+import { createStakeEntry, createStakePool, stake } from "../src";
 import {
-  createStakeEntry,
-  createStakePool,
-  receiptManager,
-  stake,
-} from "../src";
-import { DEFAULT_PAYMENT_COLLECTOR } from "../src/programs/receiptManager";
-import {
-  getreceiptManager,
+  getReceiptEntry,
+  getReceiptManager,
   getRewardReceipt,
 } from "../src/programs/receiptManager/accounts";
 import {
@@ -35,32 +30,38 @@ import {
   findRewardReceiptId,
 } from "../src/programs/receiptManager/pda";
 import {
-  withCloseRewardReceipt,
-  withCreateRewardReceipt,
-  withDisallowMint,
+  withClaimRewardReceipt,
+  withInitReceiptEntry,
+  withInitReceiptManager,
+  withInitRewardReceipt,
+  withSetRewardReceiptAuth,
+  withUpdateReceiptManager,
 } from "../src/programs/receiptManager/transaction";
 import { ReceiptType } from "../src/programs/stakePool";
 import { getStakeEntry } from "../src/programs/stakePool/accounts";
 import { findStakeEntryId } from "../src/programs/stakePool/pda";
 import { findStakeEntryIdFromMint } from "../src/programs/stakePool/utils";
-import { createMasterEditionIxs, createMint, delay } from "./utils";
+import { createMasterEditionIxs, createMint } from "./utils";
 import { getProvider } from "./workspace";
 
-describe("Disallow mint", () => {
+describe("Multiple receipt managers claiming", () => {
   let originalMintTokenAccountId: PublicKey;
   let originalMint: splToken.Token;
   let stakePoolId: PublicKey;
 
   const originalMintAuthority = Keypair.generate();
 
-  const receiptManagerName = `mgr-${Math.random()}`;
-  const requiredStakeSeconds = new BN(5);
-  const usesStakeSeconds = new BN(0);
+  const receiptManagerName1 = `mgr-${Math.random()}`;
+  const receiptManagerName2 = `mgr-${Math.random()}`;
+  const requiredStakeSeconds = new BN(0);
+  const stakeSecondsToUse = new BN(1);
+  const requiresAuthorization = false;
 
   const MAKER_FEE = 0;
   const TAKER_FEE = 0;
-  const paymentManagerName = `cardinal-no-split`;
+  const paymentManagerName = `cardinal-receipt-manager`;
   const feeCollector = Keypair.generate();
+  const paymentRecipient = Keypair.generate();
   const paymentMint = new PublicKey(
     "So11111111111111111111111111111111111111112"
   );
@@ -181,21 +182,22 @@ describe("Disallow mint", () => {
   it("Create Reward Receipt Manager", async () => {
     const provider = getProvider();
     const transaction = new Transaction();
-    const [, receiptManagerId] =
-      await receiptManager.transaction.withInitReceiptManager(
-        transaction,
-        provider.connection,
-        provider.wallet,
-        {
-          name: receiptManagerName,
-          stakePoolId: stakePoolId,
-          authority: provider.wallet.publicKey,
-          requiredStakeSeconds: requiredStakeSeconds,
-          usesStakeSeconds: usesStakeSeconds,
-          paymentMint: paymentMint,
-          paymentManagerName: paymentManagerName,
-        }
-      );
+    const [, receiptManagerId] = await withInitReceiptManager(
+      transaction,
+      provider.connection,
+      provider.wallet,
+      {
+        name: receiptManagerName1,
+        stakePoolId: stakePoolId,
+        authority: provider.wallet.publicKey,
+        requiredStakeSeconds: requiredStakeSeconds,
+        stakeSecondsToUse: stakeSecondsToUse,
+        paymentMint: paymentMint,
+        paymentRecipientId: paymentRecipient.publicKey,
+        paymentManagerName: paymentManagerName,
+        requiresAuthorization: requiresAuthorization,
+      }
+    );
 
     const txEnvelope = new TransactionEnvelope(
       SolanaProvider.init({
@@ -206,17 +208,20 @@ describe("Disallow mint", () => {
       [...transaction.instructions]
     );
 
-    await expectTXTable(txEnvelope, "Create reward distributor", {
+    await expectTXTable(txEnvelope, "Create receipt manager", {
       verbosity: "error",
       formatLogs: true,
     }).to.be.fulfilled;
 
-    const receiptManagerData = await getreceiptManager(
+    const receiptManagerData = await getReceiptManager(
       provider.connection,
       receiptManagerId
     );
     const [payamentManagerId] = await findPaymentManagerAddress(
       paymentManagerName
+    );
+    expect(receiptManagerData.parsed.name.toString()).to.eq(
+      receiptManagerName1
     );
     expect(receiptManagerData.parsed.paymentManager.toString()).to.eq(
       payamentManagerId.toString()
@@ -232,6 +237,79 @@ describe("Disallow mint", () => {
     );
     expect(receiptManagerData.parsed.requiredStakeSeconds.toString()).to.eq(
       requiredStakeSeconds.toString()
+    );
+    expect(receiptManagerData.parsed.stakeSecondsToUse.toString()).to.eq(
+      stakeSecondsToUse.toString()
+    );
+    expect(receiptManagerData.parsed.requiresAuthorization.toString()).to.eq(
+      requiresAuthorization.toString()
+    );
+  });
+
+  it("Create Reward Receipt Manager", async () => {
+    const provider = getProvider();
+    const transaction = new Transaction();
+    const [, receiptManagerId] = await withInitReceiptManager(
+      transaction,
+      provider.connection,
+      provider.wallet,
+      {
+        name: receiptManagerName2,
+        stakePoolId: stakePoolId,
+        authority: provider.wallet.publicKey,
+        requiredStakeSeconds: requiredStakeSeconds,
+        stakeSecondsToUse: stakeSecondsToUse,
+        paymentMint: paymentMint,
+        paymentRecipientId: paymentRecipient.publicKey,
+        paymentManagerName: paymentManagerName,
+        requiresAuthorization: requiresAuthorization,
+      }
+    );
+
+    const txEnvelope = new TransactionEnvelope(
+      SolanaProvider.init({
+        connection: provider.connection,
+        wallet: provider.wallet,
+        opts: provider.opts,
+      }),
+      [...transaction.instructions]
+    );
+
+    await expectTXTable(txEnvelope, "Create receipt manager", {
+      verbosity: "error",
+      formatLogs: true,
+    }).to.be.fulfilled;
+
+    const receiptManagerData = await getReceiptManager(
+      provider.connection,
+      receiptManagerId
+    );
+    const [payamentManagerId] = await findPaymentManagerAddress(
+      paymentManagerName
+    );
+    expect(receiptManagerData.parsed.name.toString()).to.eq(
+      receiptManagerName2
+    );
+    expect(receiptManagerData.parsed.paymentManager.toString()).to.eq(
+      payamentManagerId.toString()
+    );
+    expect(receiptManagerData.parsed.authority.toString()).to.eq(
+      provider.wallet.publicKey.toString()
+    );
+    expect(receiptManagerData.parsed.paymentMint.toString()).to.eq(
+      paymentMint.toString()
+    );
+    expect(receiptManagerData.parsed.stakePool.toString()).to.eq(
+      stakePoolId.toString()
+    );
+    expect(receiptManagerData.parsed.requiredStakeSeconds.toString()).to.eq(
+      requiredStakeSeconds.toString()
+    );
+    expect(receiptManagerData.parsed.stakeSecondsToUse.toString()).to.eq(
+      stakeSecondsToUse.toString()
+    );
+    expect(receiptManagerData.parsed.requiresAuthorization.toString()).to.eq(
+      requiresAuthorization.toString()
     );
   });
 
@@ -320,79 +398,49 @@ describe("Disallow mint", () => {
     expect(checkUserOriginalTokenAccount.isFrozen).to.eq(true);
   });
 
-  it("Disallow Mint", async () => {
+  it("Init Receipt Entry", async () => {
     const provider = getProvider();
+    const transaction = new Transaction();
+
     const [stakeEntryId] = await findStakeEntryId(
       provider.wallet.publicKey,
       stakePoolId,
       originalMint.publicKey,
       false
     );
-
-    const [receiptManagerId] = await findReceiptManagerId(
-      stakePoolId,
-      receiptManagerName
-    );
-    const [rewardReceiptId] = await findRewardReceiptId(
-      receiptManagerId,
-      stakeEntryId
-    );
-
-    const transaction = new Transaction();
-    await withDisallowMint(transaction, provider.connection, provider.wallet, {
-      receiptManagerId: receiptManagerId,
-      rewardReceiptId: rewardReceiptId,
-      mintId: originalMint.publicKey,
-    });
-    await expectTXTable(
-      new TransactionEnvelope(SolanaProvider.init(provider), [
-        ...transaction.instructions,
-      ]),
-      "Disallow mint"
-    ).to.be.fulfilled;
-
-    const checkRewardReceipt = await tryGetAccount(() =>
-      getRewardReceipt(provider.connection, rewardReceiptId)
-    );
-    expect(checkRewardReceipt?.parsed.target.toString()).eq(
-      PublicKey.default.toString()
-    );
-  });
-
-  it("Fail Create Reward Receipt, mint is disallowed", async () => {
-    const provider = getProvider();
-    const [stakeEntryId] = await findStakeEntryId(
-      provider.wallet.publicKey,
-      stakePoolId,
-      originalMint.publicKey,
-      false
-    );
-
-    const transaction = new Transaction();
-    await withCreateRewardReceipt(
+    const [, receiptEntryId] = await withInitReceiptEntry(
       transaction,
       provider.connection,
       provider.wallet,
       {
-        receiptManagerName: receiptManagerName,
-        stakePoolId: stakePoolId,
         stakeEntryId: stakeEntryId,
-        claimer: provider.wallet.publicKey,
-        payer: provider.wallet.publicKey,
       }
     );
-    expect(async () => {
-      await expectTXTable(
-        new TransactionEnvelope(SolanaProvider.init(provider), [
-          ...transaction.instructions,
-        ]),
-        "Fail Create Reward Receipt, mint is disallowed"
-      ).to.be.rejectedWith(Error);
-    });
+    await expectTXTable(
+      new TransactionEnvelope(SolanaProvider.init(provider), [
+        ...transaction.instructions,
+      ]),
+      "Init Receipt Entry"
+    ).to.be.fulfilled;
+
+    const receiptEntryData = await getReceiptEntry(
+      provider.connection,
+      receiptEntryId
+    );
+    expect(receiptEntryData.parsed.stakeEntry.toString()).to.eq(
+      receiptEntryData.parsed.stakeEntry.toString()
+    );
+    expect(receiptEntryData.parsed.usedStakeSeconds.toNumber()).to.eq(0);
   });
 
-  it("Close Disallow Mint Record", async () => {
+  it("Init Reward Receipt, first receipt manager", async () => {
     const provider = getProvider();
+    const transaction = new Transaction();
+
+    const [receiptManagerId] = await findReceiptManagerId(
+      stakePoolId,
+      receiptManagerName1
+    );
     const [stakeEntryId] = await findStakeEntryId(
       provider.wallet.publicKey,
       stakePoolId,
@@ -400,34 +448,191 @@ describe("Disallow mint", () => {
       false
     );
 
-    const [receiptManagerId] = await findReceiptManagerId(
-      stakePoolId,
-      receiptManagerName
+    const [receiptEntryId] = await findReceiptEntryId(stakeEntryId);
+    const [, rewardReceiptId] = await withInitRewardReceipt(
+      transaction,
+      provider.connection,
+      provider.wallet,
+      {
+        receiptManagerId: receiptManagerId,
+        receiptEntryId: receiptEntryId,
+        stakeEntryId: stakeEntryId,
+        payer: provider.wallet.publicKey,
+      }
     );
-    const [rewardReceiptId] = await findRewardReceiptId(
-      receiptManagerId,
-      stakeEntryId
-    );
-    const transaction = new Transaction();
-    withCloseRewardReceipt(transaction, provider.connection, provider.wallet, {
-      receiptManagerId: receiptManagerId,
-      rewardReceiptId: rewardReceiptId,
-    });
+
     await expectTXTable(
       new TransactionEnvelope(SolanaProvider.init(provider), [
         ...transaction.instructions,
       ]),
-      "Close Disallow Mint Record"
+      "Init Receipt Receipt"
     ).to.be.fulfilled;
 
-    const checkRewardReceipt = await tryGetAccount(() =>
-      getRewardReceipt(provider.connection, rewardReceiptId)
+    const rewardReceiptData = await getRewardReceipt(
+      provider.connection,
+      rewardReceiptId
     );
-    expect(checkRewardReceipt).to.be.null;
+    expect(rewardReceiptData.parsed.allowed).to.be.true;
+    expect(rewardReceiptData.parsed.target.toString()).to.eq(
+      PublicKey.default.toString()
+    );
+    expect(rewardReceiptData.parsed.receiptEntry.toString()).to.eq(
+      receiptEntryId.toString()
+    );
+    expect(rewardReceiptData.parsed.receiptManager.toString()).to.eq(
+      receiptManagerId.toString()
+    );
   });
 
-  it("Create Reward Receipt", async () => {
-    await delay(6000);
+  it("Init Reward Receipt, second receipt manager", async () => {
+    const provider = getProvider();
+    const transaction = new Transaction();
+
+    const [receiptManagerId] = await findReceiptManagerId(
+      stakePoolId,
+      receiptManagerName2
+    );
+    const [stakeEntryId] = await findStakeEntryId(
+      provider.wallet.publicKey,
+      stakePoolId,
+      originalMint.publicKey,
+      false
+    );
+
+    const [receiptEntryId] = await findReceiptEntryId(stakeEntryId);
+    const [, rewardReceiptId] = await withInitRewardReceipt(
+      transaction,
+      provider.connection,
+      provider.wallet,
+      {
+        receiptManagerId: receiptManagerId,
+        receiptEntryId: receiptEntryId,
+        stakeEntryId: stakeEntryId,
+        payer: provider.wallet.publicKey,
+      }
+    );
+
+    await expectTXTable(
+      new TransactionEnvelope(SolanaProvider.init(provider), [
+        ...transaction.instructions,
+      ]),
+      "Init Receipt"
+    ).to.be.fulfilled;
+
+    const rewardReceiptData = await getRewardReceipt(
+      provider.connection,
+      rewardReceiptId
+    );
+    expect(rewardReceiptData.parsed.allowed).to.be.true;
+    expect(rewardReceiptData.parsed.target.toString()).to.eq(
+      PublicKey.default.toString()
+    );
+    expect(rewardReceiptData.parsed.receiptEntry.toString()).to.eq(
+      receiptEntryId.toString()
+    );
+    expect(rewardReceiptData.parsed.receiptManager.toString()).to.eq(
+      receiptManagerId.toString()
+    );
+  });
+
+  it("Set requires authorization to true for second receipt manager", async () => {
+    const provider = getProvider();
+    const transaction = new Transaction();
+
+    const [receiptManagerId] = await findReceiptManagerId(
+      stakePoolId,
+      receiptManagerName2
+    );
+    const beforeReceiptManagerData = await getReceiptManager(
+      provider.connection,
+      receiptManagerId
+    );
+    expect(beforeReceiptManagerData.parsed.requiresAuthorization).to.be.false;
+
+    await withUpdateReceiptManager(
+      transaction,
+      provider.connection,
+      provider.wallet,
+      {
+        name: receiptManagerName2,
+        stakePoolId: stakePoolId,
+        authority: beforeReceiptManagerData.parsed.authority,
+        requiredStakeSeconds:
+          beforeReceiptManagerData.parsed.requiredStakeSeconds,
+        stakeSecondsToUse: beforeReceiptManagerData.parsed.stakeSecondsToUse,
+        paymentMint: beforeReceiptManagerData.parsed.paymentMint,
+        paymentManagerName: paymentManagerName,
+        paymentRecipientId: beforeReceiptManagerData.parsed.paymentRecipient,
+        requiresAuthorization: true,
+      }
+    );
+
+    await expectTXTable(
+      new TransactionEnvelope(SolanaProvider.init(provider), [
+        ...transaction.instructions,
+      ]),
+      "Set requires authoritzation to true"
+    ).to.be.fulfilled;
+
+    const afterReceiptManagerData = await getReceiptManager(
+      provider.connection,
+      receiptManagerId
+    );
+    expect(afterReceiptManagerData.parsed.requiresAuthorization).to.be.true;
+  });
+
+  it("Set reward receipt auth to false, second receipt manager", async () => {
+    const provider = getProvider();
+    const transaction = new Transaction();
+
+    const [stakeEntryId] = await findStakeEntryId(
+      provider.wallet.publicKey,
+      stakePoolId,
+      originalMint.publicKey,
+      false
+    );
+    const [receiptManagerId] = await findReceiptManagerId(
+      stakePoolId,
+      receiptManagerName2
+    );
+
+    const [receiptEntryId] = await findReceiptEntryId(stakeEntryId);
+    const [receiptId] = await findRewardReceiptId(
+      receiptManagerId,
+      receiptEntryId
+    );
+    const beforeReceiptData = await getRewardReceipt(
+      provider.connection,
+      receiptId
+    );
+    expect(beforeReceiptData.parsed.allowed).to.be.true;
+
+    withSetRewardReceiptAuth(
+      transaction,
+      provider.connection,
+      provider.wallet,
+      {
+        auth: false,
+        receiptManagerId: receiptManagerId,
+        rewardReceiptId: receiptId,
+      }
+    );
+
+    await expectTXTable(
+      new TransactionEnvelope(SolanaProvider.init(provider), [
+        ...transaction.instructions,
+      ]),
+      "Set reward receipt auth"
+    ).to.be.fulfilled;
+
+    const afterReceiptData = await getRewardReceipt(
+      provider.connection,
+      receiptId
+    );
+    expect(afterReceiptData.parsed.allowed).to.be.false;
+  });
+
+  it("Claim Reward Receipt, first receipt manager", async () => {
     const provider = getProvider();
     const [stakeEntryId] = await findStakeEntryId(
       provider.wallet.publicKey,
@@ -436,7 +641,6 @@ describe("Disallow mint", () => {
       false
     );
     const [receiptEntryId] = await findReceiptEntryId(stakeEntryId);
-
     const checkMint = new splToken.Token(
       provider.connection,
       paymentMint,
@@ -447,7 +651,7 @@ describe("Disallow mint", () => {
     );
     const paymentTokenAccountId = await findAta(
       paymentMint,
-      DEFAULT_PAYMENT_COLLECTOR,
+      paymentRecipient.publicKey,
       true
     );
     let beforeBalance = 0;
@@ -460,12 +664,12 @@ describe("Disallow mint", () => {
     }
 
     const transaction = new Transaction();
-    const [, rewardReceiptId] = await withCreateRewardReceipt(
+    const [, rewardReceiptId] = await withClaimRewardReceipt(
       transaction,
       provider.connection,
       provider.wallet,
       {
-        receiptManagerName: receiptManagerName,
+        receiptManagerName: receiptManagerName1,
         stakePoolId: stakePoolId,
         stakeEntryId: stakeEntryId,
         claimer: provider.wallet.publicKey,
@@ -476,12 +680,12 @@ describe("Disallow mint", () => {
       new TransactionEnvelope(SolanaProvider.init(provider), [
         ...transaction.instructions,
       ]),
-      "Create Reward Receipt"
+      "Claim Reward Receipt"
     ).to.be.fulfilled;
 
     const [receiptManagerId] = await findReceiptManagerId(
       stakePoolId,
-      receiptManagerName
+      receiptManagerName1
     );
 
     const checkRewardReceiptData = await tryGetAccount(() =>
@@ -504,5 +708,46 @@ describe("Disallow mint", () => {
     expect(paymentTokenAccountData.amount.toString()).to.eq(
       (beforeBalance + 2 * 10 ** 6).toString()
     );
+
+    const receiptEntryData = await getReceiptEntry(
+      provider.connection,
+      receiptEntryId
+    );
+    expect(receiptEntryData.parsed.usedStakeSeconds.toNumber()).to.eq(
+      stakeSecondsToUse.toNumber()
+    );
+  });
+
+  it("Fail to Claim Reward Receipt, second receipt manager", async () => {
+    const provider = getProvider();
+    const [stakeEntryId] = await findStakeEntryId(
+      provider.wallet.publicKey,
+      stakePoolId,
+      originalMint.publicKey,
+      false
+    );
+
+    const transaction = new Transaction();
+    await withClaimRewardReceipt(
+      transaction,
+      provider.connection,
+      provider.wallet,
+      {
+        receiptManagerName: receiptManagerName2,
+        stakePoolId: stakePoolId,
+        stakeEntryId: stakeEntryId,
+        claimer: provider.wallet.publicKey,
+        payer: provider.wallet.publicKey,
+      }
+    );
+
+    expect(async () => {
+      await expectTXTable(
+        new TransactionEnvelope(SolanaProvider.init(provider), [
+          ...transaction.instructions,
+        ]),
+        "Claim Reward Receipt"
+      ).to.be.rejectedWith(Error);
+    });
   });
 });

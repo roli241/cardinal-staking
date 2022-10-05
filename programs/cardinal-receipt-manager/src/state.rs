@@ -10,22 +10,18 @@ pub fn assert_allowed_payment_info(mint: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn assert_allowed_payment_manager(key: &str) -> Result<()> {
-    let allowed_payment_managers: Vec<&str> = [
-        "FwuXGrYYDvMTbQDikZwVi1Sj4uwdBfXepTa7oCYtXBM8", // cardinal pm (no split)
-    ]
-    .to_vec();
-    if !allowed_payment_managers.contains(&key) {
+pub const DEFAULT_PAYMENT_MANAGER: &str = "FQJ2czigCYygS8v8trLU7TBAi7NjRN1h1C2vLAh2GYDi";
+pub fn assert_allowed_payment_manager(payment_manager: &str, payment_recipient: &str) -> Result<()> {
+    let allowed_payment_managers = HashMap::from([("", "")]); // custom payment manager
+    if !allowed_payment_managers.contains_key(&payment_manager) && payment_manager != DEFAULT_PAYMENT_MANAGER {
         return Err(error!(ErrorCode::InvalidPaymentManager));
     }
-    Ok(())
-}
-
-pub fn assert_allowed_payment_collector(key: &str) -> Result<()> {
-    let allowed_payment_collectors: Vec<&str> = ["cpmaMZyBQiPxpeuxNsQhW7N8z1o9yaNdLgiPhWGUEiX"].to_vec();
-    if !allowed_payment_collectors.contains(&key) {
-        return Err(error!(ErrorCode::InvalidPaymentCollector));
+    if let Some(allowed_payment_recipient) = allowed_payment_managers.get(payment_manager) {
+        if *allowed_payment_recipient != payment_recipient {
+            return Err(error!(ErrorCode::InvalidPaymentManager));
+        }
     }
+
     Ok(())
 }
 
@@ -48,6 +44,7 @@ pub struct ReceiptManager {
     pub claimed_receipts_counter: u128,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
+    pub payment_recipient: Pubkey,
     pub requires_authorization: bool,
     pub name: String,
     pub max_claimed_receipts: Option<u128>,

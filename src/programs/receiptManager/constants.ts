@@ -7,10 +7,6 @@ export const RECEIPT_MANAGER_ADDRESS = new PublicKey(
   "rrmevmpXMooxn8Qu6u7RWao93BZn4cKgfjtNMURSc2E"
 );
 
-export const DEFAULT_PAYMENT_COLLECTOR = new PublicKey(
-  "cpmaMZyBQiPxpeuxNsQhW7N8z1o9yaNdLgiPhWGUEiX"
-);
-
 export const RECEIPT_MANAGER_SEED = "receipt-manager";
 export const REWARD_RECEIPT_SEED = "reward-receipt";
 export const RECEIPT_ENTRY_SEED = "receipt-entry";
@@ -25,3 +21,4 @@ export type RewardDistributorTypes = AnchorTypes<RECEIPT_MANAGER_PROGRAM>;
 type Accounts = RewardDistributorTypes["Accounts"];
 export type ReceiptManagerData = Accounts["receiptManager"];
 export type RewardReceiptData = Accounts["rewardReceipt"];
+export type ReceiptEntryData = Accounts["receiptEntry"];

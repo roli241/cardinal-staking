@@ -13,7 +13,7 @@ import { SystemProgram } from "@solana/web3.js";
 import type { RECEIPT_MANAGER_PROGRAM } from "./constants";
 import { RECEIPT_MANAGER_ADDRESS, RECEIPT_MANAGER_IDL } from "./constants";
 
-export const initreceiptManager = (
+export const initReceiptManager = (
   connection: Connection,
   wallet: Wallet,
   params: {
@@ -22,9 +22,11 @@ export const initreceiptManager = (
     name: string;
     authority: PublicKey;
     requiredStakeSeconds: BN;
-    usesStakeSeconds: BN;
+    stakeSecondsToUse: BN;
     paymentMint: PublicKey;
     paymentManager: PublicKey;
+    paymentRecipient: PublicKey;
+    requiresAuthorization: boolean;
     maxClaimedReceipts?: BN;
   }
 ): TransactionInstruction => {
@@ -39,9 +41,11 @@ export const initreceiptManager = (
       name: params.name,
       authority: params.authority,
       requiredStakeSeconds: params.requiredStakeSeconds,
-      usesStakeSeconds: params.usesStakeSeconds,
+      stakeSecondsToUse: params.stakeSecondsToUse,
       paymentMint: params.paymentMint,
       paymentManager: params.paymentManager,
+      paymentRecipient: params.paymentRecipient,
+      requiresAuthorization: params.requiresAuthorization,
       maxClaimedReceipts: params.maxClaimedReceipts ?? null,
     },
     {
@@ -55,17 +59,71 @@ export const initreceiptManager = (
   );
 };
 
+export const initReceiptEntry = (
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    receiptEntry: PublicKey;
+    stakeEntry: PublicKey;
+  }
+): TransactionInstruction => {
+  const provider = new AnchorProvider(connection, wallet, {});
+  const receiptManagerProgram = new Program<RECEIPT_MANAGER_PROGRAM>(
+    RECEIPT_MANAGER_IDL,
+    RECEIPT_MANAGER_ADDRESS,
+    provider
+  );
+  return receiptManagerProgram.instruction.initReceiptEntry({
+    accounts: {
+      receiptEntry: params.receiptEntry,
+      stakeEntry: params.stakeEntry,
+      payer: wallet.publicKey,
+      systemProgram: SystemProgram.programId,
+    },
+  });
+};
+
+export const initRewardReceipt = (
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    rewardReceipt: PublicKey;
+    receiptManager: PublicKey;
+    receiptEntry: PublicKey;
+    stakeEntry: PublicKey;
+    payer: PublicKey;
+  }
+): TransactionInstruction => {
+  const provider = new AnchorProvider(connection, wallet, {});
+  const receiptManagerProgram = new Program<RECEIPT_MANAGER_PROGRAM>(
+    RECEIPT_MANAGER_IDL,
+    RECEIPT_MANAGER_ADDRESS,
+    provider
+  );
+  return receiptManagerProgram.instruction.initRewardReceipt({
+    accounts: {
+      rewardReceipt: params.rewardReceipt,
+      receiptManager: params.receiptManager,
+      receiptEntry: params.receiptEntry,
+      stakeEntry: params.stakeEntry,
+      payer: params.payer,
+      systemProgram: SystemProgram.programId,
+    },
+  });
+};
+
 export const updateReceiptManager = (
   connection: Connection,
   wallet: Wallet,
   params: {
-    receiptManager: PublicKey;
-    stakePoolId: PublicKey;
     authority: PublicKey;
     requiredStakeSeconds: BN;
-    usesStakeSeconds: BN;
+    stakeSecondsToUse: BN;
+    receiptManager: PublicKey;
     paymentMint: PublicKey;
     paymentManager: PublicKey;
+    paymentRecipient: PublicKey;
+    requiresAuthorization: boolean;
     maxClaimedReceipts?: BN;
   }
 ): TransactionInstruction => {
@@ -79,9 +137,11 @@ export const updateReceiptManager = (
     {
       authority: params.authority,
       requiredStakeSeconds: params.requiredStakeSeconds,
-      usesStakeSeconds: params.usesStakeSeconds,
+      stakeSecondsToUse: params.stakeSecondsToUse,
       paymentMint: params.paymentMint,
       paymentManager: params.paymentManager,
+      paymentRecipient: params.paymentRecipient,
+      requiresAuthorization: params.requiresAuthorization,
       maxClaimedReceipts: params.maxClaimedReceipts ?? null,
     },
     {
@@ -93,7 +153,7 @@ export const updateReceiptManager = (
   );
 };
 
-export const createRewardReceipt = (
+export const claimRewardReceipt = (
   connection: Connection,
   wallet: Wallet,
   params: {
@@ -103,7 +163,7 @@ export const createRewardReceipt = (
     receiptEntry: PublicKey;
     paymentManager: PublicKey;
     feeCollectorTokenAccount: PublicKey;
-    paymentTokenAccount: PublicKey;
+    paymentRecipientTokenAccount: PublicKey;
     payerTokenAccount: PublicKey;
     payer: PublicKey;
     claimer: PublicKey;
@@ -116,7 +176,7 @@ export const createRewardReceipt = (
     RECEIPT_MANAGER_ADDRESS,
     provider
   );
-  return receiptManagerProgram.instruction.createRewardReceipt({
+  return receiptManagerProgram.instruction.claimRewardReceipt({
     accounts: {
       rewardReceipt: params.rewardReceipt,
       receiptManager: params.receiptManager,
@@ -124,11 +184,10 @@ export const createRewardReceipt = (
       receiptEntry: params.receiptEntry,
       paymentManager: params.paymentManager,
       feeCollectorTokenAccount: params.feeCollectorTokenAccount,
-      paymentTokenAccount: params.paymentTokenAccount,
+      paymentRecipientTokenAccount: params.paymentRecipientTokenAccount,
       payerTokenAccount: params.payerTokenAccount,
       payer: params.payer,
       claimer: params.claimer,
-      initializer: params.initializer,
       cardinalPaymentManager: PAYMENT_MANAGER_ADDRESS,
       tokenProgram: TOKEN_PROGRAM_ID,
       systemProgram: SystemProgram.programId,
@@ -157,6 +216,31 @@ export const closeReceiptManager = (
   });
 };
 
+export const closeReceiptEntry = (
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    receiptManager: PublicKey;
+    receiptEntry: PublicKey;
+    stakeEntry: PublicKey;
+  }
+): TransactionInstruction => {
+  const provider = new AnchorProvider(connection, wallet, {});
+  const receiptManagerProgram = new Program<RECEIPT_MANAGER_PROGRAM>(
+    RECEIPT_MANAGER_IDL,
+    RECEIPT_MANAGER_ADDRESS,
+    provider
+  );
+  return receiptManagerProgram.instruction.closeReceiptEntry({
+    accounts: {
+      receiptEntry: params.receiptEntry,
+      receiptManager: params.receiptManager,
+      stakeEntry: params.stakeEntry,
+      authority: wallet.publicKey,
+    },
+  });
+};
+
 export const closeRewardReceipt = (
   connection: Connection,
   wallet: Wallet,
@@ -180,13 +264,13 @@ export const closeRewardReceipt = (
   });
 };
 
-export const disallowMint = (
+export const setRewardReceiptAuth = (
   connection: Connection,
   wallet: Wallet,
   params: {
+    auth: boolean;
     receiptManager: PublicKey;
     rewardReceipt: PublicKey;
-    receiptEntry: PublicKey;
   }
 ): TransactionInstruction => {
   const provider = new AnchorProvider(connection, wallet, {});
@@ -195,13 +279,11 @@ export const disallowMint = (
     RECEIPT_MANAGER_ADDRESS,
     provider
   );
-  return receiptManagerProgram.instruction.disallowEntry({
+  return receiptManagerProgram.instruction.setRewardReceiptAuth(params.auth, {
     accounts: {
-      rewardReceipt: params.rewardReceipt,
       receiptManager: params.receiptManager,
-      receiptEntry: params.receiptEntry,
+      rewardReceipt: params.rewardReceipt,
       authority: wallet.publicKey,
-      systemProgram: SystemProgram.programId,
     },
   });
 };

@@ -11,12 +11,12 @@ pub struct InitRewardReceiptCtx<'info> {
         init,
         payer = payer,
         space = REWARD_RECEIPT_SIZE,
-        seeds = [REWARD_RECEIPT_SEED.as_bytes(), receipt_manager.key().as_ref(), stake_entry.key().as_ref()],
+        seeds = [REWARD_RECEIPT_SEED.as_bytes(), receipt_manager.key().as_ref(), receipt_entry.key().as_ref()],
         bump,
     )]
     reward_receipt: Box<Account<'info, RewardReceipt>>,
     receipt_manager: Box<Account<'info, ReceiptManager>>,
-    #[account(constraint = receipt_entry.stake_entry == stake_entry.key() @ ErrorCode::InvalidStakeEntry)]
+    #[account(constraint = receipt_entry.stake_entry == stake_entry.key() @ ErrorCode::InvalidReceiptEntry)]
     receipt_entry: Box<Account<'info, ReceiptEntry>>,
 
     #[account(constraint = stake_entry.pool == receipt_manager.stake_pool @ ErrorCode::InvalidStakeEntry)]

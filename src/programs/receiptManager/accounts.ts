@@ -13,6 +13,7 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import { REWARD_DISTRIBUTOR_ADDRESS } from "../rewardDistributor";
 import type {
   RECEIPT_MANAGER_PROGRAM,
+  ReceiptEntryData,
   ReceiptManagerData,
   RewardReceiptData,
 } from "./constants";
@@ -32,7 +33,7 @@ const getProgram = (connection: Connection) => {
 };
 
 //////// REWARD RECEIPT MANAGER ////////
-export const getreceiptManager = async (
+export const getReceiptManager = async (
   connection: Connection,
   receiptManagerId: PublicKey
 ): Promise<AccountData<ReceiptManagerData>> => {
@@ -52,7 +53,7 @@ export const getAllreceiptManagers = async (
 ): Promise<AccountData<ReceiptManagerData>[]> =>
   getAllOfType<ReceiptManagerData>(connection, "receiptManager");
 
-export const getreceiptManagersForPool = async (
+export const getReceiptManagersForPool = async (
   connection: Connection,
   stakePoolId: PublicKey
 ): Promise<AccountData<RewardReceiptData>[]> => {
@@ -97,6 +98,22 @@ export const getreceiptManagersForPool = async (
   return ReceiptManagerDatas.sort((a, b) =>
     a.pubkey.toBase58().localeCompare(b.pubkey.toBase58())
   );
+};
+
+//////// RECEIPT ENTRY ////////
+export const getReceiptEntry = async (
+  connection: Connection,
+  receiptEntryId: PublicKey
+): Promise<AccountData<ReceiptEntryData>> => {
+  const receiptManagerProgram = getProgram(connection);
+
+  const parsed = (await receiptManagerProgram.account.receiptEntry.fetch(
+    receiptEntryId
+  )) as ReceiptEntryData;
+  return {
+    parsed,
+    pubkey: receiptEntryId,
+  };
 };
 
 //////// REWARD RECEIPT ////////
@@ -172,7 +189,7 @@ export const getClaimableRewardReceiptsForManager = async (
   receiptManagerId: PublicKey
 ): Promise<AccountData<RewardReceiptData>[]> => {
   const ReceiptManagerData = await tryGetAccount(() =>
-    getreceiptManager(connection, receiptManagerId)
+    getReceiptManager(connection, receiptManagerId)
   );
   if (!ReceiptManagerData) {
     throw `No reward receipt manager found for ${receiptManagerId.toString()}`;

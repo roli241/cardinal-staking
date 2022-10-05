@@ -10,6 +10,7 @@ pub struct InitReceiptManagerIx {
     pub stake_seconds_to_use: u128,
     pub payment_mint: Pubkey,
     pub payment_manager: Pubkey,
+    pub payment_recipient: Pubkey,
     pub requires_authorization: bool,
     pub max_claimed_receipts: Option<u128>,
 }
@@ -35,7 +36,7 @@ pub struct InitReceiptManagerCtx<'info> {
 pub fn handler(ctx: Context<InitReceiptManagerCtx>, ix: InitReceiptManagerIx) -> Result<()> {
     let receipt_manager = &mut ctx.accounts.receipt_manager;
     assert_allowed_payment_info(&ix.payment_mint.to_string())?;
-    assert_allowed_payment_manager(&ix.payment_manager.to_string())?;
+    assert_allowed_payment_manager(&ix.payment_manager.to_string(), &ix.payment_recipient.to_string())?;
 
     receipt_manager.bump = *ctx.bumps.get("receipt_manager").unwrap();
     receipt_manager.name = ix.name;
@@ -46,6 +47,7 @@ pub fn handler(ctx: Context<InitReceiptManagerCtx>, ix: InitReceiptManagerIx) ->
     receipt_manager.claimed_receipts_counter = 0;
     receipt_manager.payment_mint = ix.payment_mint;
     receipt_manager.payment_manager = ix.payment_manager;
+    receipt_manager.payment_recipient = ix.payment_recipient;
     receipt_manager.requires_authorization = ix.requires_authorization;
     receipt_manager.max_claimed_receipts = ix.max_claimed_receipts;
 

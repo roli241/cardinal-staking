@@ -9,15 +9,16 @@ import type { Wallet } from "@saberhq/solana-contrib";
 import type { Connection, PublicKey, Transaction } from "@solana/web3.js";
 
 import { updateTotalStakeSeconds } from "../stakePool/instruction";
-import { findStakeEntryId } from "../stakePool/pda";
-import { getreceiptManager } from "./accounts";
-import { DEFAULT_PAYMENT_COLLECTOR } from "./constants";
+import { getReceiptManager } from "./accounts";
 import {
+  claimRewardReceipt,
+  closeReceiptEntry,
   closeReceiptManager,
   closeRewardReceipt,
-  createRewardReceipt,
-  disallowMint,
-  initreceiptManager,
+  initReceiptEntry,
+  initReceiptManager,
+  initRewardReceipt,
+  setRewardReceiptAuth,
   updateReceiptManager,
 } from "./instruction";
 import {
@@ -35,9 +36,11 @@ export const withInitReceiptManager = async (
     stakePoolId: PublicKey;
     authority: PublicKey;
     requiredStakeSeconds: BN;
-    usesStakeSeconds: BN;
+    stakeSecondsToUse: BN;
     paymentMint: PublicKey;
     paymentManagerName: string;
+    paymentRecipientId: PublicKey;
+    requiresAuthorization: boolean;
     maxClaimedReceipts?: BN;
   }
 ): Promise<[Transaction, web3.PublicKey]> => {
@@ -56,22 +59,69 @@ export const withInitReceiptManager = async (
   }
 
   transaction.add(
-    initreceiptManager(connection, wallet, {
+    initReceiptManager(connection, wallet, {
       receiptManager: receiptManagerId,
       stakePoolId: params.stakePoolId,
       name: params.name,
       authority: params.authority,
       requiredStakeSeconds: params.requiredStakeSeconds,
-      usesStakeSeconds: params.usesStakeSeconds,
+      stakeSecondsToUse: params.stakeSecondsToUse,
       paymentMint: params.paymentMint,
       paymentManager: paymentManagerId,
+      paymentRecipient: params.paymentRecipientId,
+      requiresAuthorization: params.requiresAuthorization,
       maxClaimedReceipts: params.maxClaimedReceipts,
     })
   );
   return [transaction, receiptManagerId];
 };
 
-export const withupdateReceiptManager = async (
+export const withInitReceiptEntry = async (
+  transaction: Transaction,
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    stakeEntryId: PublicKey;
+  }
+): Promise<[Transaction, web3.PublicKey]> => {
+  const [receiptEntryId] = await findReceiptEntryId(params.stakeEntryId);
+  transaction.add(
+    initReceiptEntry(connection, wallet, {
+      receiptEntry: receiptEntryId,
+      stakeEntry: params.stakeEntryId,
+    })
+  );
+  return [transaction, receiptEntryId];
+};
+
+export const withInitRewardReceipt = async (
+  transaction: Transaction,
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    receiptManagerId: PublicKey;
+    receiptEntryId: PublicKey;
+    stakeEntryId: PublicKey;
+    payer?: PublicKey;
+  }
+): Promise<[Transaction, web3.PublicKey]> => {
+  const [rewardReceiptId] = await findRewardReceiptId(
+    params.receiptManagerId,
+    params.receiptEntryId
+  );
+  transaction.add(
+    initRewardReceipt(connection, wallet, {
+      rewardReceipt: rewardReceiptId,
+      receiptManager: params.receiptManagerId,
+      receiptEntry: params.receiptEntryId,
+      stakeEntry: params.stakeEntryId,
+      payer: params.payer ?? wallet.publicKey,
+    })
+  );
+  return [transaction, rewardReceiptId];
+};
+
+export const withUpdateReceiptManager = async (
   transaction: Transaction,
   connection: Connection,
   wallet: Wallet,
@@ -80,9 +130,11 @@ export const withupdateReceiptManager = async (
     stakePoolId: PublicKey;
     authority: PublicKey;
     requiredStakeSeconds: BN;
-    usesStakeSeconds: BN;
+    stakeSecondsToUse: BN;
     paymentMint: PublicKey;
     paymentManagerName: string;
+    paymentRecipientId: PublicKey;
+    requiresAuthorization: boolean;
     maxClaimedReceipts?: BN;
   }
 ): Promise<[Transaction, web3.PublicKey]> => {
@@ -102,20 +154,21 @@ export const withupdateReceiptManager = async (
 
   transaction.add(
     updateReceiptManager(connection, wallet, {
-      receiptManager: receiptManagerId,
-      stakePoolId: params.stakePoolId,
       authority: params.authority,
       requiredStakeSeconds: params.requiredStakeSeconds,
-      usesStakeSeconds: params.usesStakeSeconds,
+      stakeSecondsToUse: params.stakeSecondsToUse,
+      receiptManager: receiptManagerId,
       paymentMint: params.paymentMint,
       paymentManager: paymentManagerId,
-      maxClaimedReceipts: params.maxClaimedReceipts,
+      paymentRecipient: params.paymentRecipientId,
+      requiresAuthorization: params.requiresAuthorization,
+      maxClaimedReceipts: params.maxClaimedReceipts ?? undefined,
     })
   );
   return [transaction, receiptManagerId];
 };
 
-export const withCreateRewardReceipt = async (
+export const withClaimRewardReceipt = async (
   transaction: Transaction,
   connection: Connection,
   wallet: Wallet,
@@ -131,10 +184,10 @@ export const withCreateRewardReceipt = async (
     params.stakePoolId,
     params.receiptManagerName
   );
-  const checkreceiptManager = await tryGetAccount(() =>
-    getreceiptManager(connection, receiptManagerId)
+  const checkReceiptManager = await tryGetAccount(() =>
+    getReceiptManager(connection, receiptManagerId)
   );
-  if (!checkreceiptManager) {
+  if (!checkReceiptManager) {
     throw `No reward receipt manager found with name ${
       params.receiptManagerName
     } for pool ${params.stakePoolId.toString()}`;
@@ -147,30 +200,31 @@ export const withCreateRewardReceipt = async (
   );
 
   const checkPaymentManager = await tryGetAccount(() =>
-    getPaymentManager(connection, checkreceiptManager.parsed.paymentManager)
+    getPaymentManager(connection, checkReceiptManager.parsed.paymentManager)
   );
   if (!checkPaymentManager) {
-    throw `Could not find payment manager with address ${checkreceiptManager.parsed.paymentManager.toString()}`;
+    throw `Could not find payment manager with address ${checkReceiptManager.parsed.paymentManager.toString()}`;
   }
 
   const feeCollectorTokenAccountId = await withFindOrInitAssociatedTokenAccount(
     transaction,
     connection,
-    checkreceiptManager.parsed.paymentMint,
+    checkReceiptManager.parsed.paymentMint,
     checkPaymentManager.parsed.feeCollector,
     wallet.publicKey
   );
-  const paymentTokenAccountId = await withFindOrInitAssociatedTokenAccount(
-    transaction,
-    connection,
-    checkreceiptManager.parsed.paymentMint,
-    DEFAULT_PAYMENT_COLLECTOR,
-    wallet.publicKey
-  );
+  const paymentRecipientTokenAccountId =
+    await withFindOrInitAssociatedTokenAccount(
+      transaction,
+      connection,
+      checkReceiptManager.parsed.paymentMint,
+      checkReceiptManager.parsed.paymentRecipient,
+      wallet.publicKey
+    );
   const payerTokenAccountId = await withFindOrInitAssociatedTokenAccount(
     transaction,
     connection,
-    checkreceiptManager.parsed.paymentMint,
+    checkReceiptManager.parsed.paymentMint,
     params.payer,
     wallet.publicKey
   );
@@ -183,14 +237,14 @@ export const withCreateRewardReceipt = async (
   );
 
   transaction.add(
-    createRewardReceipt(connection, wallet, {
+    claimRewardReceipt(connection, wallet, {
       receiptManager: receiptManagerId,
       rewardReceipt: rewardReceiptId,
       stakeEntry: params.stakeEntryId,
       receiptEntry: receiptEntryId,
-      paymentManager: checkreceiptManager.parsed.paymentManager,
+      paymentManager: checkReceiptManager.parsed.paymentManager,
       feeCollectorTokenAccount: feeCollectorTokenAccountId,
-      paymentTokenAccount: paymentTokenAccountId,
+      paymentRecipientTokenAccount: paymentRecipientTokenAccountId,
       payerTokenAccount: payerTokenAccountId,
       payer: params.payer,
       claimer: params.claimer,
@@ -200,7 +254,7 @@ export const withCreateRewardReceipt = async (
   return [transaction, rewardReceiptId];
 };
 
-export const withcloseReceiptManager = (
+export const withCloseReceiptManager = (
   transaction: Transaction,
   connection: Connection,
   wallet: Wallet,
@@ -212,6 +266,26 @@ export const withcloseReceiptManager = (
   transaction.add(
     closeReceiptManager(connection, wallet, {
       receiptManager: params.receiptManagerId,
+    })
+  );
+  return transaction;
+};
+
+export const withCloseReceiptEntry = (
+  transaction: Transaction,
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    receiptManagerId: PublicKey;
+    receiptEntryId: PublicKey;
+    stakeEntryId: PublicKey;
+  }
+): Transaction => {
+  transaction.add(
+    closeReceiptEntry(connection, wallet, {
+      receiptManager: params.receiptManagerId,
+      receiptEntry: params.receiptEntryId,
+      stakeEntry: params.stakeEntryId,
     })
   );
   return transaction;
@@ -235,34 +309,21 @@ export const withCloseRewardReceipt = (
   return transaction;
 };
 
-export const withDisallowMint = async (
+export const withSetRewardReceiptAuth = (
   transaction: Transaction,
   connection: Connection,
   wallet: Wallet,
   params: {
     receiptManagerId: PublicKey;
     rewardReceiptId: PublicKey;
-    mintId: PublicKey;
+    auth: boolean;
   }
-): Promise<Transaction> => {
-  const checkreceiptManager = await tryGetAccount(() =>
-    getreceiptManager(connection, params.receiptManagerId)
-  );
-  if (!checkreceiptManager) {
-    throw `No reward receipt manager found ${params.receiptManagerId.toString()}`;
-  }
-  const [stakeEntryId] = await findStakeEntryId(
-    wallet.publicKey,
-    checkreceiptManager.parsed.stakePool,
-    params.mintId,
-    false
-  );
-  const [receiptEntryId] = await findReceiptEntryId(stakeEntryId);
+): Transaction => {
   transaction.add(
-    disallowMint(connection, wallet, {
+    setRewardReceiptAuth(connection, wallet, {
+      auth: params.auth,
       receiptManager: params.receiptManagerId,
       rewardReceipt: params.rewardReceiptId,
-      receiptEntry: receiptEntryId,
     })
   );
   return transaction;

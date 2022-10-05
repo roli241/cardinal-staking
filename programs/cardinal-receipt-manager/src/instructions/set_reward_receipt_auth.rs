@@ -8,7 +8,7 @@ use {
 pub struct SetRewardReceiptAuthCtx<'info> {
     #[account(constraint = receipt_manager.authority == authority.key() @ ErrorCode::InvalidAuthority)]
     receipt_manager: Box<Account<'info, ReceiptManager>>,
-    #[account(constraint = reward_receipt.receipt_manager == receipt_manager.key() @ ErrorCode::InvalidReceiptManager)]
+    #[account(mut, constraint = reward_receipt.receipt_manager == receipt_manager.key() @ ErrorCode::InvalidReceiptManager)]
     reward_receipt: Box<Account<'info, RewardReceipt>>,
 
     #[account(mut)]

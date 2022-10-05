@@ -131,17 +131,12 @@ export type CardinalReceiptManager = {
           isSigner: false;
         },
         {
-          name: "paymentTokenAccount";
+          name: "paymentRecipientTokenAccount";
           isMut: true;
           isSigner: false;
         },
         {
           name: "payerTokenAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "receiptAuthRecord";
           isMut: true;
           isSigner: false;
         },
@@ -183,7 +178,7 @@ export type CardinalReceiptManager = {
         },
         {
           name: "rewardReceipt";
-          isMut: false;
+          isMut: true;
           isSigner: false;
         },
         {
@@ -258,6 +253,32 @@ export type CardinalReceiptManager = {
         }
       ];
       args: [];
+    },
+    {
+      name: "closeReceiptEntry";
+      accounts: [
+        {
+          name: "receiptEntry";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "receiptManager";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "stakeEntry";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "authority";
+          isMut: true;
+          isSigner: true;
+        }
+      ];
+      args: [];
     }
   ];
   accounts: [
@@ -296,6 +317,10 @@ export type CardinalReceiptManager = {
           },
           {
             name: "paymentManager";
+            type: "publicKey";
+          },
+          {
+            name: "paymentRecipient";
             type: "publicKey";
           },
           {
@@ -395,6 +420,10 @@ export type CardinalReceiptManager = {
             type: "publicKey";
           },
           {
+            name: "paymentRecipient";
+            type: "publicKey";
+          },
+          {
             name: "requiresAuthorization";
             type: "bool";
           },
@@ -430,6 +459,10 @@ export type CardinalReceiptManager = {
           },
           {
             name: "paymentManager";
+            type: "publicKey";
+          },
+          {
+            name: "paymentRecipient";
             type: "publicKey";
           },
           {
@@ -668,17 +701,12 @@ export const IDL: CardinalReceiptManager = {
           isSigner: false,
         },
         {
-          name: "paymentTokenAccount",
+          name: "paymentRecipientTokenAccount",
           isMut: true,
           isSigner: false,
         },
         {
           name: "payerTokenAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "receiptAuthRecord",
           isMut: true,
           isSigner: false,
         },
@@ -720,7 +748,7 @@ export const IDL: CardinalReceiptManager = {
         },
         {
           name: "rewardReceipt",
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
         {
@@ -796,6 +824,32 @@ export const IDL: CardinalReceiptManager = {
       ],
       args: [],
     },
+    {
+      name: "closeReceiptEntry",
+      accounts: [
+        {
+          name: "receiptEntry",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "receiptManager",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "stakeEntry",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "authority",
+          isMut: true,
+          isSigner: true,
+        },
+      ],
+      args: [],
+    },
   ],
   accounts: [
     {
@@ -833,6 +887,10 @@ export const IDL: CardinalReceiptManager = {
           },
           {
             name: "paymentManager",
+            type: "publicKey",
+          },
+          {
+            name: "paymentRecipient",
             type: "publicKey",
           },
           {
@@ -932,6 +990,10 @@ export const IDL: CardinalReceiptManager = {
             type: "publicKey",
           },
           {
+            name: "paymentRecipient",
+            type: "publicKey",
+          },
+          {
             name: "requiresAuthorization",
             type: "bool",
           },
@@ -967,6 +1029,10 @@ export const IDL: CardinalReceiptManager = {
           },
           {
             name: "paymentManager",
+            type: "publicKey",
+          },
+          {
+            name: "paymentRecipient",
             type: "publicKey",
           },
           {

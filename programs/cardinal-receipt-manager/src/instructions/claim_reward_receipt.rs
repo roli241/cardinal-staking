@@ -9,7 +9,7 @@ use {
 
 #[derive(Accounts)]
 pub struct CreateRewardReceiptCtx<'info> {
-    #[account(mut, seeds = [REWARD_RECEIPT_SEED.as_bytes(), receipt_manager.key().as_ref(), stake_entry.key().as_ref()], bump=reward_receipt.bump)]
+    #[account(mut, seeds = [REWARD_RECEIPT_SEED.as_bytes(), receipt_manager.key().as_ref(), receipt_entry.key().as_ref()], bump=reward_receipt.bump)]
     reward_receipt: Box<Account<'info, RewardReceipt>>,
     #[account(mut)]
     receipt_manager: Box<Account<'info, ReceiptManager>>,
@@ -24,13 +24,10 @@ pub struct CreateRewardReceiptCtx<'info> {
     payment_manager: Box<Account<'info, PaymentManager>>,
     #[account(mut)]
     fee_collector_token_account: Box<Account<'info, TokenAccount>>,
-    #[account(mut, constraint = payment_token_account.mint == receipt_manager.payment_mint @ ErrorCode::InvalidPaymentTokenAccount)]
-    payment_token_account: Box<Account<'info, TokenAccount>>,
+    #[account(mut, constraint = payment_recipient_token_account.owner == receipt_manager.payment_recipient @ ErrorCode::InvalidPaymentTokenAccount)]
+    payment_recipient_token_account: Box<Account<'info, TokenAccount>>,
     #[account(mut, constraint = payer_token_account.mint == receipt_manager.payment_mint && payer_token_account.owner == payer.key() @ ErrorCode::InvalidPayerTokenAcount)]
     payer_token_account: Box<Account<'info, TokenAccount>>,
-    /// CHECK: This is not dangerous because we don't read or write from this account
-    #[account(mut)]
-    receipt_auth_record: UncheckedAccount<'info>,
 
     #[account(mut)]
     payer: Signer<'info>,
@@ -43,13 +40,7 @@ pub struct CreateRewardReceiptCtx<'info> {
 }
 
 pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
-    // assert cardinal payment collector
-    assert_allowed_payment_collector(&ctx.accounts.payment_token_account.owner.to_string())?;
-
     let reward_receipt = &mut ctx.accounts.reward_receipt;
-    reward_receipt.bump = *ctx.bumps.get("reward_receipt").unwrap();
-    reward_receipt.receipt_entry = ctx.accounts.receipt_entry.key();
-    reward_receipt.receipt_manager = ctx.accounts.receipt_manager.key();
     reward_receipt.target = ctx.accounts.claimer.key();
     // increment counter
     ctx.accounts.receipt_manager.claimed_receipts_counter = ctx.accounts.receipt_manager.claimed_receipts_counter.checked_add(1).expect("Add error");
@@ -97,7 +88,7 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
         payment_manager: ctx.accounts.payment_manager.to_account_info(),
         payer_token_account: ctx.accounts.payer_token_account.to_account_info(),
         fee_collector_token_account: ctx.accounts.fee_collector_token_account.to_account_info(),
-        payment_token_account: ctx.accounts.payment_token_account.to_account_info(),
+        payment_token_account: ctx.accounts.payment_recipient_token_account.to_account_info(),
         payer: ctx.accounts.payer.to_account_info(),
         token_program: ctx.accounts.token_program.to_account_info(),
     };

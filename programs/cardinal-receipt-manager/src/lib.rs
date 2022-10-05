@@ -41,4 +41,8 @@ pub mod cardinal_receipt_manager {
     pub fn close_reward_receipt(ctx: Context<CloseRewardReceiptCtx>) -> Result<()> {
         close_reward_receipt::handler(ctx)
     }
+
+    pub fn close_receipt_entry(ctx: Context<CloseReceiptEntryCtx>) -> Result<()> {
+        close_receipt_entry::handler(ctx)
+    }
 }
