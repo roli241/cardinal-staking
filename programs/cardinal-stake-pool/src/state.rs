@@ -18,7 +18,7 @@ pub const STAKE_AUTHORIZATION_SIZE: usize = 8 + std::mem::size_of::<StakeAuthori
 #[repr(u8)]
 pub enum StakeEntryKind {
     Permissionless = 0, // original
-    Permissioned = 1,   // someone else called update_total_stake_seconds was called indicating claim_reward must check signer so this is a permissioned claim_rewards
+    Permissioned = 1,   // someone else called update_total_stake_seconds indicating claim_reward must check signer so this is a permissioned claim_rewards
 }
 
 #[account]
