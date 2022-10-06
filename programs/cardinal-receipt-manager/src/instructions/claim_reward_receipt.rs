@@ -13,9 +13,9 @@ pub struct CreateRewardReceiptCtx<'info> {
     reward_receipt: Box<Account<'info, RewardReceipt>>,
     #[account(mut)]
     receipt_manager: Box<Account<'info, ReceiptManager>>,
+    #[account(constraint = stake_entry.pool == receipt_manager.stake_pool @ ErrorCode::InvalidStakeEntry)]
     stake_entry: Box<Account<'info, StakeEntry>>,
 
-    // TODO maybe init_if_needed for ease of use in client
     #[account(mut, constraint = receipt_entry.stake_entry == stake_entry.key() @ ErrorCode::InvalidReceiptEntry)]
     receipt_entry: Box<Account<'info, ReceiptEntry>>,
 
@@ -53,18 +53,6 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
         return Err(error!(ErrorCode::RewardSecondsNotSatisfied));
     }
 
-    if ctx.accounts.receipt_manager.stake_seconds_to_use != 0
-        && ctx
-            .accounts
-            .stake_entry
-            .total_stake_seconds
-            .checked_sub(ctx.accounts.receipt_entry.used_stake_seconds)
-            .expect("Sub error")
-            < ctx.accounts.receipt_manager.stake_seconds_to_use
-    {
-        return Err(error!(ErrorCode::InsufficientAvailableStakeSeconds));
-    }
-
     let receipt_manager = &mut ctx.accounts.receipt_manager;
     if let Some(max_reward_receipts) = receipt_manager.max_claimed_receipts {
         if max_reward_receipts == receipt_manager.claimed_receipts_counter {
@@ -77,8 +65,20 @@ pub fn handler(ctx: Context<CreateRewardReceiptCtx>) -> Result<()> {
     receipt_entry.used_stake_seconds = receipt_entry.used_stake_seconds.checked_add(ctx.accounts.receipt_manager.stake_seconds_to_use).expect("Add error");
 
     if receipt_entry.used_stake_seconds > ctx.accounts.stake_entry.total_stake_seconds {
-        return Err(error!(ErrorCode::RewardSecondsNotSatisfied));
+        return Err(error!(ErrorCode::InsufficientAvailableStakeSeconds));
     }
+    // same check as ^^
+    // if ctx.accounts.receipt_manager.stake_seconds_to_use != 0
+    //     && ctx
+    //         .accounts
+    //         .stake_entry
+    //         .total_stake_seconds
+    //         .checked_sub(ctx.accounts.receipt_entry.used_stake_seconds)
+    //         .expect("Sub error")
+    //         < ctx.accounts.receipt_manager.stake_seconds_to_use
+    // {
+    //     return Err(error!(ErrorCode::InsufficientAvailableStakeSeconds));
+    // }
 
     // handle payment
     let payment_mints = get_payment_mints();
