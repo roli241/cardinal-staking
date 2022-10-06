@@ -26,8 +26,8 @@ pub mod cardinal_receipt_manager {
         claim_reward_receipt::handler(ctx)
     }
 
-    pub fn set_reward_receipt_auth(ctx: Context<SetRewardReceiptAuthCtx>, auth: bool) -> Result<()> {
-        set_reward_receipt_auth::handler(ctx, auth)
+    pub fn set_reward_receipt_allowed(ctx: Context<SetRewardReceiptAllowed>, allowed: bool) -> Result<()> {
+        set_reward_receipt_allowed::handler(ctx, allowed)
     }
 
     pub fn update_receipt_manager(ctx: Context<UpdateRewarReceiptManagerCtx>, ix: UpdateReceiptManagerIx) -> Result<()> {

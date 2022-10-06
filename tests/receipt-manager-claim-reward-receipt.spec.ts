@@ -41,7 +41,7 @@ import { findStakeEntryIdFromMint } from "../src/programs/stakePool/utils";
 import { createMasterEditionIxs, createMint, delay } from "./utils";
 import { getProvider } from "./workspace";
 
-describe("Create reward receipt", () => {
+describe("Receipt manager claim reward receipt", () => {
   let originalMintTokenAccountId: PublicKey;
   let originalMint: splToken.Token;
   let stakePoolId: PublicKey;
@@ -466,9 +466,7 @@ describe("Create reward receipt", () => {
       provider.connection,
       paymentMint,
       splToken.TOKEN_PROGRAM_ID,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      null
+      Keypair.generate()
     );
     const paymentTokenAccountId = await findAta(
       paymentMint,

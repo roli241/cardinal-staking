@@ -18,7 +18,7 @@ import {
   initReceiptEntry,
   initReceiptManager,
   initRewardReceipt,
-  setRewardReceiptAuth,
+  setRewardReceiptAllowed,
   updateReceiptManager,
 } from "./instruction";
 import {
@@ -260,7 +260,6 @@ export const withCloseReceiptManager = (
   wallet: Wallet,
   params: {
     receiptManagerId: PublicKey;
-    rewardReceiptId: PublicKey;
   }
 ): Transaction => {
   transaction.add(
@@ -309,7 +308,7 @@ export const withCloseRewardReceipt = (
   return transaction;
 };
 
-export const withSetRewardReceiptAuth = (
+export const withSetRewardReceiptAllowed = (
   transaction: Transaction,
   connection: Connection,
   wallet: Wallet,
@@ -320,7 +319,7 @@ export const withSetRewardReceiptAuth = (
   }
 ): Transaction => {
   transaction.add(
-    setRewardReceiptAuth(connection, wallet, {
+    setRewardReceiptAllowed(connection, wallet, {
       auth: params.auth,
       receiptManager: params.receiptManagerId,
       rewardReceipt: params.rewardReceiptId,

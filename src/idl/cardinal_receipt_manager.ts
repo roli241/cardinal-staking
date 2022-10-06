@@ -169,7 +169,7 @@ export type CardinalReceiptManager = {
       args: [];
     },
     {
-      name: "setRewardReceiptAuth";
+      name: "setRewardReceiptAllowed";
       accounts: [
         {
           name: "receiptManager";
@@ -189,7 +189,7 @@ export type CardinalReceiptManager = {
       ];
       args: [
         {
-          name: "auth";
+          name: "allowed";
           type: "bool";
         }
       ];
@@ -557,11 +557,6 @@ export type CardinalReceiptManager = {
     },
     {
       code: 6015;
-      name: "NeedToResetAuthRecord";
-      msg: "Need to reset auth record before whitelisting or blacklisting";
-    },
-    {
-      code: 6016;
       name: "RewardReceiptIsNotAllowed";
       msg: "Reward receipt is not allowed";
     }
@@ -739,7 +734,7 @@ export const IDL: CardinalReceiptManager = {
       args: [],
     },
     {
-      name: "setRewardReceiptAuth",
+      name: "setRewardReceiptAllowed",
       accounts: [
         {
           name: "receiptManager",
@@ -759,7 +754,7 @@ export const IDL: CardinalReceiptManager = {
       ],
       args: [
         {
-          name: "auth",
+          name: "allowed",
           type: "bool",
         },
       ],
@@ -1127,11 +1122,6 @@ export const IDL: CardinalReceiptManager = {
     },
     {
       code: 6015,
-      name: "NeedToResetAuthRecord",
-      msg: "Need to reset auth record before whitelisting or blacklisting",
-    },
-    {
-      code: 6016,
       name: "RewardReceiptIsNotAllowed",
       msg: "Reward receipt is not allowed",
     },

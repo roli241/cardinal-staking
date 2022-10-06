@@ -34,7 +34,7 @@ import {
   withInitReceiptEntry,
   withInitReceiptManager,
   withInitRewardReceipt,
-  withSetRewardReceiptAuth,
+  withSetRewardReceiptAllowed,
   withUpdateReceiptManager,
 } from "../src/programs/receiptManager/transaction";
 import { ReceiptType } from "../src/programs/stakePool";
@@ -44,7 +44,7 @@ import { findStakeEntryIdFromMint } from "../src/programs/stakePool/utils";
 import { createMasterEditionIxs, createMint } from "./utils";
 import { getProvider } from "./workspace";
 
-describe("Multiple receipt managers claiming", () => {
+describe("Receipt manages multiple with disallowlist", () => {
   let originalMintTokenAccountId: PublicKey;
   let originalMint: splToken.Token;
   let stakePoolId: PublicKey;
@@ -607,7 +607,7 @@ describe("Multiple receipt managers claiming", () => {
     );
     expect(beforeReceiptData.parsed.allowed).to.be.true;
 
-    withSetRewardReceiptAuth(
+    withSetRewardReceiptAllowed(
       transaction,
       provider.connection,
       provider.wallet,
