@@ -3,7 +3,6 @@ import {
   withFindOrInitAssociatedTokenAccount,
 } from "@cardinal/common";
 import { getPaymentManager } from "@cardinal/token-manager/dist/cjs/programs/paymentManager/accounts";
-import { findPaymentManagerAddress } from "@cardinal/token-manager/dist/cjs/programs/paymentManager/pda";
 import type { BN, web3 } from "@project-serum/anchor";
 import type { Wallet } from "@saberhq/solana-contrib";
 import type { Connection, PublicKey, Transaction } from "@solana/web3.js";
@@ -38,7 +37,7 @@ export const withInitReceiptManager = async (
     requiredStakeSeconds: BN;
     stakeSecondsToUse: BN;
     paymentMint: PublicKey;
-    paymentManagerName: string;
+    paymentManagerId?: PublicKey;
     paymentRecipientId: PublicKey;
     requiresAuthorization: boolean;
     maxClaimedReceipts?: BN;
@@ -48,16 +47,6 @@ export const withInitReceiptManager = async (
     params.stakePoolId,
     params.name
   );
-  const [paymentManagerId] = await findPaymentManagerAddress(
-    params.paymentManagerName
-  );
-  const checkPaymentManager = await tryGetAccount(() =>
-    getPaymentManager(connection, paymentManagerId)
-  );
-  if (!checkPaymentManager) {
-    throw `Payment manager with name ${params.paymentManagerName} not found`;
-  }
-
   transaction.add(
     initReceiptManager(connection, wallet, {
       receiptManager: receiptManagerId,
@@ -67,7 +56,7 @@ export const withInitReceiptManager = async (
       requiredStakeSeconds: params.requiredStakeSeconds,
       stakeSecondsToUse: params.stakeSecondsToUse,
       paymentMint: params.paymentMint,
-      paymentManager: paymentManagerId,
+      paymentManager: params.paymentManagerId,
       paymentRecipient: params.paymentRecipientId,
       requiresAuthorization: params.requiresAuthorization,
       maxClaimedReceipts: params.maxClaimedReceipts,
@@ -132,7 +121,7 @@ export const withUpdateReceiptManager = async (
     requiredStakeSeconds: BN;
     stakeSecondsToUse: BN;
     paymentMint: PublicKey;
-    paymentManagerName: string;
+    paymentManagerId?: PublicKey;
     paymentRecipientId: PublicKey;
     requiresAuthorization: boolean;
     maxClaimedReceipts?: BN;
@@ -142,15 +131,6 @@ export const withUpdateReceiptManager = async (
     params.stakePoolId,
     params.name
   );
-  const [paymentManagerId] = await findPaymentManagerAddress(
-    params.paymentManagerName
-  );
-  const checkPaymentManager = await tryGetAccount(() =>
-    getPaymentManager(connection, paymentManagerId)
-  );
-  if (!checkPaymentManager) {
-    throw `Payment manager with name ${params.name} not found`;
-  }
 
   transaction.add(
     updateReceiptManager(connection, wallet, {
@@ -159,7 +139,7 @@ export const withUpdateReceiptManager = async (
       stakeSecondsToUse: params.stakeSecondsToUse,
       receiptManager: receiptManagerId,
       paymentMint: params.paymentMint,
-      paymentManager: paymentManagerId,
+      paymentManager: params.paymentManagerId,
       paymentRecipient: params.paymentRecipientId,
       requiresAuthorization: params.requiresAuthorization,
       maxClaimedReceipts: params.maxClaimedReceipts ?? undefined,

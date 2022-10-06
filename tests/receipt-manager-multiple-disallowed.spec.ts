@@ -19,6 +19,7 @@ import {
 import { expect } from "chai";
 
 import { createStakeEntry, createStakePool, stake } from "../src";
+import { RECEIPT_MANAGER_PAYMENT_MANAGER_NAME } from "../src/programs/receiptManager";
 import {
   getReceiptEntry,
   getReceiptManager,
@@ -59,7 +60,6 @@ describe("Receipt manages multiple with disallowlist", () => {
 
   const MAKER_FEE = 0;
   const TAKER_FEE = 0;
-  const paymentManagerName = `cardinal-receipt-manager`;
   const feeCollector = Keypair.generate();
   const paymentRecipient = Keypair.generate();
   const paymentMint = new PublicKey(
@@ -127,7 +127,7 @@ describe("Receipt manages multiple with disallowlist", () => {
     const [ix, paymentManagerId] = await init(
       provider.connection,
       provider.wallet,
-      paymentManagerName,
+      RECEIPT_MANAGER_PAYMENT_MANAGER_NAME,
       {
         feeCollector: feeCollector.publicKey,
         makerFeeBasisPoints: MAKER_FEE,
@@ -158,7 +158,9 @@ describe("Receipt manages multiple with disallowlist", () => {
       provider.connection,
       paymentManagerId
     );
-    expect(paymentManagerData.parsed.name).to.eq(paymentManagerName);
+    expect(paymentManagerData.parsed.name).to.eq(
+      RECEIPT_MANAGER_PAYMENT_MANAGER_NAME
+    );
   });
 
   it("Create Pool", async () => {
@@ -194,7 +196,6 @@ describe("Receipt manages multiple with disallowlist", () => {
         stakeSecondsToUse: stakeSecondsToUse,
         paymentMint: paymentMint,
         paymentRecipientId: paymentRecipient.publicKey,
-        paymentManagerName: paymentManagerName,
         requiresAuthorization: requiresAuthorization,
       }
     );
@@ -218,7 +219,7 @@ describe("Receipt manages multiple with disallowlist", () => {
       receiptManagerId
     );
     const [payamentManagerId] = await findPaymentManagerAddress(
-      paymentManagerName
+      RECEIPT_MANAGER_PAYMENT_MANAGER_NAME
     );
     expect(receiptManagerData.parsed.name.toString()).to.eq(
       receiptManagerName1
@@ -261,7 +262,6 @@ describe("Receipt manages multiple with disallowlist", () => {
         stakeSecondsToUse: stakeSecondsToUse,
         paymentMint: paymentMint,
         paymentRecipientId: paymentRecipient.publicKey,
-        paymentManagerName: paymentManagerName,
         requiresAuthorization: requiresAuthorization,
       }
     );
@@ -285,7 +285,7 @@ describe("Receipt manages multiple with disallowlist", () => {
       receiptManagerId
     );
     const [payamentManagerId] = await findPaymentManagerAddress(
-      paymentManagerName
+      RECEIPT_MANAGER_PAYMENT_MANAGER_NAME
     );
     expect(receiptManagerData.parsed.name.toString()).to.eq(
       receiptManagerName2
@@ -561,7 +561,6 @@ describe("Receipt manages multiple with disallowlist", () => {
           beforeReceiptManagerData.parsed.requiredStakeSeconds,
         stakeSecondsToUse: beforeReceiptManagerData.parsed.stakeSecondsToUse,
         paymentMint: beforeReceiptManagerData.parsed.paymentMint,
-        paymentManagerName: paymentManagerName,
         paymentRecipientId: beforeReceiptManagerData.parsed.paymentRecipient,
         requiresAuthorization: true,
       }

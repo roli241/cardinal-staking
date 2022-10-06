@@ -22,3 +22,8 @@ type Accounts = RewardDistributorTypes["Accounts"];
 export type ReceiptManagerData = Accounts["receiptManager"];
 export type RewardReceiptData = Accounts["rewardReceipt"];
 export type ReceiptEntryData = Accounts["receiptEntry"];
+
+export const RECEIPT_MANAGER_PAYMENT_MANAGER_NAME = "cardinal-receipt-manager";
+export const RECEIPT_MANAGER_PAYMENT_MANAGER = new PublicKey(
+  "FQJ2czigCYygS8v8trLU7TBAi7NjRN1h1C2vLAh2GYDi" // cardinal-receipt-manager
+);

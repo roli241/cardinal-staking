@@ -11,7 +11,11 @@ import type {
 import { SystemProgram } from "@solana/web3.js";
 
 import type { RECEIPT_MANAGER_PROGRAM } from "./constants";
-import { RECEIPT_MANAGER_ADDRESS, RECEIPT_MANAGER_IDL } from "./constants";
+import {
+  RECEIPT_MANAGER_ADDRESS,
+  RECEIPT_MANAGER_IDL,
+  RECEIPT_MANAGER_PAYMENT_MANAGER,
+} from "./constants";
 
 export const initReceiptManager = (
   connection: Connection,
@@ -24,7 +28,7 @@ export const initReceiptManager = (
     requiredStakeSeconds: BN;
     stakeSecondsToUse: BN;
     paymentMint: PublicKey;
-    paymentManager: PublicKey;
+    paymentManager?: PublicKey;
     paymentRecipient: PublicKey;
     requiresAuthorization: boolean;
     maxClaimedReceipts?: BN;
@@ -43,7 +47,7 @@ export const initReceiptManager = (
       requiredStakeSeconds: params.requiredStakeSeconds,
       stakeSecondsToUse: params.stakeSecondsToUse,
       paymentMint: params.paymentMint,
-      paymentManager: params.paymentManager,
+      paymentManager: params.paymentManager ?? RECEIPT_MANAGER_PAYMENT_MANAGER,
       paymentRecipient: params.paymentRecipient,
       requiresAuthorization: params.requiresAuthorization,
       maxClaimedReceipts: params.maxClaimedReceipts ?? null,
@@ -121,7 +125,7 @@ export const updateReceiptManager = (
     stakeSecondsToUse: BN;
     receiptManager: PublicKey;
     paymentMint: PublicKey;
-    paymentManager: PublicKey;
+    paymentManager?: PublicKey;
     paymentRecipient: PublicKey;
     requiresAuthorization: boolean;
     maxClaimedReceipts?: BN;
@@ -139,7 +143,7 @@ export const updateReceiptManager = (
       requiredStakeSeconds: params.requiredStakeSeconds,
       stakeSecondsToUse: params.stakeSecondsToUse,
       paymentMint: params.paymentMint,
-      paymentManager: params.paymentManager,
+      paymentManager: params.paymentManager ?? RECEIPT_MANAGER_PAYMENT_MANAGER,
       paymentRecipient: params.paymentRecipient,
       requiresAuthorization: params.requiresAuthorization,
       maxClaimedReceipts: params.maxClaimedReceipts ?? null,

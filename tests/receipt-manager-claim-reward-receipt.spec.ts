@@ -19,6 +19,7 @@ import {
 import { expect } from "chai";
 
 import { createStakeEntry, createStakePool, stake } from "../src";
+import { RECEIPT_MANAGER_PAYMENT_MANAGER_NAME } from "../src/programs/receiptManager";
 import {
   getReceiptEntry,
   getReceiptManager,
@@ -54,7 +55,6 @@ describe("Receipt manager claim reward receipt", () => {
 
   const MAKER_FEE = 0;
   const TAKER_FEE = 0;
-  const paymentManagerName = `cardinal-receipt-manager`;
   const feeCollector = Keypair.generate();
   const paymentRecipient = Keypair.generate();
   const paymentMint = new PublicKey(
@@ -122,7 +122,7 @@ describe("Receipt manager claim reward receipt", () => {
     const [ix, paymentManagerId] = await init(
       provider.connection,
       provider.wallet,
-      paymentManagerName,
+      RECEIPT_MANAGER_PAYMENT_MANAGER_NAME,
       {
         feeCollector: feeCollector.publicKey,
         makerFeeBasisPoints: MAKER_FEE,
@@ -153,7 +153,9 @@ describe("Receipt manager claim reward receipt", () => {
       provider.connection,
       paymentManagerId
     );
-    expect(paymentManagerData.parsed.name).to.eq(paymentManagerName);
+    expect(paymentManagerData.parsed.name).to.eq(
+      RECEIPT_MANAGER_PAYMENT_MANAGER_NAME
+    );
   });
 
   it("Create Pool", async () => {
@@ -189,7 +191,6 @@ describe("Receipt manager claim reward receipt", () => {
         stakeSecondsToUse: stakeSecondsToUse,
         paymentMint: Keypair.generate().publicKey,
         paymentRecipientId: paymentRecipient.publicKey,
-        paymentManagerName: paymentManagerName,
         requiresAuthorization: requiresAuthorization,
       }
     );
@@ -219,7 +220,6 @@ describe("Receipt manager claim reward receipt", () => {
         stakeSecondsToUse: stakeSecondsToUse,
         paymentMint: paymentMint,
         paymentRecipientId: paymentRecipient.publicKey,
-        paymentManagerName: paymentManagerName,
         requiresAuthorization: requiresAuthorization,
       }
     );
@@ -243,7 +243,7 @@ describe("Receipt manager claim reward receipt", () => {
       receiptManagerId
     );
     const [payamentManagerId] = await findPaymentManagerAddress(
-      paymentManagerName
+      RECEIPT_MANAGER_PAYMENT_MANAGER_NAME
     );
     expect(receiptManagerData.parsed.paymentManager.toString()).to.eq(
       payamentManagerId.toString()
