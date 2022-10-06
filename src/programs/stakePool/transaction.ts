@@ -716,6 +716,7 @@ export const withBoostStakeEntry = async (
     stakePoolId: web3.PublicKey;
     stakeBoosterIdentifier?: BN;
     stakeEntryId: web3.PublicKey;
+    originalMintId: web3.PublicKey;
     payerTokenAccount: web3.PublicKey;
     payer?: web3.PublicKey;
     secondsToBoost: BN;
@@ -751,7 +752,7 @@ export const withBoostStakeEntry = async (
       ...params,
       paymentManager: stakeBooster.parsed.paymentManager,
       paymentRecipientTokenAccount: paymentRecipientTokenAccount,
-
+      originalMintId: params.originalMintId,
       feeCollectorTokenAccount: feeCollectorTokenAccount,
     })
   );

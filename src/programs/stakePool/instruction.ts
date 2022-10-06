@@ -689,6 +689,7 @@ export const boostStakeEntry = async (
     stakePoolId: PublicKey;
     stakeBoosterIdentifier?: BN;
     stakeEntryId: PublicKey;
+    originalMintId: PublicKey;
     payerTokenAccount: PublicKey;
     paymentRecipientTokenAccount: PublicKey;
     feeCollectorTokenAccount: PublicKey;
@@ -714,6 +715,7 @@ export const boostStakeEntry = async (
         stakePool: params.stakePoolId,
         stakeBooster: stakeBoosterId,
         stakeEntry: params.stakeEntryId,
+        originalMint: params.originalMintId,
         payerTokenAccount: params.payerTokenAccount,
         paymentRecipientTokenAccount: params.paymentRecipientTokenAccount,
         payer: params.payer ?? wallet.publicKey,

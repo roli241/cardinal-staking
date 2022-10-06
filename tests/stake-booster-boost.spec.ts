@@ -274,6 +274,7 @@ describe("Stake booster boost", () => {
             {
               stakePoolId: stakePoolId,
               stakeEntryId: stakeEntryId,
+              originalMintId: originalMint.publicKey,
               payerTokenAccount: paymentMintTokenAccount,
               secondsToBoost: SECONDS_TO_BOOST,
             }
@@ -404,6 +405,7 @@ describe("Stake booster boost", () => {
             provider.wallet,
             {
               stakePoolId: stakePoolId,
+              originalMintId: originalMint.publicKey,
               stakeEntryId: stakeEntryId,
               payerTokenAccount: paymentMintTokenAccount,
               secondsToBoost: SECONDS_TO_BOOST,
@@ -436,6 +438,7 @@ describe("Stake booster boost", () => {
             {
               stakePoolId: stakePoolId,
               stakeEntryId: stakeEntryId,
+              originalMintId: originalMint.publicKey,
               payerTokenAccount: paymentMintTokenAccount,
               secondsToBoost: SECONDS_TO_BOOST.mul(new BN(10)),
             }

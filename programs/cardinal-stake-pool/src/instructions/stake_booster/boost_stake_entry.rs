@@ -1,7 +1,7 @@
 use {
     crate::{errors::ErrorCode, state::*},
     anchor_lang::prelude::*,
-    anchor_spl::token::{Token, TokenAccount},
+    anchor_spl::token::{Mint, Token, TokenAccount},
     cardinal_payment_manager::{program::CardinalPaymentManager, state::PaymentManager},
 };
 
@@ -18,6 +18,8 @@ pub struct BoostStakeEntryCtx<'info> {
     stake_pool: Box<Account<'info, StakePool>>,
     #[account(mut, constraint = stake_entry.pool == stake_pool.key() @ ErrorCode::InvalidStakeEntry)]
     stake_entry: Box<Account<'info, StakeEntry>>,
+    #[account(constraint = stake_entry.original_mint == original_mint.key() @ ErrorCode::InvalidStakePool)]
+    original_mint: Box<Account<'info, Mint>>,
 
     #[account(mut, constraint =
         payer_token_account.owner == payer.key()
@@ -51,15 +53,11 @@ pub fn handler(ctx: Context<BoostStakeEntryCtx>, ix: BoostStakeEntryIx) -> Resul
         return Err(error!(ErrorCode::CannotBoostUnstakedToken));
     }
 
-    if stake_entry.cooldown_start_seconds.is_some() {
-        return Err(error!(ErrorCode::CannotBoostDuringCooldown));
+    if ctx.accounts.original_mint.supply > 1 || stake_entry.amount > 1 {
+        return Err(error!(ErrorCode::CannotBoostUnstakedToken));
     }
 
-    stake_entry.total_stake_seconds = stake_entry
-        .total_stake_seconds
-        .saturating_add(u128::try_from(ix.seconds_to_boost).expect("Number conversion error"))
-        .checked_mul(u128::try_from(stake_entry.amount).expect("Number conversion error"))
-        .expect("Add error");
+    stake_entry.total_stake_seconds = stake_entry.total_stake_seconds.saturating_add(u128::try_from(ix.seconds_to_boost).expect("Number conversion error"));
 
     if stake_entry
         .total_stake_seconds

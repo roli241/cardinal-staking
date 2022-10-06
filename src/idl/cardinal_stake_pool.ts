@@ -656,6 +656,11 @@ export type CardinalStakePool = {
           isSigner: false;
         },
         {
+          name: "originalMint";
+          isMut: false;
+          isSigner: false;
+        },
+        {
           name: "payerTokenAccount";
           isMut: true;
           isSigner: false;
@@ -1320,33 +1325,33 @@ export type CardinalStakePool = {
     },
     {
       code: 6028;
-      name: "CannotBoostDuringCooldown";
-      msg: "Cannot boost stake entry during cooldown";
-    },
-    {
-      code: 6029;
       name: "CannotBoostUnstakedToken";
       msg: "Cannot boost unstaked token";
     },
     {
-      code: 6030;
+      code: 6029;
       name: "CannotBoostMoreThanCurrentTime";
       msg: "Cannot boost past current time less than start time";
     },
     {
-      code: 6031;
+      code: 6030;
       name: "InvalidBoostPayerTokenAccount";
       msg: "Invalid boost payer token account";
     },
     {
-      code: 6032;
+      code: 6031;
       name: "InvalidBoostPaymentRecipientTokenAccount";
       msg: "Invalid boost payment recipient token account";
     },
     {
-      code: 6033;
+      code: 6032;
       name: "InvalidPaymentManager";
       msg: "Invalid payment manager";
+    },
+    {
+      code: 6033;
+      name: "CannotBoostFungibleToken";
+      msg: "Cannot boost a fungible token stake entry";
     }
   ];
 };
@@ -2006,6 +2011,11 @@ export const IDL: CardinalStakePool = {
         {
           name: "stakeEntry",
           isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "originalMint",
+          isMut: false,
           isSigner: false,
         },
         {
@@ -2673,33 +2683,33 @@ export const IDL: CardinalStakePool = {
     },
     {
       code: 6028,
-      name: "CannotBoostDuringCooldown",
-      msg: "Cannot boost stake entry during cooldown",
-    },
-    {
-      code: 6029,
       name: "CannotBoostUnstakedToken",
       msg: "Cannot boost unstaked token",
     },
     {
-      code: 6030,
+      code: 6029,
       name: "CannotBoostMoreThanCurrentTime",
       msg: "Cannot boost past current time less than start time",
     },
     {
-      code: 6031,
+      code: 6030,
       name: "InvalidBoostPayerTokenAccount",
       msg: "Invalid boost payer token account",
     },
     {
-      code: 6032,
+      code: 6031,
       name: "InvalidBoostPaymentRecipientTokenAccount",
       msg: "Invalid boost payment recipient token account",
     },
     {
-      code: 6033,
+      code: 6032,
       name: "InvalidPaymentManager",
       msg: "Invalid payment manager",
+    },
+    {
+      code: 6033,
+      name: "CannotBoostFungibleToken",
+      msg: "Cannot boost a fungible token stake entry",
     },
   ],
 };
