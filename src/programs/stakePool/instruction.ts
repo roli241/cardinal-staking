@@ -1,4 +1,5 @@
 import { findAta } from "@cardinal/common";
+import { PAYMENT_MANAGER_ADDRESS } from "@cardinal/token-manager/dist/cjs/programs/paymentManager";
 import {
   CRANK_KEY,
   getRemainingAccountsForKind,
@@ -11,8 +12,7 @@ import {
   findTokenManagerAddress,
 } from "@cardinal/token-manager/dist/cjs/programs/tokenManager/pda";
 import { MetadataProgram } from "@metaplex-foundation/mpl-token-metadata";
-import type { BN } from "@project-serum/anchor";
-import { AnchorProvider, Program } from "@project-serum/anchor";
+import { AnchorProvider, BN, Program } from "@project-serum/anchor";
 import type { Wallet } from "@saberhq/solana-contrib";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -28,8 +28,8 @@ import { SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 
 import type { STAKE_POOL_PROGRAM } from ".";
 import { STAKE_POOL_ADDRESS, STAKE_POOL_IDL } from ".";
-import { ReceiptType } from "./constants";
-import { findStakeAuthorizationId } from "./pda";
+import { ReceiptType, STAKE_BOOSTER_PAYMENT_MANAGER } from "./constants";
+import { findStakeAuthorizationId, findStakeBoosterId } from "./pda";
 import { remainingAccountsForInitStakeEntry } from "./utils";
 
 export const initPoolIdentifier = (
@@ -563,6 +563,167 @@ export const reassignStakeEntry = (
         stakePool: params.stakePoolId,
         stakeEntry: params.stakeEntryId,
         lastStaker: provider.wallet.publicKey,
+      },
+    }
+  );
+};
+
+export const initStakeBooster = async (
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: PublicKey;
+    stakeBoosterIdentifier?: BN;
+    paymentAmount: BN;
+    paymentMint: PublicKey;
+    boostSeconds: BN;
+    startTimeSeconds: number;
+    payer?: PublicKey;
+  }
+) => {
+  const stakeBoosterIdentifier = params.stakeBoosterIdentifier ?? new BN(0);
+  const provider = new AnchorProvider(connection, wallet, {});
+  const stakePoolProgram = new Program<STAKE_POOL_PROGRAM>(
+    STAKE_POOL_IDL,
+    STAKE_POOL_ADDRESS,
+    provider
+  );
+
+  const [stakeBoosterId] = await findStakeBoosterId(
+    params.stakePoolId,
+    params.stakeBoosterIdentifier
+  );
+  return stakePoolProgram.instruction.initStakeBooster(
+    {
+      stakePool: params.stakePoolId,
+      identifier: stakeBoosterIdentifier,
+      paymentAmount: params.paymentAmount,
+      paymentMint: params.paymentMint,
+      paymentManager: STAKE_BOOSTER_PAYMENT_MANAGER,
+      boostSeconds: params.boostSeconds,
+      startTimeSeconds: new BN(params.startTimeSeconds),
+    },
+    {
+      accounts: {
+        stakePool: params.stakePoolId,
+        stakeBooster: stakeBoosterId,
+        authority: provider.wallet.publicKey,
+        payer: params.payer ?? wallet.publicKey,
+        systemProgram: SystemProgram.programId,
+      },
+    }
+  );
+};
+
+export const updateStakeBooster = async (
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: PublicKey;
+    stakeBoosterIdentifier?: BN;
+    paymentAmount: BN;
+    paymentMint: PublicKey;
+    boostSeconds: BN;
+    startTimeSeconds: number;
+  }
+) => {
+  const provider = new AnchorProvider(connection, wallet, {});
+  const stakePoolProgram = new Program<STAKE_POOL_PROGRAM>(
+    STAKE_POOL_IDL,
+    STAKE_POOL_ADDRESS,
+    provider
+  );
+  const [stakeBoosterId] = await findStakeBoosterId(
+    params.stakePoolId,
+    params.stakeBoosterIdentifier
+  );
+  return stakePoolProgram.instruction.updateStakeBooster(
+    {
+      paymentAmount: params.paymentAmount,
+      paymentMint: params.paymentMint,
+      boostSeconds: params.boostSeconds,
+      paymentManager: STAKE_BOOSTER_PAYMENT_MANAGER,
+      startTimeSeconds: new BN(params.startTimeSeconds),
+    },
+    {
+      accounts: {
+        stakePool: params.stakePoolId,
+        stakeBooster: stakeBoosterId,
+        authority: provider.wallet.publicKey,
+      },
+    }
+  );
+};
+
+export const closeStakeBooster = async (
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: PublicKey;
+    stakeBoosterIdentifier?: BN;
+  }
+) => {
+  const provider = new AnchorProvider(connection, wallet, {});
+  const stakePoolProgram = new Program<STAKE_POOL_PROGRAM>(
+    STAKE_POOL_IDL,
+    STAKE_POOL_ADDRESS,
+    provider
+  );
+  const [stakeBoosterId] = await findStakeBoosterId(
+    params.stakePoolId,
+    params.stakeBoosterIdentifier
+  );
+  return stakePoolProgram.instruction.closeStakeBooster({
+    accounts: {
+      stakePool: params.stakePoolId,
+      stakeBooster: stakeBoosterId,
+      authority: provider.wallet.publicKey,
+    },
+  });
+};
+
+export const boostStakeEntry = async (
+  connection: Connection,
+  wallet: Wallet,
+  params: {
+    stakePoolId: PublicKey;
+    stakeBoosterIdentifier?: BN;
+    stakeEntryId: PublicKey;
+    originalMintId: PublicKey;
+    payerTokenAccount: PublicKey;
+    paymentRecipientTokenAccount: PublicKey;
+    feeCollectorTokenAccount: PublicKey;
+    paymentManager: PublicKey;
+    payer?: PublicKey;
+    secondsToBoost: BN;
+  }
+) => {
+  const provider = new AnchorProvider(connection, wallet, {});
+  const stakePoolProgram = new Program<STAKE_POOL_PROGRAM>(
+    STAKE_POOL_IDL,
+    STAKE_POOL_ADDRESS,
+    provider
+  );
+  const [stakeBoosterId] = await findStakeBoosterId(
+    params.stakePoolId,
+    params.stakeBoosterIdentifier
+  );
+  return stakePoolProgram.instruction.boostStakeEntry(
+    { secondsToBoost: params.secondsToBoost },
+    {
+      accounts: {
+        stakePool: params.stakePoolId,
+        stakeBooster: stakeBoosterId,
+        stakeEntry: params.stakeEntryId,
+        originalMint: params.originalMintId,
+        payerTokenAccount: params.payerTokenAccount,
+        paymentRecipientTokenAccount: params.paymentRecipientTokenAccount,
+        payer: params.payer ?? wallet.publicKey,
+        feeCollectorTokenAccount: params.feeCollectorTokenAccount,
+        paymentManager: params.paymentManager,
+        cardinalPaymentManager: PAYMENT_MANAGER_ADDRESS,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: SystemProgram.programId,
       },
     }
   );

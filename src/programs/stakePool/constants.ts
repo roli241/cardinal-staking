@@ -15,6 +15,8 @@ export const IDENTIFIER_SEED = "identifier";
 
 export const STAKE_AUTHORIZATION_SEED = "stake-authorization";
 
+export const STAKE_BOOSTER_SEED = "stake-booster";
+
 export const AUTHORITY_OFFSET = 25;
 export const STAKER_OFFSET = 82;
 export const POOL_OFFSET = 9;
@@ -30,6 +32,12 @@ export type StakePoolData = Accounts["stakePool"];
 export type StakeEntryData = Accounts["stakeEntry"];
 export type IdentifierData = Accounts["identifier"];
 export type StakeAuthorizationData = Accounts["stakeAuthorizationRecord"];
+export type StakeBoosterData = Accounts["stakeBooster"];
+
+export const STAKE_BOOSTER_PAYMENT_MANAGER_NAME = "cardinal-stake-booster";
+export const STAKE_BOOSTER_PAYMENT_MANAGER = new PublicKey(
+  "CuEDMUqgkGTVcAaqEDHuVR848XN38MPsD11JrkxcGD6a" // cardinal-stake-booster
+);
 
 export enum ReceiptType {
   // Receive the original mint wrapped in a token manager

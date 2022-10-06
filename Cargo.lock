@@ -412,9 +412,9 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "cardinal-payment-manager"
-version = "1.5.20"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "740b27813e4d0efbdc986de80e205451b64c4e408ac30d5a9ce12cdb43c94fc5"
+checksum = "b921e2462b9e4ae4363906c66e93d311205fc4874549ddfb91d8cc81bcea8cd8"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
@@ -455,6 +455,7 @@ version = "1.10.2"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
+ "cardinal-payment-manager",
  "cardinal-token-manager",
  "mpl-token-metadata",
  "proptest",
@@ -464,9 +465,9 @@ dependencies = [
 
 [[package]]
 name = "cardinal-token-manager"
-version = "1.5.20"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5c282406caf652b3b3a15ab44a21a7794e155eb0e40c5c9ec92c77c77307899"
+checksum = "3c1911f7b94fc7625d60f0821097d5bdc07d405d6e4f0e8c8ed45b35d3a319a7"
 dependencies = [
  "anchor-lang",
  "anchor-spl",

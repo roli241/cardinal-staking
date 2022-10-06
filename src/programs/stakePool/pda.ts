@@ -1,9 +1,12 @@
-import type { BN } from "@project-serum/anchor";
-import { utils } from "@project-serum/anchor";
+import { BN, utils } from "@project-serum/anchor";
 import * as web3 from "@solana/web3.js";
 
 import { STAKE_ENTRY_SEED, STAKE_POOL_ADDRESS, STAKE_POOL_SEED } from ".";
-import { IDENTIFIER_SEED, STAKE_AUTHORIZATION_SEED } from "./constants";
+import {
+  IDENTIFIER_SEED,
+  STAKE_AUTHORIZATION_SEED,
+  STAKE_BOOSTER_SEED,
+} from "./constants";
 
 /**
  * Finds the stake pool id.
@@ -66,6 +69,24 @@ export const findStakeAuthorizationId = async (
       utils.bytes.utf8.encode(STAKE_AUTHORIZATION_SEED),
       stakePoolId.toBuffer(),
       mintId.toBuffer(),
+    ],
+    STAKE_POOL_ADDRESS
+  );
+};
+
+/**
+ * Find stake booster id.
+ * @returns
+ */
+export const findStakeBoosterId = async (
+  stakePoolId: web3.PublicKey,
+  identifier?: BN
+): Promise<[web3.PublicKey, number]> => {
+  return web3.PublicKey.findProgramAddress(
+    [
+      utils.bytes.utf8.encode(STAKE_BOOSTER_SEED),
+      stakePoolId.toBuffer(),
+      (identifier ?? new BN(0)).toArrayLike(Buffer, "le", 8),
     ],
     STAKE_POOL_ADDRESS
   );

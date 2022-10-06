@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use std::str::FromStr;
 
 pub const STAKE_ENTRY_PREFIX: &str = "stake-entry";
 pub const STAKE_ENTRY_SIZE: usize = 8 + std::mem::size_of::<StakeEntry>() + 8;
@@ -17,7 +18,7 @@ pub const STAKE_AUTHORIZATION_SIZE: usize = 8 + std::mem::size_of::<StakeAuthori
 #[repr(u8)]
 pub enum StakeEntryKind {
     Permissionless = 0, // original
-    Permissioned = 1,   // someone else called update_total_stake_seconds was called indicating claim_reward must check signer so this is a permissioned claim_rewards
+    Permissioned = 1,   // someone else called update_total_stake_seconds indicating claim_reward must check signer so this is a permissioned claim_rewards
 }
 
 #[account]
@@ -51,6 +52,26 @@ pub struct StakePool {
     pub cooldown_seconds: Option<u32>,
     pub min_stake_seconds: Option<u32>,
     pub end_date: Option<i64>,
+}
+
+pub fn assert_stake_boost_payment_manager(pubkey: &Pubkey) -> bool {
+    pubkey.to_string() == Pubkey::from_str("CuEDMUqgkGTVcAaqEDHuVR848XN38MPsD11JrkxcGD6a").unwrap().to_string()
+}
+
+pub const STAKE_BOOSTER_PREFIX: &str = "stake-booster";
+pub const STAKE_BOOSTER_SIZE: usize = 8 + std::mem::size_of::<StakeBooster>() + 64;
+
+#[account]
+pub struct StakeBooster {
+    pub bump: u8,
+    pub stake_pool: Pubkey,
+    pub identifier: u64,
+    pub payment_amount: u64,
+    pub payment_mint: Pubkey,
+    pub payment_manager: Pubkey,
+    pub payment_recipient: Pubkey,
+    pub boost_seconds: u128,
+    pub start_time_seconds: i64,
 }
 
 #[account]

@@ -31,3 +31,10 @@ pub use stake_pool_fill_zeros::*;
 pub use unstake::*;
 pub use update_pool::*;
 pub use update_total_stake_seconds::*;
+
+// stake_booster
+pub mod stake_booster;
+pub use stake_booster::boost_stake_entry::*;
+pub use stake_booster::close_stake_booster::*;
+pub use stake_booster::init_stake_booster::*;
+pub use stake_booster::update_stake_booster::*;
