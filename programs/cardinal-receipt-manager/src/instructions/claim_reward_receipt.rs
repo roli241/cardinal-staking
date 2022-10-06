@@ -9,7 +9,7 @@ use {
 
 #[derive(Accounts)]
 pub struct CreateRewardReceiptCtx<'info> {
-    #[account(mut, seeds = [REWARD_RECEIPT_SEED.as_bytes(), receipt_manager.key().as_ref(), receipt_entry.key().as_ref()], bump=reward_receipt.bump)]
+    #[account(mut, constraint = reward_receipt.receipt_manager == receipt_manager.key() && reward_receipt.receipt_entry == receipt_entry.key() @ ErrorCode::InvalidRewardReceipt)]
     reward_receipt: Box<Account<'info, RewardReceipt>>,
     #[account(mut)]
     receipt_manager: Box<Account<'info, ReceiptManager>>,
