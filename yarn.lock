@@ -9,10 +9,17 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@cardinal/common@^2.0.11":
-  version "2.0.11"
-  resolved "https://registry.yarnpkg.com/@cardinal/common/-/common-2.0.11.tgz#deffdb250ab3ece574b1f1df30853798536e38ff"
-  integrity sha512-3PVRTJTSpdkDkTW2fXpTJZ9HQnI+wKj/dvzRv8DXB4qpGV6BruK99OvQYI7HRTF3nOYT8iJuYljtI1EVv271/g==
+"@babel/runtime@^7.17.8":
+  version "7.19.4"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.19.4.tgz#a42f814502ee467d55b38dd1c256f53a7b885c78"
+  integrity sha512-EXpLCrk55f+cYqmHsSR+yD/0gAIMxxA9QK9lnQWzhMCvt+YmoBN7Zx94s++Kv0+unHk39vxNO8t+CMA2WSS3wA==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
+"@cardinal/common@^2.0.12":
+  version "2.0.14"
+  resolved "https://registry.yarnpkg.com/@cardinal/common/-/common-2.0.14.tgz#bdbe2f923df048f37ce80de39216d838dc24c1e6"
+  integrity sha512-/mZPDrD41JFPl83Potv9b3HklYIKF4ZpFHZV7pFZRXAZc+QDBbjvNDdx5EVW8gFYkfHkfH8M62LbBK8ZDtbm0g==
   dependencies:
     "@metaplex-foundation/mpl-token-metadata" "^1.2.5"
     "@project-serum/anchor" "^0.24.2"
@@ -22,16 +29,34 @@
     "@solana/buffer-layout" "^4.0.0"
     "@solana/spl-token" "^0.1.8"
     "@ubeswap/token-math" "^4.4.4"
+    bignumber.js "^9.1.0"
+    bn.js "^5.2.1"
+    polished "^4.2.2"
     tiny-invariant "^1.2.0"
     tslib "^2.3.1"
 
-"@cardinal/token-manager@^1.5.13":
-  version "1.5.13"
-  resolved "https://registry.yarnpkg.com/@cardinal/token-manager/-/token-manager-1.5.13.tgz#1c9190e7301504cfd99ae887446c7e5494ca2919"
-  integrity sha512-W0u74QSqB8owXG+JQqnvyxZZszsCHaEdWzjcQCyR7yGxaLd3rZgie5w/L/F13oF5r6d2jQEk2F7leV5NWiIeFg==
+"@cardinal/common@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@cardinal/common/-/common-3.0.1.tgz#7e5c00d6493a1457f487eb7dfc09b8a8894fa7ed"
+  integrity sha512-ldJbG9WYTA+fwwu/AkiW0iqTV7Z5h0VycSStcXpikPbqRtZMDWZOz0br2QZWMJCnzec6UWWYqIOae4hEh+2ADQ==
   dependencies:
+    "@project-serum/anchor" "^0.24.2"
+    "@solana/buffer-layout" "^4.0.0"
+    "@solana/spl-token" "^0.3.5"
+    bignumber.js "^9.1.0"
+    bn.js "^5.2.1"
+    polished "^4.2.2"
+    tslib "^2.4.0"
+
+"@cardinal/token-manager@^1.6.3":
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/@cardinal/token-manager/-/token-manager-1.6.3.tgz#ead9823be91dd2caab8985e9ef79a540cc8dd5e9"
+  integrity sha512-7bPYYpXZX+/41AqFwto5SlOQ1p+Q9TYFr6tRFZQ82kBxToHQJwrkIK0ieeIgr/G7+4zDMZeh8VPHOZB+t+wnqg==
+  dependencies:
+    "@cardinal/common" "^2.0.12"
     "@metaplex-foundation/mpl-token-metadata" "^1.2.5"
     "@solana/buffer-layout" "^4.0.0"
+    "@solana/buffer-layout-utils" "^0.2.0"
     "@solana/spl-token" "^0.1.8"
     borsh "^0.7.0"
     bs58 "^4.0.1"
@@ -206,11 +231,22 @@
     buffer-layout "^1.2.0"
 
 "@rushstack/eslint-patch@^1.1.0":
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.4.tgz#0c8b74c50f29ee44f423f7416829c0bf8bb5eb27"
-  integrity sha512-LwzQKA4vzIct1zNZzBmRKI9QuNpLgTQMEjsQLf3BXuGYb3QPTP4Yjf6mkdX+X1mYttZ808QpOwAzZjv28kq7DA==
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.2.0.tgz#8be36a1f66f3265389e90b5f9c9962146758f728"
+  integrity sha512-sXo/qW2/pAcmT43VoRKOJbDOfV3cYpq3szSVfIThQXNt+E4DfKj361vaAt3c88U5tPUxzEswam7GW48PJqtKAg==
 
-"@saberhq/anchor-contrib@^1.12.44", "@saberhq/anchor-contrib@^1.14.1", "@saberhq/anchor-contrib@^1.14.4":
+"@saberhq/anchor-contrib@^1.14.1":
+  version "1.14.9"
+  resolved "https://registry.yarnpkg.com/@saberhq/anchor-contrib/-/anchor-contrib-1.14.9.tgz#1474657282c1ad3e1f83f598e2740464a7e3e169"
+  integrity sha512-MbjENmcttA+yLZEGmOFU9CJDRbaWrWF/Ff6xrlrma7RJmXYPZY1n5fpt8Aj//eghebxxIx3U5mK46636c5KEEg==
+  dependencies:
+    "@saberhq/solana-contrib" "^1.14.9"
+    eventemitter3 "^4.0.7"
+    lodash.camelcase "^4.3.0"
+    lodash.mapvalues "^4.6.0"
+    tslib "^2.4.0"
+
+"@saberhq/anchor-contrib@^1.14.4":
   version "1.14.4"
   resolved "https://registry.yarnpkg.com/@saberhq/anchor-contrib/-/anchor-contrib-1.14.4.tgz#29e61eda5eeaf408968a22fba703479633611bdc"
   integrity sha512-dhagoDk0FMhCGzpEbz4nxTPdmRjJ4Nvj6bs4iVKAqaxAVmU62eFQGZuH1z0KzjxCYfpqTjdvay0ffAG0Z11ahA==
@@ -260,7 +296,28 @@
   dependencies:
     tslib "^2.4.0"
 
-"@saberhq/solana-contrib@^1.12.44", "@saberhq/solana-contrib@^1.14.1", "@saberhq/solana-contrib@^1.14.4":
+"@saberhq/option-utils@^1.14.9":
+  version "1.14.9"
+  resolved "https://registry.yarnpkg.com/@saberhq/option-utils/-/option-utils-1.14.9.tgz#cf06a353589742419a3284478d6e640c7827bf46"
+  integrity sha512-8XnV27PaeVZJO7CoZqjSetIczl8qN1Q/3LGdMidftqo733pXaGF6QACeXAF4Z5h6k9dKTYdoqdErNew3Ah23GA==
+  dependencies:
+    tslib "^2.4.0"
+
+"@saberhq/solana-contrib@^1.14.1", "@saberhq/solana-contrib@^1.14.9":
+  version "1.14.9"
+  resolved "https://registry.yarnpkg.com/@saberhq/solana-contrib/-/solana-contrib-1.14.9.tgz#ec82b69460035df995ab163f643de61c3b7bcc17"
+  integrity sha512-e09v3c62cZ2I7hcS7x4q1am4wd4v0VfiIEBZxWBpvTVCKmdbdpUWUKyecI88VHbyO9exBLGq1yxJZZsz0OPyUA==
+  dependencies:
+    "@saberhq/option-utils" "^1.14.9"
+    "@solana/buffer-layout" "^4.0.0"
+    "@types/promise-retry" "^1.1.3"
+    "@types/retry" "^0.12.2"
+    promise-retry "^2.0.1"
+    retry "^0.13.1"
+    tiny-invariant "^1.3.1"
+    tslib "^2.4.0"
+
+"@saberhq/solana-contrib@^1.14.4":
   version "1.14.4"
   resolved "https://registry.yarnpkg.com/@saberhq/solana-contrib/-/solana-contrib-1.14.4.tgz#d062cd0817e60ae190e81d08e2e026c183c15ecd"
   integrity sha512-mV7nGecTaVB4opsC5fZT3fRcQHBQ7OyUYGCCHge6Q65rOTfajvVusm+LA2joalWUuYpxZuNH3rQZCY8WRNSpTQ==
@@ -274,7 +331,19 @@
     tiny-invariant "^1.2.0"
     tslib "^2.4.0"
 
-"@saberhq/token-utils@^1.12.44", "@saberhq/token-utils@^1.14.1", "@saberhq/token-utils@^1.14.4":
+"@saberhq/token-utils@^1.14.1":
+  version "1.14.9"
+  resolved "https://registry.yarnpkg.com/@saberhq/token-utils/-/token-utils-1.14.9.tgz#265cb24134c504b04d247b3b8b84b74b6eb8cd52"
+  integrity sha512-iIcWQYFV2UBQtfQJIsnq38eW04hSgQiJDpshyT7Z69k6FZlAaNC5yvQQnCI1k4K/z7IZpu5W8Pq8XD665UG+AA==
+  dependencies:
+    "@saberhq/solana-contrib" "^1.14.9"
+    "@solana/buffer-layout" "^4.0.0"
+    "@solana/spl-token" "^0.1.8"
+    "@ubeswap/token-math" "^5.2.1"
+    tiny-invariant "^1.3.1"
+    tslib "^2.4.0"
+
+"@saberhq/token-utils@^1.14.4":
   version "1.14.4"
   resolved "https://registry.yarnpkg.com/@saberhq/token-utils/-/token-utils-1.14.4.tgz#8d812e72755e3fc8d398ace6a9b69a84b885eaac"
   integrity sha512-+GJjiwVnAkdXucLLZae/aw4ruY1nRZ8lgEKctU0l1ikpYpRPdDRmk7WtbsJBeM5HDRdkx9qVlLwb6aDMshygTA==
@@ -290,6 +359,16 @@
   version "1.13.32"
   resolved "https://registry.yarnpkg.com/@saberhq/tsconfig/-/tsconfig-1.13.32.tgz#741b37a18a52b0a29b3f4ac3d53f996b32e72a25"
   integrity sha512-elb4nngzWjhPZ0SioGLf5Xs4AkMyyz6CycIyhmvdCUwPSKdn72Rb3yhRwtRdr6YIJFdHU6hkTYPaw2/6O9r4mw==
+
+"@solana/buffer-layout-utils@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@solana/buffer-layout-utils/-/buffer-layout-utils-0.2.0.tgz#b45a6cab3293a2eb7597cceb474f229889d875ca"
+  integrity sha512-szG4sxgJGktbuZYDg2FfNmkMi0DYQoVjN2h7ta1W1hPrwzarcFLBq9UpX1UjNXsNpT9dn+chgprtWGioUAr4/g==
+  dependencies:
+    "@solana/buffer-layout" "^4.0.0"
+    "@solana/web3.js" "^1.32.0"
+    bigint-buffer "^1.1.5"
+    bignumber.js "^9.0.1"
 
 "@solana/buffer-layout@^4.0.0":
   version "4.0.0"
@@ -310,6 +389,15 @@
     buffer-layout "^1.2.0"
     dotenv "10.0.0"
 
+"@solana/spl-token@^0.3.5":
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/@solana/spl-token/-/spl-token-0.3.5.tgz#cabf9f92d755589420b46e457b9b10a879e755aa"
+  integrity sha512-0bGC6n415lGjKu02gkLOIpP1wzndSP0SHwN9PefJ+wKAhmfU1rl3AV1Pa41uap2kzSCD6F9642ngNO8KXPvh/g==
+  dependencies:
+    "@solana/buffer-layout" "^4.0.0"
+    "@solana/buffer-layout-utils" "^0.2.0"
+    buffer "^6.0.3"
+
 "@solana/web3.js@^1.21.0", "@solana/web3.js@^1.31.0", "@solana/web3.js@^1.34.0", "@solana/web3.js@^1.36.0":
   version "1.56.2"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.56.2.tgz#5212e8b147ebc216ea5a7aa99d5b555ebe41f9bd"
@@ -328,6 +416,27 @@
     fast-stable-stringify "^1.0.0"
     jayson "^3.4.4"
     js-sha3 "^0.8.0"
+    node-fetch "2"
+    rpc-websockets "^7.5.0"
+    superstruct "^0.14.2"
+
+"@solana/web3.js@^1.32.0":
+  version "1.64.0"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.64.0.tgz#b7f5a976976039a0161242e94d6e1224ab5d30f9"
+  integrity sha512-AcFaoy48GxSmzBryVwB88C/UPJd/UQa+nFrO/uPc8ww6RCjanZY2vEZxdfTZub+q1NMUckwXpPwF32jJLe7SPA==
+  dependencies:
+    "@babel/runtime" "^7.12.5"
+    "@noble/ed25519" "^1.7.0"
+    "@noble/hashes" "^1.1.2"
+    "@noble/secp256k1" "^1.6.3"
+    "@solana/buffer-layout" "^4.0.0"
+    bigint-buffer "^1.1.5"
+    bn.js "^5.0.0"
+    borsh "^0.7.0"
+    bs58 "^4.0.1"
+    buffer "6.0.1"
+    fast-stable-stringify "^1.0.0"
+    jayson "^3.4.4"
     node-fetch "2"
     rpc-websockets "^7.5.0"
     superstruct "^0.14.2"
@@ -356,6 +465,11 @@
   version "6.1.5"
   resolved "https://registry.yarnpkg.com/@types/big.js/-/big.js-6.1.5.tgz#ff06b43a4c0c4002522e0fd7fc28bb963722ab01"
   integrity sha512-UiWyJ6TLWoHeHZ8VUyngzCOwJDVxTsPnqfAMR/85X93rkRk5A4T2U42BCx0wCmZdtMHGHN/utJ8ft5xWu0V1bA==
+
+"@types/big.js@^6.1.6":
+  version "6.1.6"
+  resolved "https://registry.yarnpkg.com/@types/big.js/-/big.js-6.1.6.tgz#3d417e758483d55345a03a087f7e0c87137ca444"
+  integrity sha512-0r9J+Zz9rYm2hOTwiMAVkm3XFQ4u5uTK37xrQMhc9bysn/sf/okzovWMYYIBMFTn/yrEZ11pusgLEaoarTlQbA==
 
 "@types/bn.js@^5.1.0":
   version "5.1.1"
@@ -555,6 +669,17 @@
     tiny-invariant "^1.2.0"
     tslib "^2.4.0"
 
+"@ubeswap/token-math@^5.2.1":
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/@ubeswap/token-math/-/token-math-5.2.1.tgz#66e70ba8d65b5fdb1b7459332fbdad4ddec32a64"
+  integrity sha512-wkIKDKIl6rml4CVK3fvjjLVk55Z8qEYTgjxZx7MnrTwECazyhiDuekb9WAaDPXcW5QNffCu8uv4Ba8wE96CJsg==
+  dependencies:
+    "@types/big.js" "^6.1.6"
+    big.js "^6.2.1"
+    decimal.js-light "^2.5.1"
+    tiny-invariant "^1.2.0"
+    tslib "^2.4.0"
+
 "@ungap/promise-all-settled@1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
@@ -723,6 +848,11 @@ bigint-buffer@^1.1.5:
   dependencies:
     bindings "^1.3.0"
 
+bignumber.js@^9.0.1, bignumber.js@^9.1.0:
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.1.0.tgz#8d340146107fe3a6cb8d40699643c302e8773b62"
+  integrity sha512-4LwHK4nfDOraBCtst+wOWIHbu1vhvAPJK8g8nROd4iuc3PSEjWif/qwbkh8jwCJz6yDBvtU4KPynETgrfh7y3A==
+
 binary-extensions@^2.0.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.2.0.tgz#75f502eeaf9ffde42fc98829645be4ea76bd9e2d"
@@ -735,7 +865,7 @@ bindings@^1.3.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
-bn.js@^5.0.0, bn.js@^5.1.0, bn.js@^5.1.2, bn.js@^5.2.0:
+bn.js@^5.0.0, bn.js@^5.1.0, bn.js@^5.1.2, bn.js@^5.2.0, bn.js@^5.2.1:
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.2.1.tgz#0bc527a6a0d18d0aa8d5b0538ce4a77dccfa7b70"
   integrity sha512-eXRvHzWyYPBuB4NBy0cmYQjGitUrtqwbvlzP3G6VFnNRbsZQIxQ10PbKKHt8gZ/HW/D/747aDl+QkDqg3KQLMQ==
@@ -796,7 +926,7 @@ buffer@6.0.1:
     base64-js "^1.3.1"
     ieee754 "^1.2.1"
 
-buffer@6.0.3, buffer@~6.0.3:
+buffer@6.0.3, buffer@^6.0.3, buffer@~6.0.3:
   version "6.0.3"
   resolved "https://registry.yarnpkg.com/buffer/-/buffer-6.0.3.tgz#2ace578459cc8fbe2a70aaa8f52ee63b6a74c6c6"
   integrity sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==
@@ -2392,6 +2522,13 @@ pidtree@^0.5.0:
   resolved "https://registry.yarnpkg.com/pidtree/-/pidtree-0.5.0.tgz#ad5fbc1de78b8a5f99d6fbdd4f6e4eee21d1aca1"
   integrity sha512-9nxspIM7OpZuhBxPg73Zvyq7j1QMPMPsGKTqRc2XOaFQauDvoNz9fM1Wdkjmeo7l9GXOZiRs97sPkuayl39wjA==
 
+polished@^4.2.2:
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/polished/-/polished-4.2.2.tgz#2529bb7c3198945373c52e34618c8fe7b1aa84d1"
+  integrity sha512-Sz2Lkdxz6F2Pgnpi9U5Ng/WdWAUZxmHrNPoVlm3aAemxoy2Qy7LGjQg4uf8qKelDAUW94F4np3iH2YPf2qefcQ==
+  dependencies:
+    "@babel/runtime" "^7.17.8"
+
 prelude-ls@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
@@ -2757,6 +2894,11 @@ tiny-invariant@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/tiny-invariant/-/tiny-invariant-1.2.0.tgz#a1141f86b672a9148c72e978a19a73b9b94a15a9"
   integrity sha512-1Uhn/aqw5C6RI4KejVeTg6mIS7IqxnLJ8Mv2tV5rTc0qWobay7pDUz6Wi392Cnc8ak1H0F2cjoRzb2/AW4+Fvg==
+
+tiny-invariant@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/tiny-invariant/-/tiny-invariant-1.3.1.tgz#8560808c916ef02ecfd55e66090df23a4b7aa642"
+  integrity sha512-AD5ih2NlSssTCwsMznbvwMZpJ1cbhkGd2uueNxzv2jDlEeZdU04JQfRnggJQ8DrcVBGjAsCKwFBbDlVNtEMlzw==
 
 to-regex-range@^5.0.1:
   version "5.0.1"

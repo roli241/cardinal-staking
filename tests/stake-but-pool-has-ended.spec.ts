@@ -4,7 +4,6 @@ import {
   SolanaProvider,
   TransactionEnvelope,
 } from "@saberhq/solana-contrib";
-import { sleep } from "@saberhq/token-utils";
 import type * as splToken from "@solana/spl-token";
 import type { PublicKey, Transaction } from "@solana/web3.js";
 import { Keypair } from "@solana/web3.js";
@@ -71,7 +70,7 @@ describe("Create stake pool", () => {
 
   it("Stake", async () => {
     const provider = getProvider();
-    await sleep(5000);
+    await new Promise((r) => setTimeout(r, 5000));
 
     await expectTXTable(
       new TransactionEnvelope(SolanaProvider.init(provider), [
