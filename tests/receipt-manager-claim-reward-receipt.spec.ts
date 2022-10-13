@@ -127,6 +127,7 @@ describe("Receipt manager claim reward receipt", () => {
         feeCollector: feeCollector.publicKey,
         makerFeeBasisPoints: MAKER_FEE,
         takerFeeBasisPoints: TAKER_FEE,
+        includeSellerFeeBasisPoints: false,
       }
     );
 

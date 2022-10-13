@@ -95,6 +95,7 @@ describe("Stake booster boost", () => {
                 feeCollector: feeCollector.publicKey,
                 makerFeeBasisPoints: 500,
                 takerFeeBasisPoints: 0,
+                includeSellerFeeBasisPoints: false,
               }
             )
           )[0],

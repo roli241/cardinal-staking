@@ -122,6 +122,7 @@ describe("Create update close receipt manager", () => {
         feeCollector: feeCollector.publicKey,
         makerFeeBasisPoints: MAKER_FEE,
         takerFeeBasisPoints: TAKER_FEE,
+        includeSellerFeeBasisPoints: false,
       }
     );
 
