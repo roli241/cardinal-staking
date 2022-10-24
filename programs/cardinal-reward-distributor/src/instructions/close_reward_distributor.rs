@@ -37,7 +37,7 @@ pub fn handler<'key, 'accounts, 'remaining, 'info>(ctx: Context<'key, 'accounts,
             };
             let cpi_program = ctx.accounts.token_program.to_account_info();
             let cpi_context = CpiContext::new(cpi_program, cpi_accounts).with_signer(reward_distributor_signer);
-            token::set_authority(cpi_context, AuthorityType::MintTokens, Some(ctx.accounts.reward_mint.key()))?;
+            token::set_authority(cpi_context, AuthorityType::MintTokens, Some(ctx.accounts.signer.key()))?;
         }
         k if k == RewardDistributorKind::Treasury as u8 => {
             let reward_distributor_token_account_info = next_account_info(remaining_accs)?;
