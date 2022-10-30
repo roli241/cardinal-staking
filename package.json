@@ -47,7 +47,7 @@
     "@cardinal/common": "^2.0.11",
     "@cardinal/payment-manager": "^1.7.9",
     "@cardinal/token-manager": "^1.7.9",
-    "@metaplex-foundation/mpl-token-metadata": "^1.2.5",
+    "@metaplex-foundation/mpl-token-metadata": "^2.5.1",
     "node-fetch": "2"
   },
   "devDependencies": {
